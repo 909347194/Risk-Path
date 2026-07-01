@@ -1,0 +1,2 @@
+[permissions]
+allow = ["Edit", "Bash(cd \"E:\\01Reproduction\\Risk-Path\"; python -m unittest methods.spatiotemporal_heterogeneity.tests.test_algorithms_contract 2>&1)"]

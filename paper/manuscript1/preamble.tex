@@ -1,0 +1,64 @@
+% ============================================================================
+% 导言区配置 - preamble.tex
+% 包含宏包导入、自定义命令、格式设置
+% ============================================================================
+
+% --- 基础宏包 ---
+\usepackage[utf8]{inputenc}        % UTF-8 编码支持
+\usepackage[T1]{fontenc}           % 字体编码
+\usepackage{amsmath, amssymb, amsthm}  % 数学公式
+\usepackage{graphicx}              % 图形插入
+\usepackage{booktabs}              % 专业表格
+\usepackage{array}                 % 表格增强
+\usepackage{multirow}              % 多行单元格
+\usepackage{hyperref}              % 超链接
+\usepackage{cleveref}              % 智能引用
+\usepackage{subcaption}            % 子图支持
+\usepackage{algorithm}             % 算法环境
+\usepackage{algpseudocode}         % 算法伪代码
+\usepackage{siunitx}               % 国际单位制
+\usepackage{microtype}             % 排版优化
+
+% --- 中文支持 ---
+\usepackage[UTF8]{ctex}
+
+% --- 颜色支持 ---
+\usepackage{xcolor}
+\definecolor{linkcolor}{RGB}{0, 102, 204}
+\definecolor{citecolor}{RGB}{0, 153, 0}
+
+% --- 超链接配置 ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkcolor,
+    citecolor=citecolor,
+    urlcolor=linkcolor,
+    pdfborder={0 0 0}
+}
+
+% --- 自定义命令 ---
+\newcommand{\etal}{等}
+\newcommand{\ie}{即}
+\newcommand{\eg}{例如}
+\newcommand{\vs}{对比}
+
+% --- 数学符号快捷方式 ---
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+% --- 算法样式 ---
+\algnewcommand\algorithmicinput{\textbf{输入：}}
+\algnewcommand\algorithmicoutput{\textbf{输出：}}
+\algnewcommand\Input{\item[\algorithmicinput]}
+\algnewcommand\Output{\item[\algorithmicoutput]}
+
+% --- 页面布局调整（适配 Elsevier）---
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+% --- 其他自定义设置 ---
+\setlength{\parskip}{0.5em}        % 段落间距
+\setlength{\parindent}{2em}        % 首行缩进
+
+% --- 确保使用数字编号 ---
+\setcounter{secnumdepth}{3}        % 标题编号深度（到 subsubsection）

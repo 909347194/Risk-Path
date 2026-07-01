@@ -1,0 +1,34 @@
+\appendix
+\section{城市 POI 时空潮汐密度生成方法}
+\label{appendix:poi_model}
+
+为了生成具有真实物理与社会意义的城市动态人口和交通密度场，本文构建了一套基于城市 POI 分布的潮汐密度模拟发生器。该模型通过空间引力模型与时域激活函数描述人口在不同功能区间的时空演化。
+
+时空坐标 $(i, t)$ 处的动态密度 $\rho(i, t)$ 计算如下：
+\begin{equation}
+\rho(i, t) = \rho_{base}(i) \times \sum_{k \in K} \left[ W_k \cdot \tau_k(t) \cdot f_{decay}(d_{i,k}) \right]
+\label{eq:appendix_dynamic_density}
+\end{equation}
+
+其中，$\rho_{base}(i)$ 为基础静态人口密度，$W_k$ 为不同类型 POI 的影响权重，$\tau_k(t)$ 为时域激活函数，$f_{decay}(d_{i,k})$ 为空间衰减函数。
+
+空间衰减函数采用高斯核形式：
+\begin{equation}
+f_{decay}(d_{i,k}) = \exp\left(-\frac{d_{i,k}^2}{2\sigma^2}\right)
+\label{eq:appendix_spatial_decay}
+\end{equation}
+
+针对不同功能区（如办公区），时域激活函数 $\tau(t)$ 采用双峰高斯分布模拟通勤潮汐特征：
+\begin{equation}
+\tau_{office}(t) = \alpha_1 \cdot \mathcal{N}(t; \mu_1=8.5, \sigma_1^2) + \alpha_2 \cdot \mathcal{N}(t; \mu_2=18, \sigma_2^2) + \beta \cdot \mathbb{I}_{[9,17]}(t)
+\label{eq:appendix_office_activation}
+\end{equation}
+
+其中，$\mu_1$ 和 $\mu_2$ 分别对应早晚高峰时段，$\mathbb{I}_{[9,17]}(t)$ 为工作时间段的指示函数。
+
+\section{英文摘要}
+Unmanned aerial vehicles (UAVs) are increasingly deployed in urban environments for logistics, inspection, and emergency response. However, UAV operations introduce third-party risks (TPRs) to pedestrians, vehicles, and buildings on the ground, including fatality hazards from crash impacts, property damages to critical infrastructure, and noise disturbances to sensitive communities. Existing risk-aware path planning methods predominantly assume static environments and constant crash probabilities, which fail to capture the spatiotemporal heterogeneity of urban risks arising from dynamic microclimates, building canyon effects, and diurnal population fluctuations.
+
+This paper develops an integrated framework comprising a multi-dimensional TPR assessment model and a time-dependent risk-aware path planning algorithm. The TPR model extends conventional risk indicators by incorporating a proportional hazard formulation that fuses wind, rainfall, and urban canyon factors into a time-varying crash probability; employing a POI-based gravity model with diurnal activation functions to generate spatiotemporal population and vehicle exposure densities; and quantifying loss consequences across fatality, property damage, and noise impact dimensions. To solve the resulting high-dimensional optimization problem, a time-dependent risk-aware A* algorithm (TD-RiskA*) is proposed, which detaches the temporal dimension from the search graph topology and propagates it as a label state along candidate paths, enabling online sampling of dynamic risk tensors at each node expansion. A multi-label dominance pruning mechanism with cumulative hazard rate propagation ensures numerical stability and computational tractability for long-range searches.
+
+Numerical experiments in both synthetic and real urban scenarios demonstrate that the proposed framework significantly reduces fatality risk and noise impacts in core urban areas at minimal detour cost. Compared with static heuristic planning, TD-RiskA* generates spatiotemporally adaptive flight paths that reflect urban diurnal rhythms and configurable multi-objective preferences.

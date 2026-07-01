@@ -1,0 +1,29 @@
+# LaTeX 编译中间文件 - 自动忽略
+build/
+
+# Auxillary files
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.run.xml
+*.bcf
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Editor specific
+.DS_Store
+Thumbs.db
+
+# Optional: PDF output (if using CI/CD)
+# *.pdf

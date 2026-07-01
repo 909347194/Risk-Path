@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-06-26 19:41:19.032077",
+  "seed": 42,
+  "source": "synthetic",
+  "grid_dimensions": {
+    "nx": 60,
+    "ny": 60,
+    "nz": 12,
+    "nt": 96
+  }
+}

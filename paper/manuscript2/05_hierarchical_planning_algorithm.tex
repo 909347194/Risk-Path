@@ -1,0 +1,207 @@
+% ============================================================================
+% 时间依赖风险感知路径规划算法 - 05_hierarchical_planning_algorithm.tex
+% ============================================================================
+
+\section{时间依赖风险感知路径规划算法}
+\label{sec:algorithm}
+
+第~\ref{sec:tpr_models}~节建立了各项动态风险的物理计算模型。结合第~\ref{sec:system_architecture}~节所定义的优化问题与约束条件，本节设计求解该优化问题的搜索算法。核心思路是：不显式展开四维时空图，而是在三维空间搜索过程中，根据路径累计飞行时间在线查询动态风险张量，在保留时空动态性的同时将搜索空间控制在三维规模。
+
+% ============================================================================
+\subsection{算法设计思路}
+\label{subsec:problem_formulation}
+
+第~\ref{sec:system_architecture}~节将路径规划问题形式化为在约束空间 $\Pi_{valid}$ 上求解 $\pi^* = \arg\min J(\pi)$ 的优化问题，其中硬约束包括存活概率阈值（式~\ref{eq:con_survival}）与最大航程（式~\ref{eq:con_battery}）。若直接在四维时空栅格 $\mathcal{G}$ 上展开搜索，节点规模为 $O(N_x N_y N_z N_t)$，在城市尺度下计算量难以承受。
+
+为此，本算法将时间维从图拓扑维度中剥离，转而作为搜索标签的状态分量沿路径传播。搜索图的拓扑始终为三维空间图（26 邻域），时间信息仅在节点扩展时通过物理飞行耗时进行推算，并用于在线采样对应时刻的风险值。这一设计使得搜索复杂度与传统三维 A* 同阶，同时保持了完整的时间依赖风险感知能力。
+
+% ============================================================================
+\subsection{搜索状态与累积危险率}
+\label{subsec:state_definition}
+
+为便于算法描述，本节在沿用第~\ref{sec:system_architecture}~节数学定义的基础上，对部分符号进行简化，对应关系如表~\ref{tab:symbol_mapping}~所示。
+
+\begin{table}[htbp]
+\centering
+\caption{算法章节与建模章节的符号对应}
+\label{tab:symbol_mapping}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{c c c}
+\toprule
+含义 & 第~\ref{sec:system_architecture}~节 & 本节 \\
+\midrule
+存活概率 & $P_{\mathrm{surv}}^{(i)}$ & $\bar{P}_i$ \\
+坠机概率 & $P_{\mathrm{crash}}(\mathbf{p},t)$ & $p_{ij}^{\mathrm{cr}}$ \\
+致死后果 & $E_{\mathrm{fatality}}(\mathbf{p},t)$ & $e_f^{(j)}$ \\
+财产后果 & $E_{\mathrm{property}}(\mathbf{p})$ & $e_p^{(j)}$ \\
+噪声强度 & $R_{\mathrm{noise}}(\mathbf{p},t)$ & $r_n^{(j)}$ \\
+累积致死成本 & $C_{\mathrm{fatality}}^{(i)}$ & $C_{f,i}$ \\
+累积财产成本 & $C_{\mathrm{property}}^{(i)}$ & $C_{p,i}$ \\
+累积噪声成本 & $C_{\mathrm{noise}}^{(i)}$ & $C_{n,i}$ \\
+飞行速度 & $v_{\mathrm{uav}}$ & $v$ \\
+飞行耗时 & $\Delta t_{\mathrm{fly}}^{(i)}$ & $\Delta t_{ij}$ \\
+权重系数 & $w_1, w_2, w_3, w_4$ & $w_f, w_p, w_n, w_d$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+与传统 A* 将搜索节点仅定义为网格位置不同，本算法的每个搜索标签携带完整的物理累积状态。记第 $i$ 个标签为
+
+\begin{equation}
+\ell_i = \bigl(\mathbf{p}_i,\; t_i,\; H_i,\; C_{f,i},\; C_{p,i},\; C_{n,i},\; L_i,\; J_i\bigr)
+\label{eq:label_state}
+\end{equation}
+
+各分量的含义与更新规则如表~\ref{tab:state_variables}~所示。
+
+\begin{table}[htbp]
+\centering
+\caption{搜索标签状态变量定义}
+\label{tab:state_variables}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{c p{5.2cm} c}
+\toprule
+符号 & 含义 & 更新方式 \\
+\midrule
+$\mathbf{p}_i$ & 三维栅格位置 $(x_i,y_i,z_i)$ & 邻域扩展 \\
+$t_i$         & 到达当前节点的绝对时刻          & $t_j = t_i + d_{ij}/v$ \\
+$H_i$         & 累积失效危险率 & $H_j = H_i + h_{ij}$ \\
+$C_{f,i}$     & 累积期望致死风险成本            & $\bar{P}_i \cdot p_{ij}^{\mathrm{cr}} \cdot e_f^{(j)}$ \\
+$C_{p,i}$     & 累积财产损失风险成本            & $\bar{P}_i \cdot p_{ij}^{\mathrm{cr}} \cdot e_p^{(j)}$ \\
+$C_{n,i}$     & 累积噪声社会影响成本            & $\bar{P}_i \cdot r_n^{(j)} \cdot \Delta t_{ij}$ \\
+$L_i$         & 累积飞行路径长度 (m)            & $L_j = L_i + d_{ij}$ \\
+$J_i$         & 归一化综合目标值                & $J_j = J_i + \delta J_{ij}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+其中，累积危险率定义为
+
+\begin{equation}
+H_i \triangleq -\ln \bar{P}_{\mathrm{surv},i}
+\label{eq:cumulative_hazard}
+\end{equation}
+
+$H_i$ 为加法量，在长距离路径搜索中可有效避免概率连乘导致的数值下溢。存活概率约束可等价表示为 $H_i \leq -\ln P_{\mathrm{th}}$。
+
+% ============================================================================
+\subsection{邻域扩展与在线时间采样}
+\label{subsec:expansion_and_risk}
+
+对于当前标签 $\ell_i$，算法在三维空间中按 26 邻域生成候选邻居，并逐一检验硬约束（越界、障碍物、飞行高度、爬升速率、航程与电池续航），不满足者直接丢弃。通过检验的候选 $\mathbf{p}_j$，其飞行耗时与到达时刻为
+
+\begin{equation}
+d_{ij} = \norm{\mathbf{p}_j - \mathbf{p}_i}, \qquad
+\Delta t_{ij} = \frac{d_{ij}}{v}, \qquad
+t_j = t_i + \Delta t_{ij}
+\label{eq:time_advance}
+\end{equation}
+
+由此得到的 $t_j$ 即为在线时间采样的查询时刻。算法据此从第~\ref{sec:tpr_models}~节建立的动态风险张量中提取当前位置的坠机危险率 $\lambda_{\mathrm{cr}}^{(j)}$、致死后果 $e_f^{(j)}$、财产后果 $e_p^{(j)}$ 与噪声强度 $r_n^{(j)}$：
+
+\begin{equation}
+\lambda_{\mathrm{cr}}^{(j)},\;
+e_f^{(j)},\;
+e_p^{(j)},\;
+r_n^{(j)}
+\;\leftarrow\;
+\mathrm{Sample}\bigl(\mathbf{p}_j,\, t_j\bigr)
+\label{eq:online_sampling}
+\end{equation}
+
+若动态张量仅在离散时间片上定义，则以最近邻索引 $t_{\mathrm{idx}} = \lfloor t_j / \Delta t \rfloor$ 进行查询。获得采样值后，按第~\ref{sec:system_architecture}~节定义的状态演化方程（式~\ref{eq:surv_evolution}--\ref{eq:noise_evolution}）计算单步风险增量，并将标签的累积危险率、各风险成本、路径长度和综合目标值逐一更新，得到新标签 $\ell_j$。
+
+% ============================================================================
+\subsection{启发式函数}
+\label{subsec:objective}
+
+第~\ref{sec:system_architecture}~节已定义单步综合代价增量 $\Delta J^{(i)}$ 及其归一化策略。在搜索过程中，每完成一次标签扩展，即按该公式将归一化后的风险增量累加至综合目标值 $J_j = J_i + \Delta J^{(i)}$。场景权重 $w_f, w_p, w_n, w_d$ 可根据应用需求灵活配置，表~\ref{tab:weight_scenarios}~列出了本文考虑的四种典型场景。
+
+\begin{table}[htbp]
+\centering
+\caption{不同应用场景下的权重配置}
+\label{tab:weight_scenarios}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l c c c c}
+\toprule
+场景 & $w_f$ & $w_p$ & $w_n$ & $w_d$ \\
+\midrule
+均衡模式（默认）     & 0.30 & 0.15 & 0.15 & 0.40 \\
+医疗急救模式         & 0.10 & 0.05 & 0.05 & 0.80 \\
+深夜静音模式         & 0.20 & 0.10 & 0.50 & 0.20 \\
+绝对安全优先         & 0.70 & 0.20 & 0.10 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+开放列表按 $f(\ell_j) = J_j + h(\mathbf{p}_j)$ 排序。启发式函数采用距离下界估计：
+
+\begin{equation}
+h(\mathbf{p}_j) = w_d \cdot \frac{\norm{\mathbf{p}_j - \mathbf{p}_g}}{d_{\max}}
+\label{eq:heuristic}
+\end{equation}
+
+其中 $d_{\max}=\sqrt{3}\,\Delta s$ 与第~\ref{sec:system_architecture}~节的定义一致。该启发式仅估计剩余距离对应的综合目标分量，不涉及未来风险预测，因而是可采纳的（admissible）。
+
+% ============================================================================
+\subsection{多标签支配剪枝与算法总览}
+\label{subsec:label_setting}
+
+由于风险增量依赖于到达时刻和累积存活概率，本问题不具备马尔可夫性：同一空间位置 $\mathbf{p}$ 在不同的 $(t, H, J)$ 组合下到达时，可能产生互不支配的帕累托最优标签。因此，算法采用多标签（Label-Setting）机制替代传统 A* 的单节点覆盖（Node-Setting）策略。
+
+具体而言，每个空间位置 $\mathbf{p}$ 维护一个非支配标签集合 $\mathcal{L}(\mathbf{p})$。当新候选标签 $\ell_{\mathrm{cand}}$ 到达 $\mathbf{p}$ 时，执行以下支配检查：
+
+\begin{enumerate}
+\item 若 $\ell_{\mathrm{cand}}$ 被 $\mathcal{L}(\mathbf{p})$ 中任一已有标签支配（即存在 $\ell_{\mathrm{old}}$ 满足 $t_{\mathrm{old}}\leq t_{\mathrm{cand}}$、$H_{\mathrm{old}}\leq H_{\mathrm{cand}}$、$J_{\mathrm{old}}\leq J_{\mathrm{cand}}$ 且至少一个严格不等），则丢弃 $\ell_{\mathrm{cand}}$；
+\item 否则，从 $\mathcal{L}(\mathbf{p})$ 中移除被 $\ell_{\mathrm{cand}}$ 支配的所有旧标签；
+\item 将 $\ell_{\mathrm{cand}}$ 加入 $\mathcal{L}(\mathbf{p})$ 并压入开放列表。
+\end{enumerate}
+
+为控制计算规模，每个位置的标签集合大小设有上限 $M_{\mathrm{label}}$（本文取 $M_{\mathrm{label}}=4$）。综上所述，TD-RiskA* 的完整流程如算法~\ref{alg:td-riska-star}~所示。
+
+\begin{algorithm}[htbp]
+\caption{在线时间采样 TD-RiskA* 路径规划}
+\label{alg:td-riska-star}
+\begin{algorithmic}[1]
+\Input 起点 $\mathbf{p}_s$，终点 $\mathbf{p}_g$，出发时刻 $t_{\mathrm{depart}}$，\\
+\hspace*{1.8em} 动态风险张量 $(\lambda_{\mathrm{cr}},\, e_f,\, e_p,\, r_n,\, \mathcal{O})$，\\
+\hspace*{1.8em} 速度 $v$，约束参数，权重 $\mathbf{w}$
+\Output 风险最小化三维航路 $\Pi$ 及累积风险记录
+
+\State $H_s \leftarrow 0$; \ $C_{f,s},C_{p,s},C_{n,s} \leftarrow 0$; \ $L_s,J_s \leftarrow 0$; \ $t_s \leftarrow t_{\mathrm{depart}}$
+\State $\mathcal{L}(\mathbf{p}_s) \leftarrow \{(t_s, H_s, J_s)\}$; \ $\mathcal{Q} \leftarrow$ 空优先队列（按 $f=J+h$ 排序）
+\State 将标签 $\ell_s$ 压入 $\mathcal{Q}$
+\While{$\mathcal{Q} \neq \emptyset$}
+    \State $\ell_{\mathrm{cur}} \leftarrow \arg\min_{\ell\in\mathcal{Q}} f(\ell)$; \ 从 $\mathcal{Q}$ 弹出
+    \If{$\mathbf{p}_{\mathrm{cur}} = \mathbf{p}_g$}
+        \State \Return 重建路径及累积风险记录
+    \EndIf
+    \For{每个 $\mathbf{p}_{\mathrm{next}} \in \mathcal{N}_{26}(\mathbf{p}_{\mathrm{cur}})$}
+        \If{违反硬约束}
+            \State \textbf{continue}
+        \EndIf
+        \State $d \leftarrow \norm{\mathbf{p}_{\mathrm{next}}-\mathbf{p}_{\mathrm{cur}}}$; \ $\Delta t \leftarrow d/v$; \ $t_{\mathrm{next}} \leftarrow t_{\mathrm{cur}} + \Delta t$
+        \State $\lambda_{\mathrm{cr}}^{(j)}, e_f^{(j)}, e_p^{(j)}, r_n^{(j)} \leftarrow \mathrm{Sample}(\mathbf{p}_{\mathrm{next}}, t_{\mathrm{next}})$
+        \State $h_{\mathrm{step}} \leftarrow \lambda_{\mathrm{cr}}^{(j)} \cdot \Delta t$; \ $p_{\mathrm{cr}} \leftarrow 1 - \exp(-h_{\mathrm{step}})$; \ $\bar{P} \leftarrow \exp(-H_{\mathrm{cur}})$
+        \State $\delta C_f \leftarrow \bar{P}\cdot p_{\mathrm{cr}}\cdot e_f^{(j)}$; \ $\delta C_p \leftarrow \bar{P}\cdot p_{\mathrm{cr}}\cdot e_p^{(j)}$; \ $\delta C_n \leftarrow \bar{P}\cdot r_n^{(j)}\cdot\Delta t$
+        \State $H_{\mathrm{next}} \leftarrow H_{\mathrm{cur}} + h_{\mathrm{step}}$
+        \If{$H_{\mathrm{next}} > -\ln P_{\mathrm{th}}$}
+            \State \textbf{continue} \Comment{存活概率约束}
+        \EndIf
+        \State $L_{\mathrm{next}} \leftarrow L_{\mathrm{cur}} + d$
+        \If{$L_{\mathrm{next}} > L_{\max}$}
+            \State \textbf{continue} \Comment{最大航程约束}
+        \EndIf
+        \State $\delta J \leftarrow w_f\frac{\delta C_f}{\Omega_f} + w_p\frac{\delta C_p}{\Omega_p} + w_n\frac{\delta C_n}{\Omega_n} + w_d\frac{d}{d_{\max}}$
+        \State $J_{\mathrm{next}} \leftarrow J_{\mathrm{cur}} + \delta J$; \ $f_{\mathrm{next}} \leftarrow J_{\mathrm{next}} + w_d\frac{\norm{\mathbf{p}_{\mathrm{next}}-\mathbf{p}_g}}{d_{\max}}$
+        \State 构造候选标签 $\ell_{\mathrm{cand}}$
+        \If{$\ell_{\mathrm{cand}}$ 被 $\mathcal{L}(\mathbf{p}_{\mathrm{next}})$ 中某标签支配}
+            \State \textbf{continue}
+        \EndIf
+        \State 移除被 $\ell_{\mathrm{cand}}$ 支配的标签; \ $\mathcal{L}(\mathbf{p}_{\mathrm{next}}) \leftarrow \mathcal{L}(\mathbf{p}_{\mathrm{next}}) \cup \{\ell_{\mathrm{cand}}\}$
+        \State 将 $\ell_{\mathrm{cand}}$ 压入 $\mathcal{Q}$
+    \EndFor
+\EndWhile
+\State \Return 搜索失败
+\end{algorithmic}
+\end{algorithm}

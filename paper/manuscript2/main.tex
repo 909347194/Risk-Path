@@ -1,0 +1,59 @@
+\documentclass[review, 12pt, a4paper, onecolumn]{elsarticle}
+
+% ============================================================================
+% 导言区配置
+% ============================================================================
+\input{preamble.tex}      % 宏包和自定义命令
+\input{config.tex}        % 元数据配置
+
+% Elsevier 期刊特定配置
+\usepackage{lineno}       % 行号（审稿用）
+\modulolinenumbers[5]     % 每5行显示行号
+
+% ============================================================================
+% 文档主体
+% ============================================================================
+\begin{document}
+
+% --- 前置部分：标题、作者、摘要、关键词 ---
+\begin{frontmatter}
+
+\title{\papertitle}
+
+\author[addr1]{\authorname\corref{cor1}}
+\ead{\authoremail}
+
+\cortext[cor1]{\correspondingnote}
+\address[addr1]{\authoraddress}
+
+\begin{abstract}
+\abstracttext
+\end{abstract}
+
+\begin{keyword}
+\paperkeywords
+\MSC[2020] \msccodes
+\end{keyword}
+
+\end{frontmatter}
+
+% --- 正文章节 ---
+\input{01_introduction.tex}
+\input{02_related_work.tex}
+\input{03_system_architecture.tex}
+\input{04_dynamic_tpr_models.tex}
+\input{05_hierarchical_planning_algorithm.tex}
+\input{06_case_study.tex}
+\input{07_conclusion.tex}
+
+% --- 附录 ---
+\input{appendix.tex}
+
+% --- 致谢 ---
+\input{acknowledgments.tex}
+
+% --- 参考文献 ---
+\bibliographystyle{elsarticle-num-names}
+\bibliography{references}
+
+\end{document}

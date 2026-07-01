@@ -1,0 +1,27 @@
+# latexmk 配置文件
+# 用于自动化 LaTeX 编译流程
+
+# 使用 xelatex 编译器
+$pdf_mode = 1;  # 生成 PDF
+$pdflatex = 'xelatex -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
+
+# 输出目录
+$out_dir = 'build';
+
+# 自动清理中间文件（可选）
+#$clean_ext = 'aux log out toc lof lot bbl blg synctex.gz fls fdb_latexmk run.xml bcf';
+
+# BibTeX 支持
+$bibtex_use = 2;
+
+# 编译次数（确保引用正确）
+$max_repeat = 5;
+
+# 预览命令（Windows + SumatraPDF）
+if ($^O eq 'MSWin32') {
+    $preview_continuous_mode = 1;
+    $pdf_previewer = 'start D:/Software/SumatraPDF/SumatraPDF.exe -reuse-instance';
+}
+
+# 静默模式（减少输出）
+$silent = 0;

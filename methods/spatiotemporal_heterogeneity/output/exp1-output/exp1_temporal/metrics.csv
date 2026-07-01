@@ -1,0 +1,5 @@
+t_start,label,status,path_length,final_survival,cum_fatality,cum_property,cum_noise,objective_cost,runtime_ms,nodes_explored
+8,08:00 (Morning Rush),success,494.9747,0.186781,0.00099511,0.00000000,0.002468,11.435802,7.2,179
+12,12:00 (Noon),success,494.9747,0.057751,0.00108653,0.00000000,0.002059,11.436214,7.6,179
+18,18:00 (Evening Rush),success,512.5483,0.011194,0.00085653,0.00000000,0.001638,11.840946,638.4,4864
+22,22:00 (Night),success,494.9747,0.259083,0.00096624,0.00000000,0.004040,11.435746,7.4,179

@@ -1,0 +1,334 @@
+% ============================================================================
+% 第三方风险成本评估模型 - 02_tpr_cost_models.tex
+% ============================================================================
+
+\section{风险建模与成本评估}
+\label{sec:tpr_models}
+
+为了评估无人机路径规划中的风险成本，我们首先建立了动态概率模型，以更准确地评估无人机坠机的概率；
+其次，构建了基于动态人口和交通密度的致命风险成本模型和基于城市建筑分布的致命财产损失风险模型；
+最后，设计了基于时空敏感性的噪声滋扰成本模型。这些模型共同构成了后续路径规划算法的核心评估工具。
+
+\subsection{动态坠机概率模型}
+\label{subsec:pcrash_model}
+
+在现有无人机航路规划研究中,坠机概率 $P_{crash}$ 通常被设定为经验常数。这种简化处理隐含地假设"无人机在晴朗空旷环境飞行"与"在风雨中穿梭于密集高楼之间"具有相同的坠机概率,导致风险评估严重失真。针对这一缺陷,本文将静态坠机概率设定为理想环境下的基准风险,通过引入气象因素与城市空间协变量,实现多维度的风险动态缩放。
+
+具体而言,本研究将风速场、降雨强度和建筑障碍物分别建模为动态缩放因子 $\Phi$ 的三个独立分量 ,通过乘法耦合机制实现对基准坠机率的非线性放大。为避免概率溢出($P > 1$)并确保数学严谨性,采用可靠度指数形式:
+\begin{equation}
+P_{crash} = 1 - e^{-\lambda_{base} \cdot \Phi \cdot \Delta t}
+\label{eq:pcrash_base}
+\end{equation}
+\begin{equation}
+\Phi(x,y,z,t) = f_{wind}(x,y,z,t) \cdot f_{rain}(x,y,t) \cdot f_{obs}(x,y,z)
+\label{eq:phi_composite}
+\end{equation}
+其中$f_{wind}$、$f_{rain}$ 和 $f_{obs}$三个因子分别对应动态风场、动态降雨和静态城市建筑的影响.
+
+\subsubsection[Wind Field Factor]{风场因子}
+\label{subsubsec:f_wind}
+
+风速对无人机的影响呈现非线性指数特征，在抗风极限以下($v < V_{limit}$),控制难度随风速增加而急剧上升;超过抗风极限后($v \geq V_{limit}$),失控概率趋于无穷大(直接判定为不可飞)。
+
+数学表达为:
+\begin{equation}
+f_{wind}(x,y,z,t) = 
+\begin{cases} 
+e^{k_w \cdot \left( \dfrac{v_{wind}}{V_{limit}} \right)^\theta}, & v_{wind} < V_{limit} \\
++\infty, & v_{wind} \ge V_{limit} 
+\end{cases}
+\label{eq:f_wind}
+\end{equation}
+
+其中 $v_{wind} = v_{wind}(x,y,z,t)$ 为当前空间点的局部风速（单位：m/s），$V_{limit}$ 为无人机的最大抗风极限（典型值为 10--12 m/s），$k_w$ 为风敏感系数（建议取值范围为 2--5），$\theta$ 为非线性指数（建议取值为 2 或 3）。
+
+该模型的边界条件验证如表~\ref{tab:wind_speed}所示(参数设置:$k_w=3, \theta=2$)。
+
+
+\begin{table}[htbp]
+\centering
+\caption{风场因子边界条件验证($k_w=3, \theta=2$)}
+\label{tab:wind_speed} % 保持原有标签不变
+\begin{tabular}{c c c c}
+\toprule
+\textbf{蒲福风级} & \textbf{典型风速 $v$ (m/s)} & \textbf{无量纲比 $v/V_{\text{limit}}$} & \textbf{$f_{\text{wind}}$ ($k_w=3, \theta=2$)} \\
+\midrule
+0-2 级 & 2.0 & 0.17 & 1.09 \\
+3 级 & 4.5 & 0.38 & 1.54 \\
+4 级 & 6.5 & 0.54 & 2.40 \\
+5 级 & 9.0 & 0.75 & 5.40 \\
+6 级 & 12.0 & 1.00 & 20.09 \\
+$\geq$ 7 级 & $>12.0$ & $>1.00$ & $+\infty$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection[Rainfall Factor]{降雨因子}
+\label{subsubsec:f_rain}
+
+雨水对无人机的威胁主要来自三个方面，结构载荷增加(雨水附着增加自重)、传感器致盲(视觉相机、激光雷达性能骤降)、电气绝缘下降(可能导致短路)。这些效应呈现二次特征:毛毛雨影响极小,但大暴雨会使风险成倍增加。数学表达为:
+\begin{equation}
+f_{rain}(x,y,t) = 1 + \gamma \cdot I_{rain}(x,y,t)^2
+\label{eq:f_rain}
+\end{equation}
+其中 $I_{rain}(x,y,t)$ 为当前时刻坐标 $(x,y)$ 处的降雨强度(mm/h),来自气象雷达数据;$\gamma$ 为敏感度系数(建议取值:0.001--0.01)。该因子是二维空间分布的,符合真实气象雷达数据的栅格化特征,不同空间的雨量可以不同,体现局部阵雨、对流雨等复杂气象现象.
+
+
+\begin{table}[htbp]
+\centering
+\caption{降雨因子边界条件验证($\gamma=0.005$)}
+\label{tab:rainfall} % 保持原有标签不变
+\begin{tabular}{l c c}
+\toprule
+\textbf{降雨强度级别} & \textbf{小时雨强 $I$ (mm/h)} & \textbf{$f_{\text{rain}}$ ($\gamma=0.005$)} \\
+\midrule
+无雨 (Dry) & 0.0 & 1.00 \\
+小雨 (Light Rain) & 2.0 & 1.02 \\
+中雨 (Moderate Rain) & 6.0 & 1.18 \\
+大雨 (Heavy Rain) & 12.0 & 1.72 \\
+暴雨 (Torrential Rain) & 25.0 & 4.13 \\
+极端降水 (Extreme) & 50.0 & 13.50 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection[Static Urban Building Factor]{建筑因子}
+\label{subsubsec:f_obs}
+
+城市建成环境通过导航信号退化、空气动力学扰动及应急迫降约束三重机制影响飞行安全。定义建筑因子为:
+\begin{equation}
+f_{obs}(x,y,z) = 1 + K_{obs} \cdot R_{canyon}(x,y,z)
+\label{eq:f_obs}
+\end{equation}
+其中城市峡谷风险指数$R_{canyon}$综合表征天空遮挡、相对高度比及建筑邻近度:
+\begin{equation}
+R_{canyon}(x,y,z) = w_1 [1 - \text{SVF}(x,y,z)]^\alpha + w_2 \frac{H_{avg}(x,y)}{z + \epsilon} + w_3 D_{building}(x,y)
+\label{eq:r_canyon}
+\end{equation}
+式中:$\text{SVF} \in [0,1]$为天空可视因子;$H_{avg}$为周边建筑平均高度(m);$z$为飞行高度(m);$\epsilon=10^{-6}$为避免分母为零的常数;$D_{building}$为到最近建筑的水平距离归一化倒数;$w_1,w_2,w_3$为权重系数($\sum w_i=1$);$\alpha \in [1,2]$为非线性指数;$K_{obs} \in [5,20]$为最大放大倍数。三项分量分别表征GPS信号质量与视觉传感器视野受限程度、无人机相对建筑的淹没程度,以及直接碰撞风险与气流扰动强度。表~\ref{tab:urban_validation}给出了典型城市场景下的边界条件验证。
+
+\begin{table}[htbp]
+\centering
+\caption{城市建筑因子边界条件验证($K_{obs}=10$)}
+\label{tab:urban_validation}
+\begin{tabular}{l c c}
+\toprule
+\textbf{城市场景} & \textbf{$R_{canyon}$} & \textbf{$f_{obs}$} \\
+\midrule
+开阔地 & 0 & 1.00 \\
+低密度区 & 0.2 & 3.00 \\
+中密度区 & 0.5 & 6.00 \\
+高密度区 & 0.8 & 9.00 \\
+城市峡谷 & 1.0 & 11.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+在晴朗无风的开阔地(风=0, 雨=0, $R_{canyon}=0$),三个因子全部等于 1,$P_{crash}$ 退化为:
+\begin{equation}
+P_{crash} = 1 - \exp(-\lambda_{base} \cdot \Delta t) \approx \lambda_{base} \cdot \Delta t
+\end{equation}
+完全符合常识。随着环境恶化,各项因子可进行独立缩放,且可解释。
+
+
+\subsection{致命风险成本和财产损失风险成本}
+
+\subsubsection{人口密度和交通密度时空模拟模型}
+
+真实的城市级手机信令数据和实时交通流量数据通常难以获取,这构成了无人机路径规划的主要数据瓶颈。为解决这一问题,本文提出"静态人口底图 + POI时空潮汐引力模型"的混合建模范式,基于核心假设:城市空间中的人口和车辆分布由各类兴趣点(Point of Interest, POI)在特定时刻的吸引力驱动。
+
+定义网格单元$i$在时刻$t$的动态人口/车辆密度$\rho(i, t)$为:
+\begin{equation}
+\rho(i, t) = \rho_{base}(i) \times \sum_{k \in K} \left[ W_k \cdot \tau_k(t) \cdot f_{decay}(d_{i,k}) \right]
+\label{eq:dynamic_density}
+\end{equation}
+其中,$\rho_{base}(i)$为空间基础密度,可通过WorldPop全球人口数据集或道路等级加权的基础车流量统计获取;$K$为POI类别集合,定义为住宅区(Res)、写字楼/商业区(Office)和交通枢纽/主干道(Transit);$W_k$为第$k$类POI的固有吸引力权重,反映其对人口/车辆的基准吸引能力,可通过历史统计数据校准;$d_{i,k}$为网格$i$到POI $k$的欧氏距离。
+
+空间衰减函数$f_{decay}(d_{i,k})$描述POI影响的距离衰减规律,采用高斯核函数形式:
+\begin{equation}
+f_{decay}(d_{i,k}) = \exp\left(-\frac{d_{i,k}^2}{2\sigma^2}\right)
+\label{eq:spatial_decay}
+\end{equation}
+其中衰减尺度参数$\sigma$控制影响范围,典型取值$\sigma \in [200, 500]$米,符合城市微环境的空间相关性特征。
+
+时间激活函数$\tau_k(t)$是模型的核心创新点,表示第$k$类POI在时刻$t$的相对活跃度,归一化至$[0, 1]$区间。基于城市运行规律,采用多峰正态分布叠加的方法构造经验激活曲线。
+
+写字楼/商业区激活函数$\tau_{office}(t)$呈现"双峰通勤+日间高台"的典型形态:早高峰(08:30附近)出现第一个峰值,日间平台期(09:00--17:00)维持在0.8--0.9的高位,晚高峰(18:00附近)出现第二个峰值,夜间低谷(21:00--07:00)降至0.1以下。数学表达采用双高斯混合模型:
+\begin{equation}
+\tau_{office}(t) = \alpha_1 \cdot \mathcal{N}(t; \mu_1=8.5, \sigma_1^2) + \alpha_2 \cdot \mathcal{N}(t; \mu_2=18, \sigma_2^2) + \beta \cdot \mathbb{I}_{[9,17]}(t)
+\label{eq:office_activation}
+\end{equation}
+其中$\mathcal{N}(t; \mu, \sigma^2)$表示均值为$\mu$、方差为$\sigma^2$的正态分布概率密度函数,$\mathbb{I}_{[9,17]}(t)$为指示函数。
+
+住宅区激活函数$\tau_{res}(t)$与写字楼呈反相位分布:日间低谷(09:00--17:00)降至0.2--0.3,夜间峰值(21:00--07:00)达到最大值1.0,过渡时段(07:00--09:00和17:00--21:00)呈线性或S型过渡。
+
+交通主干道激活函数$\tau_{road}(t)$仅保留早晚双尖峰特征:早高峰(07:30--09:30)和晚高峰(17:30--19:30)形成尖锐峰值,非高峰时段维持平缓基线(约0.3--0.4)。
+
+该时空潮汐模型通过解耦空间静态分布与时间动态变化,能够在缺乏实时观测数据的条件下,有效捕捉城市人口和交通流量的周期性波动规律,为无人机风险评估提供合理的时空密度估计。
+
+\subsubsection{致命风险成本}
+
+致命风险成本定义为无人机坠毁对行人和地面车辆内人员造成的伤亡代价,单位为每飞行小时的死亡人数。致命风险成本记为$c_{rf}$,由行人致命风险成本$c_{rp}$和车内人员致命风险成本$c_{rv}$两部分组成:
+\begin{equation}
+c_{rf} = c_{rp} + c_{rv}
+\label{eq:fatality_risk_total}
+\end{equation}
+
+\paragraph{行人致命风险}
+
+无人机可能失控并坠毁至地面行人区域。评估行人致命风险需考虑三个连续过程:(1)无人机系统失效;(2)无人机坠毁撞击行人;(3)对行人造成致命伤害。无人机坠毁撞击行人的风险成本$c_{rp}$定义为每飞行小时的死亡人数:
+\begin{equation}
+c_{rp} = P_{crash} N_{hit}^p R_f^p
+\label{eq:pedestrian_fatality}
+\end{equation}
+其中,$P_{crash}$为无人机系统失效概率,主要由硬件和软件可靠性决定;$N_{hit}^p$为被坠毁无人机撞击的行人数量,与人口密度相关;$R_f^p$为无人机事故中人员的致死率,与无人机质量和坠落高度相关。
+
+被撞击行人数量$N_{hit}^p$与人口密度的关系定义为:
+\begin{equation}
+N_{hit}^p = S_{hit} \sigma_p
+\label{eq:pedestrian_hit_count}
+\end{equation}
+其中,$S_{hit}$为无人机坠毁冲击区域面积(单位:m²),$\sigma_p$为行政单元内的人口密度(单位:人/km²)。
+
+致死率$R_f^p$与冲击动能和遮蔽效应两个主要因素相关。坠落无人机的冲击动能$E_{imp}$主要决定撞击严重程度,而遮蔽系数$S_c$影响对人员和车辆的冲击程度,因为建筑物和树木的缓冲作用会减弱冲击力。遮蔽系数$S_c$定义为区间$(0, 1]$内的实数,致死率表示为:
+\begin{equation}
+R_f^p = \frac{1}{1 + \sqrt{\frac{\alpha}{\beta}} \left(\beta E_{imp}\right)^{\frac{1}{4}} S_c}
+\label{eq:fatality_rate}
+\end{equation}
+其中,$\alpha$为遮蔽系数$S_c=0.5$时可能导致50\%致死率的冲击能量,$\beta$为遮蔽系数趋近于零时导致致死所需的冲击能量阈值。典型取值为$\alpha=10^6$ J,$\beta=100$ J。
+
+坠落无人机的冲击动能$E_{imp}$表示为:
+\begin{equation}
+E_{imp} = \frac{1}{2} m v^2
+\label{eq:impact_energy}
+\end{equation}
+其中,$m$为坠落无人机的质量(单位:kg),$v$为无人机撞击地面时的速度(单位:m/s)。
+
+坠落无人机的垂直阻力$F_d$与其尺寸、材料以及空气密度等因素相关:
+\begin{equation}
+F_d = \frac{1}{2} R_I S_{hit} \rho_A v_{TAS}^2
+\label{eq:drag_force}
+\end{equation}
+其中,$R_I$为与无人机类型相关的阻力系数,$\rho_A$为空气密度(海平面处为1.225 kg/m³),$v_{TAS}$为坠落无人机的真空速(单位:m/s)。
+
+无人机的加速度可表示为:
+\begin{equation}
+a = \frac{F_g - F_d}{m} = g - \frac{R_I S_{hit} \rho_A v_{TAS}^2}{2m}
+\label{eq:acceleration}
+\end{equation}
+其中,$F_g$为重力,$F_g=mg$($g=9.8$ m/s²为重力加速度)。
+
+因此,无人机在时刻$t$撞击地面的速度$v$可通过积分求得:
+\begin{equation}
+v = \int_0^t \left(g - \frac{R_I S_{hit} \rho_A v_{TAS}^2}{2m}\right) dt = \sqrt{\frac{2mg}{R_I S_{hit} \rho_A} \left(1 - e^{-\frac{h R_I S_{hit} \rho_A}{m}}\right)}
+\label{eq:impact_velocity}
+\end{equation}
+其中,$h$为无人机距地面的坠落高度(单位:m)。
+
+\paragraph{车内人员致命风险}
+
+无人机坠毁对车辆内人员的致命风险同样包含三个组成部分:(1)无人机系统失效;(2)坠落无人机撞击车辆;(3)撞击事故直接导致人员伤亡或引发交通事故进而造成车内人员死亡。
+
+无人机坠毁对车内人员的致命风险成本定义为每飞行小时的死亡人数:
+\begin{equation}
+c_{rv} = P_{crash} N_{hit}^v R_f^v
+\label{eq:vehicle_fatality}
+\end{equation}
+其中,$N_{hit}^v$为被坠毁无人机撞击的车辆数量,$R_f^v$为车辆事故中人员的平均致死率,可通过"年度车祸总死亡人数/年度车祸总数"获得。
+
+可能被坠毁无人机撞击的平均车辆数量定义为所有车辆总投影面积与道路总面积之比:
+\begin{equation}
+N_{hit}^v = S_{hit} \sigma_v
+\label{eq:vehicle_hit_count}
+\end{equation}
+其中,$S_{hit}$为无人机坠毁冲击区域面积,$\sigma_v$为路网中的车辆密度(单位:辆/km²)。
+
+\subsubsection{财产损失风险成本}
+
+财产损失风险主要源于无人机与城市建筑物的碰撞。本文提出基于建筑截面积的综合风险评估模型,通过量化建筑物作为障碍物对无人机机动的干扰程度来评估财产风险。
+
+定义第$k$栋建筑的高度为$h_b^k$,研究区域内的建筑总数为$N_{total}$。采用对数正态分布描述建筑高度的统计特征,其均值$\mu$和标准差$\sigma$的计算公式为:
+\begin{equation}
+\mu = \frac{1}{N_{total}} \sum_{i=1}^{N_{total}} h_b^i
+\label{eq:building_height_mean}
+\end{equation}
+\begin{equation}
+\sigma = \sqrt{\frac{1}{N_{total} - 1} \sum_{i=1}^{N_{total}} (h_b^i - \mu)^2}
+\label{eq:building_height_std}
+\end{equation}
+
+单栋建筑的财产风险成本$r_b^k(h)$定义为飞行高度$h$的函数:
+\begin{equation}
+r_b^k(h) = 
+\begin{cases}
+\frac{1}{h\sigma\sqrt{2\pi}}, & 0 < \ln h \leq \mu \\
+\frac{1}{h\sigma\sqrt{2\pi}} \exp\left[-\frac{(\ln h - \mu)^2}{2\sigma^2}\right], & \ln h > \mu
+\end{cases}
+\label{eq:single_building_risk}
+\end{equation}
+该模型具有分段特性:当$0 < \ln h \leq \mu$时,风险成本仅与高度$h$成反比;当$\ln h > \mu$时,风险成本呈指数衰减,反映高层建筑在低空区域的相对稀缺性。
+
+单元区域$i$的总体财产风险成本$r_b(h)$通过对区域内所有建筑的风险贡献求和得到:
+\begin{equation}
+r_b(h) = \sum_{k=1}^{N_i} \left[r_b^k(h) \cdot S_b^k \cdot I\{h \leq h_b^k\}\right]
+\label{eq:unit_property_risk}
+\end{equation}
+其中,$S_b^k$为第$k$栋建筑的截面积(单位:m²),$N_i$为单元$i$中的建筑数量,$I\{h \leq h_b^k\}$为指示函数,仅当飞行高度$h$低于建筑高度$h_b^k$时才计入风险。
+
+该模型的物理意义在于:建筑物作为障碍物,只能在其高度以下干扰无人机的机动能力。通过量化建筑截面积$S_b^k$,能够有效区分密集分布单元和稀疏分布单元的财产风险差异,为路径规划提供精细化的空间风险评估依据。
+
+\subsection{噪声滋扰社会影响成本}
+
+无人机运行产生的噪声并非直接的物理安全风险,而是一种社会滋扰(Nuisance)。网格单元的噪声成本由"物理声学声压"、"地块对噪声的空间敏感度"与"受影响人口数量"三者的乘积决定。这种建模方法将噪声从单纯的物理问题提升为社会-空间-时间三维耦合问题。
+
+定义网格$i$(高度为$z$)在时刻$t$产生的社会噪声成本$Cost_{noise}(i, z, t)$为:
+\begin{equation}
+Cost_{noise}(i, z, t) = I_{noise}(z) \times \rho_{pop}(i, t) \times S_{landuse}(i) \times T_{penalty}(t)
+\label{eq:noise_cost}
+\end{equation}
+
+\paragraph{物理声学衰减项}
+
+$I_{noise}(z)$表示飞行高度$z$处的噪声声强衰减,采用反平方律模型:
+\begin{equation}
+I_{noise}(z) = \frac{L_{ref}}{z^2 + d^2}
+\label{eq:noise_intensity}
+\end{equation}
+其中,$L_{ref}$为参考声强(与文献中的$\pi L_h$等价),$z$为飞行高度(单位:m),$d$为水平距离参数(单位:m)。该公式反映了飞行高度越高,传递到地面的噪声越小的物理规律。
+
+\paragraph{动态人口密度项}
+
+$\rho_{pop}(i, t)$为网格$i$在时刻$t$的动态人口密度(单位:人/km²)。该参数的关键洞察在于:无人区域(如下班后的工业区)即使噪声较大也不会造成显著的社会滋扰。动态人口密度可通过静态人口普查网格数据结合手机信令数据、POI营业时间、交通流量等多源数据进行动态修正获得。
+
+\paragraph{土地利用空间敏感度矩阵}
+
+$S_{landuse}(i)$为基于OpenStreetMap(OSM)的\textit{landuse}标签构建的土地利用空间敏感度系数,反映不同功能区域对噪声的容忍程度。典型取值如下:水域或森林区域取值为0.0,作为绝对的安全避风港;工业区取值为0.2,因机器轰鸣对环境噪声极不敏感;主干道或商业区取值为0.5,白天环境底噪较大;住宅区取值为1.0,作为基准敏感度;学校或医院取值为2.0,属于极其怕吵的特殊保护区域。
+
+\paragraph{时间敏感度惩罚系数}
+
+$T_{penalty}(t)$为根据一天中时间段调整的时间敏感度惩罚系数。通常将一天划分为白天时段(07:00--20:00)和夜间时段(20:00--07:00),分别赋予不同的惩罚基准$T_{day}$和$T_{night}$。
+
+为精确刻画城市空间的异质性,本文设计正交的空间-时间敏感度矩阵,如表\ref{tab:spatiotemporal_sensitivity}所示。该矩阵结合了土地利用属性与时间维度,形成精细化的噪声成本评估框架。
+
+\begin{table*}[htbp]
+\centering
+\caption{空间-时间敏感度矩阵(S-T Sensitivity Matrix)}
+\label{tab:spatiotemporal_sensitivity}
+\begin{tabular}{lccc}
+\hline
+土地类别 & 空间基础敏感度$S$ & 白天时间惩罚$T_{day}$ & 夜间时间惩罚$T_{night}$ \\
+& & (07:00--20:00) & (20:00--07:00) \\
+\hline
+自然与开放空间 & 0.0 & 1.0 & 1.0 \\
+工业与物流区 & 0.2 & 1.0 & 0.5 \\
+基础设施与交通廊道 & 0.5 & 1.0 & 1.5 \\
+商业与行政区 & 0.5 & 1.0 & 1.5 \\
+住宅区 & 1.0 & 1.5 & 10.0 \\
+高敏感保护区域 & 2.0 & 10.0 & 10.0 \\
+\hline
+\end{tabular}
+\end{table*}
+
+该时空敏感度矩阵的核心创新在于识别出两类特殊保护区域:住宅区在夜间(20:00--07:00)的惩罚系数高达10.0,构成夜间飞行的禁区;学校或医院在白天(07:00--20:00)的惩罚系数同样达到10.0,成为白天飞行的禁区。这种设计有效避免了无人机在敏感时段对高敏感度区域的干扰,实现了噪声成本的社会化精准评估。
+
+

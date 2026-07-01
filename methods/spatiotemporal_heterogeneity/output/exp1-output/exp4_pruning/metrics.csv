@@ -1,0 +1,6 @@
+strategy,max_labels,status,path_length,objective_cost,runtime_ms,nodes_explored
+No Pruning (k=50),50,success,494.9747,11.440362,8.0,179
+Strict (k=1),1,success,494.9747,11.440362,7.6,179
+Proposed (k=4),4,success,494.9747,11.440362,7.1,179
+Proposed (k=8),8,success,494.9747,11.440362,7.1,179
+Proposed (k=16),16,success,494.9747,11.440362,6.5,179

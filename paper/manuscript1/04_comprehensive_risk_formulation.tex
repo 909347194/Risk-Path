@@ -1,0 +1,96 @@
+% ============================================================================
+% 综合风险成本函数与问题形式化建模 - 03_comprehensive_risk_formulation.tex
+% ============================================================================
+
+\section{综合风险成本函数与问题建模}
+\label{sec:problem_formulation}
+
+基于第~\ref{sec:tpr_models}节建立的个体风险评估模型,本节构建指导路径规划的综合风险成本函数,并将问题形式化为约束优化任务。
+
+\subsection{多维时空综合风险成本函数}
+
+\paragraph{期望成本框架}
+
+无人机从节点$i$飞往节点$j$(航段$e_{i,j}$)的总成本由三大正交维度构成:
+\begin{equation}
+J(e_{i,j}) = W_{ops} \cdot C_{ops} + W_{risk} \cdot C_{risk} + W_{soc} \cdot C_{soc}
+\label{eq:total_cost_framework}
+\end{equation}
+该框架的核心创新在于严格区分"确定性外部成本"与"概率性期望风险":噪音是正常飞行时的必定成本,而人员伤亡和财产损失是发生坠机时的期望后果,必须通过动态失控概率$P_{crash}$进行加权。
+
+\paragraph{运营效率成本}
+
+运营效率成本定义为飞行时间消耗:
+\begin{equation}
+C_{ops}(e_{i,j}) = \frac{\| p_j - p_i \|}{v_{uav}} = \Delta t_{i,j}
+\label{eq:operational_cost}
+\end{equation}
+
+\paragraph{概率性期望风险成本}
+
+根据Risk = Probability $\times$ Consequence的定义,期望风险成本为:
+\begin{equation}
+C_{risk}(e_{i,j}) = P_{crash}(i, j, t) \times \left[ c_{rf}(j, t) + c_{prop}(j, h) \right]
+\label{eq:risk_cost}
+\end{equation}
+其中致命风险成本$c_{rf}$整合了行人和车辆两类伤亡风险,财产损失成本$c_{prop}$量化了与建筑物碰撞的经济损失。关键设计在于$P_{crash}$作为动态乘子仅作用于坠机后果项,未错误地乘以噪音成本,确保因果关系的物理严谨性。
+
+\paragraph{确定性社会滋扰成本}
+
+社会滋扰成本为飞行时间与单位时间噪音成本的乘积:
+\begin{equation}
+C_{soc}(e_{i,j}) = Cost_{noise}(j, h, t) \cdot \Delta t_{i,j}
+\label{eq:social_nuisance}
+\end{equation}
+该成本项独立于坠机概率,反映无人机正常运行时对地面的声学影响。
+
+\paragraph{归一化综合代价函数}
+
+为实现多目标权衡,所有成本归一化至$[0, 1]$区间后构建综合代价函数:
+\begin{equation}
+J_{total}(e_{i,j}) = w_1 \bar{C}_{ops} + w_2 \left( P_{crash} \cdot \bar{c}_{rf} \right) + w_3 \left( P_{crash} \cdot \bar{c}_{prop} \right) + w_4 \bar{C}_{noise}
+\label{eq:normalized_total_cost}
+\end{equation}
+其中$w_1$至$w_4$为决策权重,满足$\sum w_i = 1$。
+
+该公式实现三个理论突破:(1)\textit{维度解耦}:四个权重分别对应运营效率、人员安全、财产安全和社区安宁,代表不同利益相关者的博弈;(2)\textit{时空四维耦合}:每一项均依赖空间$(x,y,z)$和时间$(t)$,实现真正的四维环境感知;(3)\textit{因果关系严谨性}:$P_{crash}$仅惩罚坠机后果,避免将确定性成本错误概率化。
+
+通过调节权重向量,模型可适应多元应用场景:设置$w_{ops}=0$时退化为纯风险最小化求解器,契合航空监管机构的绝对安全要求;当$w_{ops}>0$时赋予商业运营商在配送效率与公众安全之间进行帕累托权衡的能力,填补理论评估与实际部署之间的空白。
+
+\subsection{问题定义与建模}
+
+\paragraph{4D时空图模型}
+
+将城市空域离散化为时空有向图$G=(V,E)$,其中顶点集合$V=\{v_i(x_i,y_i,z_i)\}$为体素中心点集合,边集合$E\subset V\times V$表示体素间可达性。采用3D Moore邻域(26-邻域)约束运动学可行性:
+\begin{equation}
+\| v_{i+1} - v_i \|_{\infty} \leq \lambda, \quad \forall e_{i,i+1} \in E
+\label{eq:kinematic_constraint}
+\end{equation}
+引入离散时间步长$\Delta t$,将图扩展为时空图$G_t=(V_t,E_t)$以处理动态人口密度和交通流量等时变因素。
+
+\paragraph{硬约束剪枝}
+
+定义绝对禁飞区集合$\mathbb{V}_{NoGo}$包含建筑高度高于飞行高度的体素:
+\begin{equation}
+v_i \in \mathbb{V}_{NoGo} \iff z_i < h_{bldg}(x_i, y_i)
+\label{eq:no_go_zone}
+\end{equation}
+合法路径$P$必须满足$v_i \notin \mathbb{V}_{NoGo}, \forall v_i \in P$。该空间剪枝策略剔除所有障碍物体素,在保证安全的前提下最大化搜索效率。
+
+\paragraph{多目标优化问题}
+
+寻找从起点$O$到终点$D$的最优路径$P^*$,使总累积时空代价最小:
+\begin{equation}
+P^* = \arg\min_{P} J(P) = \arg\min_{P} \sum_{e_{i,j} \in P} J_{total}(e_{i,j}, t)
+\label{eq:optimization_problem}
+\end{equation}
+受限于:
+\begin{enumerate}
+    \item \textit{运动学约束}:式(\ref{eq:kinematic_constraint})
+    \item \textit{禁飞区约束}:式(\ref{eq:no_go_zone})
+    \item \textit{流量守恒}:起点净流出量为1,终点净流入量为1,中间节点流入等于流出
+    \item \textit{单次访问}:每个体素最多经过一次,避免环路
+    \item \textit{时间约束}:总飞行时间$T \leq T_{max}$(电池续航限制)
+\end{enumerate}
+
+通过调节权重向量$\{w_1,w_2,w_3,w_4\}$,模型可适应不同利益相关者需求:运营商侧重$w_1$(运营效率),监管机构侧重$w_2$和$w_3$(安全风险),社区侧重$w_4$(噪音滋扰)。这种多目标权衡机制实现了Pareto最优寻路,填补了理论安全评估与实际物流部署之间的空白。

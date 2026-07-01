@@ -1,0 +1,34 @@
+{
+  "algorithm": "Two-Stage EDA-CostA*",
+  "path_length": 73,
+  "total_cost": 98.17269930799397,
+  "total_distance": 8147.922261335316,
+  "computation_time": 1541.7675046920776,
+  "two_stage_params": {
+    "eda_population_size": 20,
+    "eda_elite_size": 4,
+    "eda_max_generations": 30,
+    "n_clusters": 5,
+    "epsilon": 0.2
+  },
+  "grid_info": {
+    "dimensions": "72x73x4",
+    "cell_size": 80.0,
+    "altitudes": [
+      30.0,
+      60.0,
+      90.0,
+      120.0
+    ]
+  },
+  "start": [
+    0,
+    0,
+    0
+  ],
+  "goal": [
+    3,
+    72,
+    71
+  ]
+}
