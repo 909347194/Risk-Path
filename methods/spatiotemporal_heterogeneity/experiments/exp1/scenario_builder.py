@@ -62,7 +62,7 @@ def load_micro_scenario(config_path: Optional[Path] = None) -> MicroScenario:
         config_path = MODULE_ROOT / "configs" / "common.yaml"
 
     grid = GridSystem(
-        spatial=SpatialGridConfig(nx=40, ny=40, nz=12, dx=10.0, dy=10.0, dz=10.0),
+        spatial=SpatialGridConfig(nx=60, ny=60, nz=12, dx=10.0, dy=10.0, dz=10.0),
         temporal=TemporalGridConfig(nt=24, dt_minutes=60.0),
     )
 
@@ -154,21 +154,21 @@ def build_env_tensor(scenario: MicroScenario, flight_altitude: float = 50.0) -> 
 
         # Commercial areas: active during work hours
         if 8 <= hour <= 18:
-            pop_t[landuse_t == 2] *= 3.0  # office hours: 3x population
+            pop_t[landuse_t == 2] *= 5.0  # office hours: 5x population
         else:
-            pop_t[landuse_t == 2] *= 0.3  # after hours: 30% population
+            pop_t[landuse_t == 2] *= 0.1  # after hours: 10% population
 
         # Residential areas: active at night
         if 22 <= hour or hour <= 6:
-            pop_t[landuse_t == 1] *= 2.0  # night: 2x population
+            pop_t[landuse_t == 1] *= 4.0  # night: 4x population
         elif 9 <= hour <= 17:
-            pop_t[landuse_t == 1] *= 0.5  # work hours: 50% population
+            pop_t[landuse_t == 1] *= 0.2  # work hours: 20% population
 
         # Institution (school/hospital): active during day
         if 8 <= hour <= 17:
-            pop_t[landuse_t == 3] *= 2.5  # school hours
+            pop_t[landuse_t == 3] *= 4.0  # school hours
         else:
-            pop_t[landuse_t == 3] *= 0.4
+            pop_t[landuse_t == 3] *= 0.2
 
         rho_pop_3d[:, :, t] = pop_t
 
@@ -218,7 +218,7 @@ def get_primary_od(grid: GridSystem, z_level: int = 5):
 def get_weight_presets() -> Dict[str, Dict[str, float]]:
     """Return 4 weight presets."""
     return {
-        "default": {"w_distance": 0.4, "w_fatality": 0.3, "w_property": 0.15, "w_noise": 0.15},
+        "default": {"w_distance": 0.15, "w_fatality": 0.25, "w_property": 0.10, "w_noise": 0.50},
         "emergency": {"w_distance": 0.8, "w_fatality": 0.1, "w_property": 0.05, "w_noise": 0.05},
         "quiet_night": {"w_distance": 0.2, "w_fatality": 0.2, "w_property": 0.1, "w_noise": 0.5},
         "strict_safety": {"w_distance": 0.0, "w_fatality": 0.7, "w_property": 0.2, "w_noise": 0.1},
@@ -242,7 +242,7 @@ def build_planner_config(
         "w_noise": weights["w_noise"],
         "survival_threshold": survival_threshold,
         "max_battery_time": float("inf"),
-        "max_iterations": 500_000,
+        "max_iterations": 2_000_000,
         "max_labels_per_cell": max_labels_per_cell,
         "max_climb_rate": 5.0,
         "max_descent_rate": 5.0,

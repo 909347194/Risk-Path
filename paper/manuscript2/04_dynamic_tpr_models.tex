@@ -11,6 +11,22 @@
 \subsection{复杂微气象与建筑耦合的动态坠机概率评估}
 \label{subsec:pcrash_model}
 无人机坠机是小概率事件，在不同的环境因素影响下，坠机概率会发生显著变化。为了更准确地评估坠机风险，我们引入了风场因子、降雨因子和建筑因子等动态环境因素，通过以下模型来动态调整基础坠机概率。
+
+借鉴Cox比例风险模型（Proportional Hazards Model, PHM）的框架，我们将基准风险率与环境协变量的乘积形式应用于无人机坠机概率建模。定义综合缩放因子$\Phi(x,y,z,t)$为各环境因子的乘积：
+
+\begin{equation}
+\Phi(x,y,z,t) = f_{wind}(x,y,z,t) \cdot f_{rain}(x,y,t) \cdot f_{obs}(x,y,z)
+\label{eq:phi_composite}
+\end{equation}
+
+其中$f_{wind}$、$f_{rain}$和$f_{obs}$分别代表风场因子、降雨因子和城市建筑因子，各因子的具体定义将在后续小节中给出。基于此综合缩放因子，时空动态坠机概率$P_{crash}(x,y,z,t)$采用指数截断形式：
+
+\begin{equation}
+P_{crash}(x,y,z,t) = 1 - \exp\bigl( -\lambda_{base} \cdot \Phi(x,y,z,t) \cdot \Delta t \bigr)
+\label{eq:pcrash_dynamic}
+\end{equation}
+
+其中$\lambda_{base}$为无人机在晴朗空旷无风环境下的基准失效率（经验常数），$\Delta t$为无人机通过当前航段的飞行时间。该指数形式保证了$P_{crash} \in [0,1)$，避免概率溢出；当$\lambda_{base} \cdot \Phi \cdot \Delta t \ll 1$时，可近似为$P_{crash} \approx \lambda_{base} \cdot \Phi \cdot \Delta t$，退化为线性形式。下面分别定义各动态缩放因子。
 % ============================================================================
 % （风场因子）
 % ============================================================================

@@ -105,6 +105,8 @@ def run_experiment():
 
     print("\nGenerating figures...")
     _plot_paths_2d(results, scenario)
+    _plot_paths_3d(results, scenario)
+    _plot_paths_3d_plotly(results, scenario)
     _plot_cumulative_curves(results, scenario)
     _plot_metrics_table(all_metrics)
 
@@ -172,6 +174,139 @@ def _plot_paths_2d(results, scenario):
     fig.savefig(OUTPUT_DIR / "fig_paths_2d.png", dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print("  [OK] Saved: fig_paths_2d.png")
+
+
+def _draw_building_cube(ax, x, y, z_bottom, z_top, color, alpha=0.85):
+    """Draw a single 3D building block (cube)."""
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    dx, dy = 0.4, 0.4  # half-width
+    verts = [
+        [x - dx, y - dy, z_bottom], [x + dx, y - dy, z_bottom],
+        [x + dx, y + dy, z_bottom], [x - dx, y + dy, z_bottom],
+        [x - dx, y - dy, z_top],    [x + dx, y - dy, z_top],
+        [x + dx, y + dy, z_top],    [x - dx, y + dy, z_top],
+    ]
+    faces = [
+        [verts[0], verts[1], verts[5], verts[4]],  # front
+        [verts[2], verts[3], verts[7], verts[6]],  # back
+        [verts[0], verts[3], verts[7], verts[4]],  # left
+        [verts[1], verts[2], verts[6], verts[5]],  # right
+        [verts[4], verts[5], verts[6], verts[7]],  # top
+        [verts[0], verts[1], verts[2], verts[3]],  # bottom
+    ]
+    for i, face in enumerate(faces):
+        fc = _lighten_color(color, 0.2) if i == 4 else color
+        poly = Poly3DCollection([face], alpha=alpha)
+        poly.set_facecolor(fc)
+        poly.set_edgecolor("black")
+        poly.set_linewidth(0.3)
+        ax.add_collection3d(poly)
+
+
+def _lighten_color(color, amount=0.3):
+    """Lighten a color by a given amount."""
+    import matplotlib.colors as mc
+    try:
+        rgb = mc.to_rgb(color)
+    except Exception:
+        rgb = (0.5, 0.5, 0.5)
+    return tuple(min(1, c + amount * (1 - c)) for c in rgb)
+
+
+def _get_building_color(height):
+    """Return color based on building height (layers)."""
+    if height <= 10:
+        return "#90EE90"   # low-rise
+    elif height <= 30:
+        return "#FFD700"   # mid-rise
+    elif height <= 60:
+        return "#FF6347"   # high-rise
+    else:
+        return "#8B0000"   # skyscraper
+
+
+def _plot_paths_3d(results, scenario):
+    """3D path visualization with building block basemap."""
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 — registers 3D projection
+
+    fig = plt.figure(figsize=(14, 10), facecolor="white")
+    ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
+
+    bh = scenario.building_heights  # (ny, nx)
+    ny, nx = bh.shape
+    max_h = float(bh.max())
+
+    # --- 3D building blocks ---
+    for y in range(ny):
+        for x in range(nx):
+            h = bh[y, x]
+            if h > 0.5:
+                color = _get_building_color(h)
+                _draw_building_cube(ax, x, y, 0, h, color, alpha=0.85)
+
+    # --- Ground surface ---
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+    ground_verts = [[(0, 0, 0), (nx, 0, 0), (nx, ny, 0), (0, ny, 0)]]
+    ground_poly = Poly3DCollection(ground_verts, alpha=0.15)
+    ground_poly.set_facecolor("#D3D3D3")
+    ground_poly.set_edgecolor("gray")
+    ax.add_collection3d(ground_poly)
+
+    # --- Paths ---
+    for t_start in TIME_SLOTS:
+        result = results.get(t_start)
+        if result is None or result["status"] != "success":
+            continue
+        path = result["path"]
+        xs = [step["coords"][0] for step in path]
+        ys = [step["coords"][1] for step in path]
+        zs = [step["coords"][2] for step in path]
+        color = TIME_COLORS[t_start]
+        label = TIME_LABELS[t_start]
+        ax.plot(xs, ys, zs, color=color, linewidth=2.5, label=label, alpha=0.95, zorder=20)
+        ax.scatter(xs[0], ys[0], zs[0], color=color, s=100, marker="o", edgecolors="black", zorder=25)
+        ax.scatter(xs[-1], ys[-1], zs[-1], color=color, s=100, marker="*", edgecolors="black", zorder=25)
+
+    # --- Legend for building heights ---
+    from matplotlib.patches import Patch
+    legend_buildings = [
+        Patch(facecolor="#90EE90", edgecolor="black", label="Low-rise (1-10)"),
+        Patch(facecolor="#FFD700", edgecolor="black", label="Mid-rise (10-30)"),
+        Patch(facecolor="#FF6347", edgecolor="black", label="High-rise (30-60)"),
+    ]
+    legend1 = ax.legend(
+        handles=legend_buildings, loc="lower left", fontsize=7,
+        framealpha=0.9, title="Building Height", title_fontsize=8,
+    )
+    ax.add_artist(legend1)
+
+    # --- Legend for paths ---
+    from matplotlib.lines import Line2D
+    path_handles = []
+    for t_start in TIME_SLOTS:
+        if results.get(t_start) and results[t_start]["status"] == "success":
+            path_handles.append(
+                Line2D([0], [0], color=TIME_COLORS[t_start], linewidth=2.5, label=TIME_LABELS[t_start])
+            )
+    if path_handles:
+        legend2 = ax.legend(handles=path_handles, loc="upper left", fontsize=8, framealpha=0.9)
+        ax.add_artist(legend2)
+
+    ax.set_xlabel("X (grid cells)", fontsize=11, labelpad=8)
+    ax.set_ylabel("Y (grid cells)", fontsize=11, labelpad=8)
+    ax.set_zlabel("Z (altitude layers)", fontsize=11, labelpad=8)
+    ax.set_title("Exp1: 3D Paths at Different Departure Times", fontsize=14, fontweight="bold", pad=15)
+
+    ax.set_xlim(0, nx)
+    ax.set_ylim(0, ny)
+    ax.set_zlim(0, max_h * 1.15)
+    ax.view_init(elev=30, azim=-55)
+
+    fig.tight_layout()
+    fig.savefig(OUTPUT_DIR / "fig_paths_3d.png", dpi=300, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    print("  [OK] Saved: fig_paths_3d.png")
 
 
 def _plot_cumulative_curves(results, scenario):
@@ -242,6 +377,140 @@ def _plot_metrics_table(all_metrics):
     fig.savefig(OUTPUT_DIR / "fig_metrics_table.png", dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print("  [OK] Saved: fig_metrics_table.png")
+
+
+def _plot_paths_3d_plotly(results, scenario):
+    """Interactive 3D path visualization with building blocks (Plotly HTML)."""
+    try:
+        import plotly.graph_objects as go
+    except ImportError:
+        print("  [SKIP] plotly not installed, skipping interactive 3D plot")
+        return
+
+    bh = scenario.building_heights  # (ny, nx)
+    ny, nx = bh.shape
+
+    all_x, all_y, all_z = [], [], []
+    all_i, all_j, all_k = [], [], []
+    all_intensities = []
+    vertex_offset = 0
+
+    for y in range(ny):
+        for x in range(nx):
+            h = bh[y, x]
+            if h > 0.5:
+                dx, dy = 0.4, 0.4
+                verts = [
+                    [x - dx, y - dy, 0], [x + dx, y - dy, 0],
+                    [x + dx, y + dy, 0], [x - dx, y + dy, 0],
+                    [x - dx, y - dy, h], [x + dx, y - dy, h],
+                    [x + dx, y + dy, h], [x - dx, y + dy, h],
+                ]
+                for v in verts:
+                    all_x.append(v[0]); all_y.append(v[1]); all_z.append(v[2])
+                    all_intensities.append(h)
+                faces = [
+                    (0,1,2), (0,2,3), (4,5,6), (4,6,7),
+                    (0,1,5), (0,5,4), (2,3,7), (2,7,6),
+                    (0,3,7), (0,7,4), (1,2,6), (1,6,5),
+                ]
+                for f in faces:
+                    all_i.append(f[0] + vertex_offset)
+                    all_j.append(f[1] + vertex_offset)
+                    all_k.append(f[2] + vertex_offset)
+                vertex_offset += 8
+
+    fig = go.Figure()
+
+    # --- Building blocks ---
+    if all_x:
+        fig.add_trace(go.Mesh3d(
+            x=all_x, y=all_y, z=all_z,
+            i=all_i, j=all_j, k=all_k,
+            intensity=all_intensities,
+            colorscale=[
+                [0, '#90EE90'], [0.15, '#90EE90'],
+                [0.15, '#FFD700'], [0.4, '#FFD700'],
+                [0.4, '#FF6347'], [0.7, '#FF6347'],
+                [0.7, '#8B0000'], [1.0, '#8B0000'],
+            ],
+            opacity=0.9, flatshading=True,
+            lighting=dict(ambient=0.7, diffuse=0.8, specular=0.2, roughness=0.5),
+            colorbar=dict(title='Building Height (layers)', tickvals=[5, 20, 45, 80],
+                          ticktext=['Low', 'Mid', 'High', 'Skyscraper']),
+            hovertemplate='X: %{x:.0f}<br>Y: %{y:.0f}<br>Height: %{z:.0f} layers<extra></extra>',
+            name='Buildings',
+        ))
+
+    # --- Paths ---
+    for t_start in TIME_SLOTS:
+        result = results.get(t_start)
+        if result is None or result["status"] != "success":
+            continue
+        path = result["path"]
+        xs = [step["coords"][0] for step in path]
+        ys = [step["coords"][1] for step in path]
+        zs = [step["coords"][2] for step in path]
+        fig.add_trace(go.Scatter3d(
+            x=xs, y=ys, z=zs,
+            mode='lines+markers',
+            line=dict(color=TIME_COLORS[t_start], width=6),
+            marker=dict(
+                size=4,
+                color=TIME_COLORS[t_start],
+                symbol='circle',
+            ),
+            name=TIME_LABELS[t_start],
+            hovertemplate=(
+                f'{TIME_LABELS[t_start]}<br>'
+                'X: %{x:.0f}<br>Y: %{y:.0f}<br>Z: %{z:.0f}<extra></extra>'
+            ),
+        ))
+        # Start marker
+        fig.add_trace(go.Scatter3d(
+            x=[xs[0]], y=[ys[0]], z=[zs[0]],
+            mode='markers',
+            marker=dict(size=10, color=TIME_COLORS[t_start], symbol='circle',
+                        line=dict(width=2, color='black')),
+            name=f'{TIME_LABELS[t_start]} Start',
+            showlegend=False,
+            hovertemplate=f'{TIME_LABELS[t_start]} Start<extra></extra>',
+        ))
+        # Goal marker
+        fig.add_trace(go.Scatter3d(
+            x=[xs[-1]], y=[ys[-1]], z=[zs[-1]],
+            mode='markers',
+            marker=dict(size=10, color=TIME_COLORS[t_start], symbol='diamond',
+                        line=dict(width=2, color='black')),
+            name=f'{TIME_LABELS[t_start]} Goal',
+            showlegend=False,
+            hovertemplate=f'{TIME_LABELS[t_start]} Goal<extra></extra>',
+        ))
+
+    fig.update_layout(
+        title=dict(
+            text='Exp1: 3D Paths at Different Departure Times (Interactive)',
+            x=0.5, font=dict(size=18),
+        ),
+        scene=dict(
+            xaxis_title='X (grid cells)',
+            yaxis_title='Y (grid cells)',
+            zaxis_title='Z (altitude layers)',
+            aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=0.7),
+            camera=dict(eye=dict(x=1.8, y=1.8, z=1.2)),
+            xaxis=dict(range=[-1, nx]),
+            yaxis=dict(range=[-1, ny]),
+            zaxis=dict(range=[0, float(bh.max()) * 1.1]),
+        ),
+        width=1200, height=900,
+        margin=dict(l=0, r=0, b=0, t=80),
+        legend=dict(font=dict(size=12), y=0.98),
+    )
+
+    html_path = OUTPUT_DIR / "fig_paths_3d_interactive.html"
+    fig.write_html(str(html_path), include_plotlyjs="cdn")
+    print("  [OK] Saved: fig_paths_3d_interactive.html")
 
 
 if __name__ == "__main__":
