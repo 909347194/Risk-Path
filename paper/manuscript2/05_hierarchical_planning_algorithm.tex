@@ -13,7 +13,7 @@
 
 第~\ref{sec:system_architecture}~节将路径规划问题形式化为在约束空间 $\Pi_{valid}$ 上求解 $\pi^* = \arg\min J(\pi)$ 的优化问题，其中硬约束包括存活概率阈值（式~\ref{eq:con_survival}）与最大航程（式~\ref{eq:con_battery}）。若直接在四维时空栅格 $\mathcal{G}$ 上展开搜索，节点规模为 $O(N_x N_y N_z N_t)$，在城市尺度下计算量难以承受。
 
-为此，本算法将时间维从图拓扑维度中剥离，转而作为搜索标签的状态分量沿路径传播。搜索图的拓扑始终为三维空间图（26 邻域），时间信息仅在节点扩展时通过物理飞行耗时进行推算，并用于在线采样对应时刻的风险值。这一设计使得搜索复杂度与传统三维 A* 同阶，同时保持了完整的时间依赖风险感知能力。
+为此，本算法将时间维从图拓扑维度中剥离，转而作为搜索标签的状态分量沿路径传播。搜索图的拓扑始终为三维空间图（26 邻域），时间信息仅在节点扩展时通过物理飞行耗时进行推算，并用于在线查询对应时刻的风险值。这一设计使得搜索复杂度与传统三维 A* 同阶，同时保持了完整的时间依赖风险感知能力。
 
 % ============================================================================
 \subsection{搜索状态与累积危险率}
@@ -85,7 +85,7 @@ H_i \triangleq -\ln \bar{P}_{\mathrm{surv},i}
 $H_i$ 为加法量，在长距离路径搜索中可有效避免概率连乘导致的数值下溢。存活概率约束可等价表示为 $H_i \leq -\ln P_{\mathrm{th}}$。
 
 % ============================================================================
-\subsection{邻域扩展与在线时间采样}
+\subsection{邻域扩展与在线时间查询}
 \label{subsec:expansion_and_risk}
 
 对于当前标签 $\ell_i$，算法在三维空间中按 26 邻域生成候选邻居，并逐一检验硬约束（越界、障碍物、飞行高度、爬升速率、航程与电池续航），不满足者直接丢弃。通过检验的候选 $\mathbf{p}_j$，其飞行耗时与到达时刻为
@@ -97,7 +97,7 @@ t_j = t_i + \Delta t_{ij}
 \label{eq:time_advance}
 \end{equation}
 
-由此得到的 $t_j$ 即为在线时间采样的查询时刻。算法据此从第~\ref{sec:tpr_models}~节建立的动态风险张量中提取当前位置的坠机危险率 $\lambda_{\mathrm{cr}}^{(j)}$、致死后果 $e_f^{(j)}$、财产后果 $e_p^{(j)}$ 与噪声强度 $r_n^{(j)}$：
+由此得到的 $t_j$ 即为在线时间查询的时刻。算法据此从第~\ref{sec:tpr_models}~节建立的动态风险张量中提取当前位置的坠机危险率 $\lambda_{\mathrm{cr}}^{(j)}$、致死后果 $e_f^{(j)}$、财产后果 $e_p^{(j)}$ 与噪声强度 $r_n^{(j)}$：
 
 \begin{equation}
 \lambda_{\mathrm{cr}}^{(j)},\;
@@ -160,7 +160,7 @@ h(\mathbf{p}_j) = w_d \cdot \frac{\norm{\mathbf{p}_j - \mathbf{p}_g}}{d_{\max}}
 为控制计算规模，每个位置的标签集合大小设有上限 $M_{\mathrm{label}}$（本文取 $M_{\mathrm{label}}=4$）。综上所述，TD-RiskA* 的完整流程如算法~\ref{alg:td-riska-star}~所示。
 
 \begin{algorithm}[htbp]
-\caption{在线时间采样 TD-RiskA* 路径规划}
+\caption{在线时间查询 TD-RiskA* 路径规划}
 \label{alg:td-riska-star}
 \begin{algorithmic}[1]
 \Input 起点 $\mathbf{p}_s$，终点 $\mathbf{p}_g$，出发时刻 $t_{\mathrm{depart}}$，\\
