@@ -1,5 +1,0 @@
-grid,cells,status,path_length,nodes_explored,runtime_ms
-20x20x6x12,28800,success,212.1320,79,4.4
-30x30x8x12,86400,success,353.5534,129,5.0
-40x40x10x12,192000,success,494.9747,179,7.4
-60x60x12x24,1036800,success,777.8175,279,9.3

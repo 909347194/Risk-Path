@@ -48,7 +48,7 @@ TIME_SLOTS = [8, 12, 18, 22]
 TIME_LABELS = {8: "08:00 (Morning Rush)", 12: "12:00 (Noon)", 18: "18:00 (Evening Rush)", 22: "22:00 (Night)"}
 TIME_COLORS = {8: "#E74C3C", 12: "#F39C12", 18: "#3498DB", 22: "#8E44AD"}
 
-OUTPUT_DIR = Path(__file__).resolve().parents[2] / "output" / "EXP1-output" / "exp1_temporal"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output" / "EXP1-output" / "exp1_temporal"
 
 
 def run_experiment():

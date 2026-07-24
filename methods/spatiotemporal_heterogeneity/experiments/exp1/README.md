@@ -38,22 +38,21 @@
 ```
 exp1/
 ├── README.md                              # 本文档
+├── EXPERIMENT_ANALYSIS.md                 # 实验分析报告
 ├── scenario_builder.py                    # 共享场景构建工具
 ├── run_exp1_temporal_adaptability.py      # 实验1: 时间节律
 ├── run_exp2_microclimate_terrain.py       # 实验2: 微气象-地形
 ├── run_exp3_noise_safety_pareto.py        # 实验3: 帕累托权衡
-└── run_exp4_pruning_efficiency.py         # 实验4: 剪枝效率
+├── run_exp4_pruning_efficiency.py         # 实验4: 时间自适应 + 剪枝分析
+├── run_micro_comprehensive.py             # 综合实验 (基线/敏感性/统计/Scaling)
+└── run_random_od_pareto.py                # 随机 OD Pareto 鲁棒性
 
-output/EXP1-output/
-├── exp1_temporal/                         # 实验1输出
-│   ├── metrics.csv
-│   ├── paths.json
-│   ├── fig_paths_2d.png
-│   ├── fig_cumulative_curves.png
-│   └── fig_metrics_table.png
-├── exp2_microclimate/                     # 实验2输出
-├── exp3_pareto/                           # 实验3输出
-└── exp4_pruning/                          # 实验4输出
+experiments/output/EXP1-output/
+├── exp1_temporal/                         # 实验1: 时间节律
+├── exp2_microclimate/                     # 实验2: 微气象-地形
+├── exp3_pareto/                           # 实验3: 噪声-安全 Pareto
+├── exp4_pruning/                          # 实验4: 剪枝效率
+└── micro_comprehensive/                   # 综合实验
 ```
 
 ## 4. 运行方式

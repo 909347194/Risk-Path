@@ -91,7 +91,7 @@
 
 ## 5. Exp3：噪声-安全帕累托权衡
 
-**改进版 v2**：OD 穿过住宅走廊，夜间出发 t=22。
+**改进设计**：OD 穿过住宅走廊，夜间出发 t=22。
 
 | w_noise | 路径长度 | 累积噪声 | 累积致死 | 目标函数 J |
 |---------|---------|---------|---------|-----------|
@@ -246,7 +246,7 @@
 |---------|------|------|---------|
 | 时间节律自适应性 | Exp1 | ⭐⭐⭐ | 18:00 路径 +35m，节点 50× |
 | 微气象-地形耦合避让 | Exp2 | ⭐⭐⭐ | 致死 -60.7%，财产 -100% |
-| 噪声-安全 Pareto 权衡 | Exp3 v2 | ⭐⭐⭐ | 噪声 -63%，致死 -66% |
+| 噪声-安全 Pareto 权衡 | Exp3 | ⭐⭐⭐ | 噪声 -63%，致死 -66% |
 | 时间自适应路径选择 | Exp4 | ⭐⭐⭐ | 风暴窗口绕行 +12.3% |
 | 优于静态风险评估 | Exp A | ⭐⭐⭐ | TD-RiskA* 存活率 12.2% vs Static 4.9% |
 | 优于距离最短路径 | Exp A | ⭐⭐⭐ | TD-RiskA* 存活率 1.2% vs Distance-only 0.3% |
@@ -283,8 +283,8 @@ experiments/exp1/
 ├── scenario_builder.py                    # 共享场景构建
 ├── run_exp1_temporal_adaptability.py      # Exp1
 ├── run_exp2_microclimate_terrain.py       # Exp2
-├── run_exp3_v2_compute.py                 # Exp3 改进版
-├── run_exp4_pruning_v4_final.py           # Exp4 最终版
+├── run_exp3_noise_safety_pareto.py        # Exp3
+├── run_exp4_pruning_efficiency.py         # Exp4
 ├── run_micro_comprehensive.py             # 综合实验（A/B/C/D）
 ├── run_random_od_pareto.py                # 随机 OD Pareto 鲁棒性（E）
 └── EXPERIMENT_ANALYSIS.md                 # 本文档
@@ -292,8 +292,8 @@ experiments/exp1/
 experiments/output/EXP1-output/
 ├── exp1_temporal/                         # Exp1 输出
 ├── exp2_microclimate/                     # Exp2 输出
-├── exp3_pareto_v2/                        # Exp3 输出
-├── exp4_pruning_v4/                       # Exp4 输出
+├── exp3_pareto/                           # Exp3 输出
+├── exp4_pruning/                          # Exp4 输出
 └── micro_comprehensive/                   # 综合实验输出
     ├── baseline_comparison.csv            # 基线对比
     ├── sensitivity_analysis.csv           # 参数敏感性

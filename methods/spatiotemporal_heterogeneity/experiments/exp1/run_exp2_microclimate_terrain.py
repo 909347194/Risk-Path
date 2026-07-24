@@ -44,7 +44,7 @@ CONDITIONS = {
 }
 CONDITION_COLORS = {"calm": "#2ECC71", "wind": "#E74C3C", "rain": "#3498DB"}
 
-OUTPUT_DIR = Path(__file__).resolve().parents[2] / "output" / "EXP1-output" / "exp2_microclimate"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output" / "EXP1-output" / "exp2_microclimate"
 T_START = 12
 
 
