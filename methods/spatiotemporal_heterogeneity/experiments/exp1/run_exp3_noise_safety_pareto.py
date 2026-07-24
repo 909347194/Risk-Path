@@ -92,7 +92,17 @@ def build_scenario_with_residential_corridor():
     landuse_modified[5:15, :] = 2   # 上方：商业
     landuse_modified[45:55, :] = 2  # 下方：商业
 
-    # 3. 生成风/雨场（夜间无风雨，隔离噪声效应）
+    # 3. 同步更新人口密度：住宅走廊必须有非零人口
+    population_modified = np.zeros_like(city_data["population"], dtype=np.float32)
+    # 住宅走廊：基础人口 0.3~0.5（模拟真实住宅密度）
+    np.random.seed(42)
+    pop_residential = np.random.uniform(0.3, 0.5, size=(ny, nx)).astype(np.float32)
+    population_modified[landuse_modified == 1] = pop_residential[landuse_modified == 1]
+    # 商业区：基础人口 0.1~0.3
+    pop_commercial = np.random.uniform(0.1, 0.3, size=(ny, nx)).astype(np.float32)
+    population_modified[landuse_modified == 2] = pop_commercial[landuse_modified == 2]
+
+    # 4. 生成风/雨场（夜间无风雨，隔离噪声效应）
     wind_field = np.ones((ny, nx, nz, nt), dtype=np.float32) * 0.5
     rain_data = np.ones((ny, nx, nt), dtype=np.float32) * 0.0
 
@@ -100,7 +110,7 @@ def build_scenario_with_residential_corridor():
         "grid": grid,
         "landuse": landuse_modified,
         "building_heights": city_data["building_heights"].astype(np.float32),
-        "population": city_data["population"].astype(np.float32),
+        "population": population_modified,
         "wind_field": wind_field,
         "rain_data": rain_data,
     }
