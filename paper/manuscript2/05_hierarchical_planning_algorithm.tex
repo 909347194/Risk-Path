@@ -147,7 +147,7 @@ h(\mathbf{p}_j) = w_d \cdot \frac{\norm{\mathbf{p}_j - \mathbf{p}_g}}{d_{\max}}
 \subsection{多标签支配剪枝与算法总览}
 \label{subsec:label_setting}
 
-由于风险增量依赖于到达时刻和累积存活概率，本问题不具备马尔可夫性：同一空间位置 $\mathbf{p}$ 在不同的 $(t, H, J)$ 组合下到达时，可能产生互不支配的帕累托最优标签。因此，算法采用多标签（Label-Setting）机制替代传统 A* 的单节点覆盖（Node-Setting）策略。
+从一般性出发，由于风险增量依赖于到达时刻和累积存活概率，同一空间位置 $\mathbf{p}$ 在不同的 $(t, H, J)$ 组合下到达时，理论上可能产生互不支配的帕累托最优标签。为保证算法在一般非单调代价场景下的最优性，本文采用多标签（Label-Setting）机制替代传统 A* 的单节点覆盖（Node-Setting）策略。后文将证明，在本文所考虑的单调代价结构下，该机制自然退化为单标签覆盖，从而兼具理论完备性与计算高效性。
 
 具体而言，每个空间位置 $\mathbf{p}$ 维护一个非支配标签集合 $\mathcal{L}(\mathbf{p})$。当新候选标签 $\ell_{\mathrm{cand}}$ 到达 $\mathbf{p}$ 时，执行以下支配检查：
 
@@ -157,7 +157,14 @@ h(\mathbf{p}_j) = w_d \cdot \frac{\norm{\mathbf{p}_j - \mathbf{p}_g}}{d_{\max}}
 \item 将 $\ell_{\mathrm{cand}}$ 加入 $\mathcal{L}(\mathbf{p})$ 并压入开放列表。
 \end{enumerate}
 
-为控制计算规模，每个位置的标签集合大小设有上限 $M_{\mathrm{label}}$（本文取 $M_{\mathrm{label}}=4$）。综上所述，TD-RiskA* 的完整流程如算法~\ref{alg:td-riska-star}~所示。
+为控制计算规模，每个位置的标签集合大小设有上限 $M_{\mathrm{label}}$（本文取 $M_{\mathrm{label}}=4$）。
+
+\paragraph{单调代价结构下的退化性质}
+值得注意的是，在本文所建立的风险模型中，综合目标值 $J$、累积危险率 $H$ 与到达时刻 $t$ 均沿路径单调非递减。在此单调性条件下，对于同一空间位置 $\mathbf{p}$ 上的任意两个标签 $\ell_1$ 和 $\ell_2$，若 $t_1 \leq t_2$，则必然有 $H_1 \leq H_2$ 且 $J_1 \leq J_2$。这是因为从 $\ell_1$ 出发沿 $\ell_2$ 的后续路径飞行时，到达每个后续节点的时刻不晚于 $\ell_2$，累积危险率与综合目标值均不高于 $\ell_2$；同时，硬约束同样不会被更早触发——存活率约束方面，$H_1 \leq H_2$ 意味着从 $\ell_1$ 出发的累积危险率始终更低，更不易突破阈值 $-\ln P_{\mathrm{th}}$，电池续航方面，更早的到达时刻意味着总飞行时间更短，更不易超出 $L_{\max}$。因此较早到达的标签总是支配较晚到达的标签，多标签集合中至多保留一个有效标签，Label-Setting 机制在理论上退化为 Node-Setting（$k=1$）。实验~\ref{sec:case_study}~中的消融实验（表~\ref{tab:ablation_k}~）验证了这一性质：$k=1$ 至 $k=128$ 产生完全相同的最优路径与目标值。
+
+该退化性质具有双重意义：一方面，它保证了算法在本文场景下仅需单标签覆盖即可达到最优，计算开销与传统三维 A* 同阶；另一方面，多标签框架为未来扩展至非单调代价场景（如引入时变风场导致的非凸代价面或随机扰动）提供了即插即用的理论保障，无需修改算法结构。
+
+综上所述，TD-RiskA* 的完整流程如算法~\ref{alg:td-riska-star}~所示。
 
 \begin{algorithm}[htbp]
 \caption{在线时间查询 TD-RiskA* 路径规划}
