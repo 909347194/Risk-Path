@@ -117,7 +117,7 @@ def load_micro_scenario(config_path: Optional[Path] = None) -> MicroScenario:
 
 
 def build_env_tensor(scenario: MicroScenario, flight_altitude: float = 50.0) -> EnvTensor:
-    """Build EnvTensor with tidal population dynamics."""
+    """Build EnvTensor with mass-conservative tidal population dynamics."""
     grid = scenario.grid
     nx, ny, nz, nt = grid.shape
     config_path = scenario.config_path
@@ -141,47 +141,43 @@ def build_env_tensor(scenario: MicroScenario, flight_altitude: float = 50.0) -> 
     p_crash = crash_model.compute_pcrash(f_wind, f_rain, f_obs, dt=grid.temporal.dt_minutes * 60.0)
     p_crash = np.clip(p_crash, 0.0, 1.0).astype(np.float32)
 
-    # 2. Tidal population density (论文附录: POI潮汐模型)
-    #    Day (8-18): high pop in commercial(2), low in residential(1)
-    #    Night (22-6): high pop in residential(1), low in commercial(2)
+    # 2. Mass-conservative tidal population density
+    #    Uses POI Huff gravity + Partition of Unity activation
     base_pop = np.transpose(scenario.population, (1, 0))  # (ny,nx) -> (nx,ny)
     landuse_t = np.transpose(landuse, (1, 0))  # (ny,nx) -> (nx,ny)
 
-    rho_pop_3d = np.zeros((nx, ny, nt), dtype=np.float32)
-    for t in range(nt):
-        hour = t
-        pop_t = base_pop.copy()
+    from methods.spatiotemporal_heterogeneity.src.data_provision.spatiotemporal_tidal_model import (
+        SpatiotemporalTidalModel, TidalModelConfig,
+    )
+    from methods.spatiotemporal_heterogeneity.src.data_provision.poi_parser import create_synthetic_poi_counts
 
-        # Commercial areas: active during work hours
-        if 8 <= hour <= 18:
-            pop_t[landuse_t == 2] *= 3.0  # office hours: 3x population
-        else:
-            pop_t[landuse_t == 2] *= 0.3  # after hours: 30% population
+    poi_counts = create_synthetic_poi_counts(grid=grid, landuse=landuse_t, save=False)
 
-        # Residential areas: active at night
-        if 22 <= hour or hour <= 6:
-            pop_t[landuse_t == 1] *= 2.0  # night: 2x population
-        elif 9 <= hour <= 17:
-            pop_t[landuse_t == 1] *= 0.5  # work hours: 50% population
+    # Estimate N_total from base population (integral of density over area)
+    S_cell = grid.spatial.dx * grid.spatial.dy
+    N_total_pop = float(np.sum(base_pop)) * S_cell
+    N_total_veh = N_total_pop * 0.3  # vehicles ~ 30% of population
 
-        # Institution (school/hospital): active during day
-        if 8 <= hour <= 17:
-            pop_t[landuse_t == 3] *= 2.5  # school hours
-        else:
-            pop_t[landuse_t == 3] *= 0.4
+    tidal_config = TidalModelConfig(
+        N_total_pop=max(N_total_pop, 1000.0),
+        N_total_veh=max(N_total_veh, 500.0),
+    )
+    tidal_model = SpatiotemporalTidalModel(grid=grid, config=tidal_config)
 
-        rho_pop_3d[:, :, t] = pop_t
+    # Build mass-conservative population density rho_pop(x, y, t)
+    rho_pop_3d = tidal_model.build_population_density(base_pop, poi_counts)  # (nx, ny, nt)
 
-    rho_vehicle_3d = rho_pop_3d * 0.1
+    # Build mass-conservative traffic density rho_vehicle(x, y, t)
+    rho_vehicle_3d = tidal_model.build_vehicle_density(base_pop, poi_counts)  # (nx, ny, nt)
 
-    # 3. E_fatality(x,y,z,t) - now with dynamic population
+    # 3. E_fatality(x,y,z,t) - with dynamic population
     fatality_model = DynamicFatalityModel(config_path=config_path)
     e_fatality_3d = fatality_model.compute_fatality_consequence(
         rho_pop=rho_pop_3d, rho_vehicle=rho_vehicle_3d, flight_altitude=flight_altitude,
     )
     e_fatality = np.broadcast_to(e_fatality_3d[:, :, np.newaxis, :], (nx, ny, nz, nt)).astype(np.float32)
 
-    # 3. E_property(x,y)
+    # 4. E_property(x,y)
     building_t = np.transpose(scenario.building_heights, (1, 0))
     prop_model = PropertyDamageModel(
         building_heights=building_t,
@@ -189,14 +185,14 @@ def build_env_tensor(scenario: MicroScenario, flight_altitude: float = 50.0) -> 
     )
     e_property = prop_model.compute_property_consequence(flight_altitude=flight_altitude).astype(np.float32)
 
-    # 4. R_noise(x,y,z,t) - with dynamic population
+    # 5. R_noise(x,y,z,t) - with dynamic population
     noise_model = DynamicNoiseCost(grid=grid, config_path=config_path)
     r_noise = noise_model.compute_noise_cost(
         landuse=landuse_t,
         population_density=rho_pop_3d,  # (nx, ny, nt) dynamic
     ).astype(np.float32)
 
-    # 5. Obstacle mask
+    # 6. Obstacle mask
     obstacle = np.zeros((nx, ny, nz), dtype=np.float32)
     for iz in range(nz):
         z_height = (iz + 1.0) * grid.spatial.dz
