@@ -4,7 +4,7 @@
 设计原则：
 1. 风险场热力图叠加路径（论文核心贡献可视化）
 2. 时变切片展示（不同Departure Time的风险场差异）
-3. 关键事件标注（Storm Window、Pareto 跳变点）
+3. 关键事件标注（Storm Window、Pareto Jump点）
 4. 学术论文配色方案（色盲友好、灰度可辨）
 5. 300 DPI 输出，适配双栏排版
 """
@@ -126,7 +126,7 @@ def fig1_temporal_adaptability():
 
     ax1.set_xlabel("X (m)", fontsize=11)
     ax1.set_ylabel("Y (m)", fontsize=11)
-    ax1.set_title("(a) 18:00 风险场 + 4 时刻路径对比", fontsize=12, fontweight='bold')
+    ax1.set_title("(a) 18:00 Risk Field + 4 Time-Slot Paths", fontsize=12, fontweight='bold')
     ax1.legend(fontsize=8, loc='upper left', framealpha=0.9)
 
     # Panel B: 22:00 风险热力图（展示时变差异）
@@ -147,9 +147,9 @@ def fig1_temporal_adaptability():
         ys = [step["coords"][1] * grid.spatial.dy for step in path]
         ax2.plot(xs, ys, color=COLORS["night"], linewidth=3, alpha=0.9, zorder=5)
         ax2.scatter(xs[0], ys[0], color=COLORS["night"], s=100, marker='o',
-                   edgecolors='black', linewidth=2, zorder=6, label='起点')
+                   edgecolors='black', linewidth=2, zorder=6, label='Start')
         ax2.scatter(xs[-1], ys[-1], color=COLORS["night"], s=100, marker='*',
-                   edgecolors='black', linewidth=2, zorder=6, label='终点')
+                   edgecolors='black', linewidth=2, zorder=6, label='Goal')
 
     # 标注建筑区域
     bh = scenario.building_heights
@@ -160,7 +160,7 @@ def fig1_temporal_adaptability():
 
     ax2.set_xlabel("X (m)", fontsize=11)
     ax2.set_ylabel("Y (m)", fontsize=11)
-    ax2.set_title("(b) 22:00 风险场 (夜间低风险)", fontsize=12, fontweight='bold')
+    ax2.set_title("(b) 22:00 Risk Field (Night, Low Risk)", fontsize=12, fontweight='bold')
     ax2.legend(fontsize=9, loc='upper left')
 
     # Panel C: 累积存活概率沿路径变化
@@ -359,9 +359,9 @@ def fig2_microclimate_terrain():
             ax_top.set_ylabel("Distance-only", fontsize=12, fontweight='bold')
 
         # 标注关键指标
-        ax_top.text(0.02, 0.98, f"路径: {m_dist['path_length']:.0f}m\n"
-                   f"致死: {m_dist['cum_fatality']:.5f}\n"
-                   f"财产: {m_dist['cum_property']:.2f}",
+        ax_top.text(0.02, 0.98, f"Path: {m_dist['path_length']:.0f}m\n"
+                   f"Fatal: {m_dist['cum_fatality']:.5f}\n"
+                   f"Prop: {m_dist['cum_property']:.2f}",
                    transform=ax_top.transAxes, fontsize=8, va='top',
                    bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
 
@@ -395,8 +395,8 @@ def fig2_microclimate_terrain():
         # 标注改进幅度
         fatality_reduction = (m_dist['cum_fatality'] - m_risk['cum_fatality']) / m_dist['cum_fatality'] * 100 if m_dist['cum_fatality'] > 0 else 0
         color = 'green' if fatality_reduction > 0 else 'red'
-        ax_bot.text(0.02, 0.98, f"路径: {m_risk['path_length']:.0f}m\n"
-                   f"致死: {m_risk['cum_fatality']:.5f}\n"
+        ax_bot.text(0.02, 0.98, f"Path: {m_risk['path_length']:.0f}m\n"
+                   f"Fatal: {m_risk['cum_fatality']:.5f}\n"
                    f"Fatal ↓: {fatality_reduction:.1f}%",
                    transform=ax_bot.transAxes, fontsize=8, va='top',
                    bbox=dict(boxstyle='round', facecolor='white', alpha=0.8),
@@ -592,7 +592,7 @@ def fig3_pareto_frontier():
         m_before = success[jump_idx - 1]
         m_after = success[jump_idx]
 
-        categories = ['Path Length\n(m)', 'Cumulative Noise', '累积致死\n(×10³)', '存活概率\n(×10²)']
+        categories = ['Path Length\n(m)', 'Cumulative Noise', 'Fatality\n(×10³)', 'Survival\n(×10²)']
         before_vals = [
             m_before['path_length'] / 10,  # 归一化
             m_before['cum_noise'],
@@ -624,7 +624,7 @@ def fig3_pareto_frontier():
 
         ax4.set_xticks(x)
         ax4.set_xticklabels(categories, fontsize=10)
-        ax4.set_ylabel("Value (不同量纲)", fontsize=11)
+        ax4.set_ylabel("Value (Mixed Units)", fontsize=11)
         ax4.set_title("(d) (d) Pareto Jump: Before vs After", fontsize=12, fontweight='bold')
         ax4.legend(fontsize=9)
         ax4.grid(True, alpha=0.3, axis='y')
@@ -704,7 +704,7 @@ def fig4_storm_window():
         else:
             wind_speeds.append(3.0)
 
-    ax1.fill_between(hrs, wind_speeds, alpha=0.3, color='skyblue', label='风速')
+    ax1.fill_between(hrs, wind_speeds, alpha=0.3, color='skyblue', label='Wind')
     l1, = ax1.plot(hrs, wind_speeds, '-', color='steelblue', linewidth=2, label='Canyon Wind')
 
     l2, = ax1_twin.plot(hrs, dists, 'o-', color=COLORS["wind"], linewidth=2,
@@ -725,7 +725,7 @@ def fig4_storm_window():
     ax2.plot(hrs, survs, 'o-', color=COLORS["safe"], linewidth=2, markersize=4)
     ax2.axvspan(12, 18, alpha=0.15, color='red', label='Storm Window')
     ax2.set_xlabel("Time (h)", fontsize=11)
-    ax2.set_ylabel("存活概率", fontsize=11)
+    ax2.set_ylabel("Survival Probability", fontsize=11)
     ax2.set_title("(b) (b) Survival Over Time", fontsize=12, fontweight='bold')
     ax2.grid(True, alpha=0.3)
     ax2.legend(fontsize=9)
@@ -814,7 +814,7 @@ def fig4_storm_window():
 # Main
 # ============================================================
 if __name__ == "__main__":
-    print("开始生成论文级图表...")
+    print("Generating paper figures...")
     print()
 
     fig1_temporal_adaptability()
@@ -827,5 +827,5 @@ if __name__ == "__main__":
 
     print()
     print("=" * 60)
-    print(f"所有图表已保存至: {OUTPUT_BASE}")
+    print(f"All figures saved to: {OUTPUT_BASE}")
     print("=" * 60)
