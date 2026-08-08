@@ -236,10 +236,10 @@
         "absolute_time": 28801.414213562373,
         "cumulative_hazard": 0.03820959540055311,
         "p_survival": 0.9625111818313599,
-        "cum_fatality": 0.00011326468098449283,
+        "cum_fatality": 3.7413361671997936e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.00031533142240429407,
-        "cum_objective": 0.32715238690643383
+        "cum_noise": 9.108951620264193e-05,
+        "cum_objective": 0.3268087339731902
       },
       {
         "cum_distance": 28.284271247461902,
@@ -247,10 +247,10 @@
         "absolute_time": 28802.828427124747,
         "cumulative_hazard": 0.07613127549599794,
         "p_survival": 0.9266945462878482,
-        "cum_fatality": 0.00022147720933160476,
+        "cum_fatality": 7.809798374624899e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.000618841442451215,
-        "cum_objective": 0.6542801906327124
+        "cum_noise": 0.00019091070606569473,
+        "cum_objective": 0.6536360820189675
       },
       {
         "cum_distance": 42.42640687119285,
@@ -258,10 +258,10 @@
         "absolute_time": 28804.24264068712,
         "cumulative_hazard": 0.11504769840240103,
         "p_survival": 0.8913236281797868,
-        "cum_fatality": 0.00032834309498359606,
+        "cum_fatality": 0.00012339052984660346,
         "cum_property": 0.0,
-        "cum_noise": 0.0009110573518664641,
-        "cum_objective": 0.9814010173398361
+        "cum_noise": 0.0002993009383604488,
+        "cum_objective": 0.9804884649862287
       },
       {
         "cum_distance": 56.568542494923804,
@@ -269,10 +269,10 @@
         "absolute_time": 28805.656854249493,
         "cumulative_hazard": 0.1535105420349222,
         "p_survival": 0.8576917223350787,
-        "cum_fatality": 0.00032834309498359606,
+        "cum_fatality": 0.00017139095822642754,
         "cum_property": 0.0,
-        "cum_noise": 0.0009110573518664641,
-        "cum_objective": 1.3079996497109265
+        "cum_noise": 0.0004155826270195315,
+        "cum_objective": 1.3073564670850866
       },
       {
         "cum_distance": 70.71067811865476,
@@ -280,10 +280,10 @@
         "absolute_time": 28807.071067811867,
         "cumulative_hazard": 0.19197202294725568,
         "p_survival": 0.8253299584684657,
-        "cum_fatality": 0.00032834309498359606,
+        "cum_fatality": 0.0002234656598036566,
         "cum_property": 0.0,
-        "cum_noise": 0.0009110573518664641,
-        "cum_objective": 1.6345982820820169
+        "cum_noise": 0.0005418871026100116,
+        "cum_objective": 1.6342473818084071
       },
       {
         "cum_distance": 84.8528137423857,
@@ -291,10 +291,10 @@
         "absolute_time": 28808.48528137424,
         "cumulative_hazard": 0.23162690473995734,
         "p_survival": 0.793242022942702,
-        "cum_fatality": 0.00032834309498359606,
+        "cum_fatality": 0.0002846857082421568,
         "cum_property": 0.0,
-        "cum_noise": 0.0009110573518664641,
-        "cum_objective": 1.9611969144531072
+        "cum_noise": 0.0006863600417861301,
+        "cum_objective": 1.9611883522959195
       },
       {
         "cum_distance": 98.99494936611666,
@@ -302,10 +302,10 @@
         "absolute_time": 28809.899494936613,
         "cumulative_hazard": 0.27149018116536594,
         "p_survival": 0.7622427677669832,
-        "cum_fatality": 0.0004220009086932792,
+        "cum_fatality": 0.0003696154943046273,
         "cum_property": 0.0,
-        "cum_noise": 0.001161191487271846,
-        "cum_objective": 2.2882528897232333
+        "cum_noise": 0.0008871289084942097,
+        "cum_objective": 2.288262015023153
       },
       {
         "cum_distance": 113.13708498984761,
@@ -313,10 +313,10 @@
         "absolute_time": 28811.313708498987,
         "cumulative_hazard": 0.31219814856739725,
         "p_survival": 0.7318365015060261,
-        "cum_fatality": 0.0005138671295083638,
+        "cum_fatality": 0.0005225084552806158,
         "cum_property": 0.0,
-        "cum_noise": 0.0014015505834491947,
-        "cum_objective": 2.615299856334595
+        "cum_noise": 0.0012442899403472467,
+        "cum_objective": 2.615714454266587
       },
       {
         "cum_distance": 127.27922061357856,
@@ -324,10 +324,10 @@
         "absolute_time": 28812.72792206136,
         "cumulative_hazard": 0.3546279887719981,
         "p_survival": 0.7014343361267614,
-        "cum_fatality": 0.0006057209603608053,
+        "cum_fatality": 0.0006093386138931651,
         "cum_property": 0.0,
-        "cum_noise": 0.001632321628436472,
-        "cum_objective": 2.9423462644466345
+        "cum_noise": 0.0014363845199900623,
+        "cum_objective": 2.9427945636860464
       },
       {
         "cum_distance": 141.4213562373095,
@@ -335,10 +335,10 @@
         "absolute_time": 28814.142135623733,
         "cumulative_hazard": 0.3983991922695873,
         "p_survival": 0.6713939588818439,
-        "cum_fatality": 0.0006057209603608053,
+        "cum_fatality": 0.0006738376414481983,
         "cum_property": 0.0,
-        "cum_noise": 0.001632321628436472,
-        "cum_objective": 3.268944896817725
+        "cum_noise": 0.0015724658912301842,
+        "cum_objective": 3.2697487462836916
       },
       {
         "cum_distance": 155.56349186104046,
@@ -346,10 +346,10 @@
         "absolute_time": 28815.556349186107,
         "cumulative_hazard": 0.4447011978798043,
         "p_survival": 0.6410157842947827,
-        "cum_fatality": 0.0006057209603608053,
+        "cum_fatality": 0.0007340070926082341,
         "cum_property": 0.0,
-        "cum_noise": 0.001632321628436472,
-        "cum_objective": 3.595543529188815
+        "cum_noise": 0.0016903679954018438,
+        "cum_objective": 3.59667618903222
       },
       {
         "cum_distance": 169.7056274847714,
@@ -357,10 +357,10 @@
         "absolute_time": 28816.97056274848,
         "cumulative_hazard": 0.4963638708582559,
         "p_survival": 0.6087400979868955,
-        "cum_fatality": 0.0006057209603608053,
+        "cum_fatality": 0.0007965603927108569,
         "cum_property": 0.0,
-        "cum_noise": 0.001632321628436472,
-        "cum_objective": 3.9221421615599055
+        "cum_noise": 0.0017978641164244143,
+        "cum_objective": 3.9236118695173228
       },
       {
         "cum_distance": 183.84776310850236,
@@ -368,10 +368,10 @@
         "absolute_time": 28818.384776310853,
         "cumulative_hazard": 0.5486921361164254,
         "p_survival": 0.5777048758539209,
-        "cum_fatality": 0.0006057209603608053,
+        "cum_fatality": 0.0008556680808912905,
         "cum_property": 0.0,
-        "cum_noise": 0.001632321628436472,
-        "cum_objective": 4.248740793930996
+        "cum_noise": 0.0018973585737953368,
+        "cum_objective": 4.250528323563279
       },
       {
         "cum_distance": 197.9898987322333,
@@ -379,10 +379,10 @@
         "absolute_time": 28819.798989873227,
         "cumulative_hazard": 0.6074351565910135,
         "p_survival": 0.5447462676943291,
-        "cum_fatality": 0.0006057209603608053,
+        "cum_fatality": 0.0009170080783497399,
         "cum_property": 0.0,
-        "cum_noise": 0.001632321628436472,
-        "cum_objective": 4.575339426302087
+        "cum_noise": 0.0019903706960509118,
+        "cum_objective": 4.577453527926238
       },
       {
         "cum_distance": 212.13203435596427,
@@ -390,10 +390,10 @@
         "absolute_time": 28821.2132034356,
         "cumulative_hazard": 0.66887262802191,
         "p_survival": 0.512285789002828,
-        "cum_fatality": 0.0007037935575565301,
+        "cum_fatality": 0.0009767449739815919,
         "cum_property": 0.0,
-        "cum_noise": 0.0018040972438779553,
-        "cum_objective": 4.902412261006333
+        "cum_noise": 0.00207715804347621,
+        "cum_objective": 4.904368992257694
       },
       {
         "cum_distance": 226.27416997969522,
@@ -401,10 +401,10 @@
         "absolute_time": 28822.627416997973,
         "cumulative_hazard": 0.7366747289384652,
         "p_survival": 0.47870308936993017,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0010386110603649108,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 5.229500646794804
+        "cum_noise": 0.002158287222511605,
+        "cum_objective": 5.231292969379908
       },
       {
         "cum_distance": 240.41630560342617,
@@ -412,10 +412,10 @@
         "absolute_time": 28824.041630560347,
         "cumulative_hazard": 0.8062531277420495,
         "p_survival": 0.44652801916646295,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0010991173399065083,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 5.5560992791658945
+        "cum_noise": 0.0022348020400760585,
+        "cum_objective": 5.558208896136036
       },
       {
         "cum_distance": 254.55844122715712,
@@ -423,10 +423,10 @@
         "absolute_time": 28825.45584412272,
         "cumulative_hazard": 0.8723838989100902,
         "p_survival": 0.417954000605987,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0011563841141754528,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 5.882697911536985
+        "cum_noise": 0.0023098109745565833,
+        "cum_objective": 5.885108657918932
       },
       {
         "cum_distance": 268.70057685088807,
@@ -434,10 +434,10 @@
         "absolute_time": 28826.870057685093,
         "cumulative_hazard": 0.9430519946940978,
         "p_survival": 0.3894374587132398,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0012108475286234453,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 6.209296543908075
+        "cum_noise": 0.0023746318688941804,
+        "cum_objective": 6.211991608711742
       },
       {
         "cum_distance": 282.842712474619,
@@ -445,10 +445,10 @@
         "absolute_time": 28828.284271247467,
         "cumulative_hazard": 1.0116058423756207,
         "p_survival": 0.3636345706600055,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0012582787676164912,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 6.5358951762791655
+        "cum_noise": 0.0024325223963880993,
+        "cum_objective": 6.538838306198586
       },
       {
         "cum_distance": 296.98484809834997,
@@ -456,10 +456,10 @@
         "absolute_time": 28829.69848480984,
         "cumulative_hazard": 1.0737710706534795,
         "p_survival": 0.34171744395941883,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0012967016075918522,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 6.862493808650256
+        "cum_noise": 0.0024850757850301145,
+        "cum_objective": 6.865639687038078
       },
       {
         "cum_distance": 311.1269837220809,
@@ -467,10 +467,10 @@
         "absolute_time": 28831.112698372213,
         "cumulative_hazard": 1.1299767410184165,
         "p_survival": 0.3230407699341929,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.001328616164163753,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 7.189092441021346
+        "cum_noise": 0.0025334400964240568,
+        "cum_objective": 7.19240822220094
       },
       {
         "cum_distance": 325.2691193458119,
@@ -478,10 +478,10 @@
         "absolute_time": 28832.526911934587,
         "cumulative_hazard": 1.183083735657605,
         "p_survival": 0.30633263171959063,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.00135644848540823,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 7.5156910733924365
+        "cum_noise": 0.002578656084008319,
+        "cum_objective": 7.51915598991423
       },
       {
         "cum_distance": 339.4112549695428,
@@ -489,10 +489,10 @@
         "absolute_time": 28833.94112549696,
         "cumulative_hazard": 1.2322775255797078,
         "p_survival": 0.2916276313619875,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.0013801761599264262,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 7.842289705763527
+        "cum_noise": 0.002621436634343962,
+        "cum_objective": 7.845883108109791
       },
       {
         "cum_distance": 353.5533905932738,
@@ -500,10 +500,10 @@
         "absolute_time": 28835.355339059333,
         "cumulative_hazard": 1.278732931866893,
         "p_survival": 0.27838981593982076,
-        "cum_fatality": 0.0008052567123406432,
+        "cum_fatality": 0.001401119327800752,
         "cum_property": 0.0,
-        "cum_noise": 0.0019656370504017233,
-        "cum_objective": 8.168888338134618
+        "cum_noise": 0.0026621961863088715,
+        "cum_objective": 8.172596100935845
       },
       {
         "cum_distance": 367.6955262170047,
@@ -511,10 +511,10 @@
         "absolute_time": 28836.769552621707,
         "cumulative_hazard": 1.3232861981712027,
         "p_survival": 0.26625888325655717,
-        "cum_fatality": 0.0008419078069212555,
+        "cum_fatality": 0.0014200740276155905,
         "cum_property": 0.0,
-        "cum_noise": 0.0020534221070448964,
-        "cum_objective": 8.495665416017422
+        "cum_noise": 0.002701084146901651,
+        "cum_objective": 8.499298870500734
       },
       {
         "cum_distance": 381.8376618407357,
@@ -522,10 +522,10 @@
         "absolute_time": 28838.18376618408,
         "cumulative_hazard": 1.3651691815763578,
         "p_survival": 0.2553374739373413,
-        "cum_fatality": 0.0008749045777684313,
+        "cum_fatality": 0.0014368668559678773,
         "cum_property": 0.0,
-        "cum_noise": 0.0021373818994299657,
-        "cum_objective": 8.822424958675091
+        "cum_noise": 0.002737944185120402,
+        "cum_objective": 8.825990527475433
       },
       {
         "cum_distance": 395.9797974644666,
@@ -533,10 +533,10 @@
         "absolute_time": 28839.597979746453,
         "cumulative_hazard": 1.4049148585488405,
         "p_survival": 0.24538794824954582,
-        "cum_fatality": 0.0008749045777684313,
+        "cum_fatality": 0.0014517291849051673,
         "cum_property": 0.0,
-        "cum_noise": 0.0021373818994299657,
-        "cum_objective": 9.149023591046182
+        "cum_noise": 0.00277242777276404,
+        "cum_objective": 9.152672081517148
       },
       {
         "cum_distance": 410.1219330881976,
@@ -544,10 +544,10 @@
         "absolute_time": 28841.012193308827,
         "cumulative_hazard": 1.4457772956383654,
         "p_survival": 0.2355629033578814,
-        "cum_fatality": 0.0008749045777684313,
+        "cum_fatality": 0.001465784179916109,
         "cum_property": 0.0,
-        "cum_noise": 0.0021373818994299657,
-        "cum_objective": 9.475622223417274
+        "cum_noise": 0.0028042391395989175,
+        "cum_objective": 9.479348877362645
       },
       {
         "cum_distance": 424.26406871192853,
@@ -555,10 +555,10 @@
         "absolute_time": 28842.4264068712,
         "cumulative_hazard": 1.484717577268159,
         "p_survival": 0.22656631912034922,
-        "cum_fatality": 0.0008749045777684313,
+        "cum_fatality": 0.0014780145155774218,
         "cum_property": 0.0,
-        "cum_noise": 0.0021373818994299657,
-        "cum_objective": 9.802220855788365
+        "cum_noise": 0.0028332974201631606,
+        "cum_objective": 9.80601596314179
       },
       {
         "cum_distance": 438.4062043356595,
@@ -566,10 +566,10 @@
         "absolute_time": 28843.840620433573,
         "cumulative_hazard": 1.524018039847679,
         "p_survival": 0.21783485702581998,
-        "cum_fatality": 0.0009012848777345778,
+        "cum_fatality": 0.001489308544500703,
         "cum_property": 0.0,
-        "cum_noise": 0.0022088253791070905,
-        "cum_objective": 10.128948358031767
+        "cum_noise": 0.0028599097402672007,
+        "cum_objective": 10.1326777380747
       },
       {
         "cum_distance": 452.54833995939043,
@@ -577,10 +577,10 @@
         "absolute_time": 28845.254833995947,
         "cumulative_hazard": 1.5625500129953034,
         "p_survival": 0.20960090411992277,
-        "cum_fatality": 0.0009261620569759316,
+        "cum_fatality": 0.0014994827069800497,
         "cum_property": 0.0,
-        "cum_noise": 0.0022775155544222784,
-        "cum_objective": 10.455668586075802
+        "cum_noise": 0.0028843615129010257,
+        "cum_objective": 10.459333403976222
       },
       {
         "cum_distance": 466.6904755831214,
@@ -588,10 +588,10 @@
         "absolute_time": 28846.66904755832,
         "cumulative_hazard": 1.600705300606976,
         "p_survival": 0.20175417046276864,
-        "cum_fatality": 0.0009498693336484009,
+        "cum_fatality": 0.0015085047764771277,
         "cum_property": 0.0,
-        "cum_noise": 0.0023436093056556397,
-        "cum_objective": 10.782383128860486
+        "cum_noise": 0.0029062579647449772,
+        "cum_objective": 10.785982679393188
       },
       {
         "cum_distance": 480.83261120685233,
@@ -599,10 +599,10 @@
         "absolute_time": 28848.083261120693,
         "cumulative_hazard": 1.6393240640784321,
         "p_survival": 0.19411120469323934,
-        "cum_fatality": 0.0009729609679529809,
+        "cum_fatality": 0.0015162875503344643,
         "cum_property": 0.0,
-        "cum_noise": 0.002407228735203663,
-        "cum_objective": 11.109094622121177
+        "cum_noise": 0.002924925626272553,
+        "cum_objective": 11.112624928132083
       },
       {
         "cum_distance": 494.9747468305833,
@@ -610,10 +610,10 @@
         "absolute_time": 28849.497474683067,
         "cumulative_hazard": 1.6778180030126044,
         "p_survival": 0.18678108749011116,
-        "cum_fatality": 0.0009951073952651592,
+        "cum_fatality": 0.0015227415556225581,
         "cum_property": 0.0,
-        "cum_noise": 0.0024684380974841933,
-        "cum_objective": 11.43580150577533
+        "cum_noise": 0.002940455364973659,
+        "cum_objective": 11.439259745804037
       }
     ]
   },
@@ -854,10 +854,10 @@
         "absolute_time": 43201.41421356237,
         "cumulative_hazard": 0.037478390707677396,
         "p_survival": 0.9632152318954468,
-        "cum_fatality": 0.00011113753988478692,
+        "cum_fatality": 2.2290488775666972e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.00031533142240429407,
-        "cum_objective": 0.32714229589843813
+        "cum_noise": 5.46279493125893e-05,
+        "cum_objective": 0.3267239223523197
       },
       {
         "cum_distance": 28.284271247461902,
@@ -865,10 +865,10 @@
         "absolute_time": 43202.82842712474,
         "cumulative_hazard": 0.07556723733939615,
         "p_survival": 0.9272173848080456,
-        "cum_fatality": 0.00021989756129014952,
+        "cum_fatality": 4.785682170992797e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0006190634515593674,
-        "cum_objective": 0.6542727084642888
+        "cum_noise": 0.00011641726857311322,
+        "cum_objective": 0.6534659821531895
       },
       {
         "cum_distance": 42.42640687119285,
@@ -876,10 +876,10 @@
         "absolute_time": 43204.24264068711,
         "cumulative_hazard": 0.11446370611427396,
         "p_survival": 0.8918443063260822,
-        "cum_fatality": 0.00032676997406336694,
+        "cum_fatality": 7.634343169396975e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114442283888781,
-        "cum_objective": 0.9813935747283862
+        "cum_noise": 0.00018384335144480606,
+        "cum_objective": 0.9802239733405564
       },
       {
         "cum_distance": 56.568542494923804,
@@ -887,10 +887,10 @@
         "absolute_time": 43205.65685424948,
         "cumulative_hazard": 0.15308593887729566,
         "p_survival": 0.858055978275291,
-        "cum_fatality": 0.00032676997406336694,
+        "cum_fatality": 0.00010647717773308836,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114442283888781,
-        "cum_objective": 1.3079922070994767
+        "cum_noise": 0.000255532506659424,
+        "cum_objective": 1.3069912946348883
       },
       {
         "cum_distance": 70.71067811865476,
@@ -898,10 +898,10 @@
         "absolute_time": 43207.07106781185,
         "cumulative_hazard": 0.19144930881600528,
         "p_survival": 0.825761482872828,
-        "cum_fatality": 0.00032676997406336694,
+        "cum_fatality": 0.000138972729171868,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114442283888781,
-        "cum_objective": 1.634590839470567
+        "cum_noise": 0.0003332413891687096,
+        "cum_objective": 1.63377196468679
       },
       {
         "cum_distance": 84.8528137423857,
@@ -909,10 +909,10 @@
         "absolute_time": 43208.48528137422,
         "cumulative_hazard": 0.23144949189867514,
         "p_survival": 0.7933827667483268,
-        "cum_fatality": 0.00032676997406336694,
+        "cum_fatality": 0.000176930892431949,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114442283888781,
-        "cum_objective": 1.9611894718416574
+        "cum_noise": 0.0004202264984108538,
+        "cum_objective": 1.9605820329474315
       },
       {
         "cum_distance": 98.99494936611666,
@@ -920,10 +920,10 @@
         "absolute_time": 43209.89949493659,
         "cumulative_hazard": 0.2724254992957161,
         "p_survival": 0.7615301615952487,
-        "cum_fatality": 0.00042300600756432023,
+        "cum_fatality": 0.00022533990478461753,
         "cum_property": 0.0,
-        "cum_noise": 0.0011616227447386824,
-        "cum_objective": 2.2882576803185164
+        "cum_noise": 0.0005282522989797827,
+        "cum_objective": 2.28744939097667
       },
       {
         "cum_distance": 113.13708498984761,
@@ -931,10 +931,10 @@
         "absolute_time": 43211.31370849896,
         "cumulative_hazard": 0.31653570431034966,
         "p_survival": 0.7286689944714053,
-        "cum_fatality": 0.0005222892016708161,
+        "cum_fatality": 0.0003025176710317151,
         "cum_property": 0.0,
-        "cum_noise": 0.001401757133798284,
-        "cum_objective": 2.6153398208187353
+        "cum_noise": 0.0006878881268551646,
+        "cum_objective": 2.6144724499439347
       },
       {
         "cum_distance": 127.27922061357856,
@@ -942,10 +942,10 @@
         "absolute_time": 43212.72792206133,
         "cumulative_hazard": 0.36318369079054535,
         "p_survival": 0.6954586724118598,
-        "cum_fatality": 0.0006226272949269347,
+        "cum_fatality": 0.00036019004587471796,
         "cum_property": 0.0,
-        "cum_noise": 0.001631529364286859,
-        "cum_objective": 2.9424264256183186
+        "cum_noise": 0.0008006664978000865,
+        "cum_objective": 2.941386173534065
       },
       {
         "cum_distance": 141.4213562373095,
@@ -953,10 +953,10 @@
         "absolute_time": 43214.1421356237,
         "cumulative_hazard": 0.41961813526399305,
         "p_survival": 0.657297770737054,
-        "cum_fatality": 0.0006226272949269347,
+        "cum_fatality": 0.00042259058327864655,
         "cum_property": 0.0,
-        "cum_noise": 0.001631529364286859,
-        "cum_objective": 3.269025057989409
+        "cum_noise": 0.0009014866921406963,
+        "cum_objective": 3.2683189936351233
       },
       {
         "cum_distance": 155.56349186104046,
@@ -964,10 +964,10 @@
         "absolute_time": 43215.55634918607,
         "cumulative_hazard": 0.47971927849077517,
         "p_survival": 0.6189571219975318,
-        "cum_fatality": 0.0006226272949269347,
+        "cum_fatality": 0.0004911390299498837,
         "cum_property": 0.0,
-        "cum_noise": 0.001631529364286859,
-        "cum_objective": 3.5956236903604992
+        "cum_noise": 0.0010047698290273838,
+        "cum_objective": 3.595282366056604
       },
       {
         "cum_distance": 169.7056274847714,
@@ -975,10 +975,10 @@
         "absolute_time": 43216.970562748436,
         "cumulative_hazard": 0.5572819543539143,
         "p_survival": 0.572763748051991,
-        "cum_fatality": 0.0006226272949269347,
+        "cum_fatality": 0.0005863802533298899,
         "cum_property": 0.0,
-        "cum_noise": 0.001631529364286859,
-        "cum_objective": 3.9222223227315895
+        "cum_noise": 0.001115835406910724,
+        "cum_objective": 3.9223774647432954
       },
       {
         "cum_distance": 183.84776310850236,
@@ -986,10 +986,10 @@
         "absolute_time": 43218.384776310806,
         "cumulative_hazard": 0.6473885197977972,
         "p_survival": 0.5234108706536996,
-        "cum_fatality": 0.0006226272949269347,
+        "cum_fatality": 0.0006900924320987875,
         "cum_property": 0.0,
-        "cum_noise": 0.001631529364286859,
-        "cum_objective": 4.24882095510268
+        "cum_noise": 0.001220240795945336,
+        "cum_objective": 4.2495114665706435
       },
       {
         "cum_distance": 197.9898987322333,
@@ -997,10 +997,10 @@
         "absolute_time": 43219.798989873176,
         "cumulative_hazard": 0.7703786426979012,
         "p_survival": 0.46283778498084993,
-        "cum_fatality": 0.0006226272949269347,
+        "cum_fatality": 0.0008058077781978168,
         "cum_property": 0.0,
-        "cum_noise": 0.001631529364286859,
-        "cum_objective": 4.57541958747377
+        "cum_noise": 0.0013071067248988204,
+        "cum_objective": 4.576698019635579
       },
       {
         "cum_distance": 212.13203435596427,
@@ -1008,10 +1008,10 @@
         "absolute_time": 43221.213203435545,
         "cumulative_hazard": 0.9213673829405395,
         "p_survival": 0.39797448533922114,
-        "cum_fatality": 0.0008185982884232376,
+        "cum_fatality": 0.0009247247607135726,
         "cum_property": 0.0,
-        "cum_noise": 0.0017774766613673232,
-        "cum_objective": 4.902955499141974
+        "cum_noise": 0.001380747236166815,
+        "cum_objective": 4.9038958747828545
       },
       {
         "cum_distance": 226.27416997969522,
@@ -1019,10 +1019,10 @@
         "absolute_time": 43222.627416997915,
         "cumulative_hazard": 1.1090415026869704,
         "p_survival": 0.32987499388797,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.00105246343770268,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 5.2305367284785005
+        "cum_noise": 0.001445295071941887,
+        "cum_objective": 5.231133558750987
       },
       {
         "cum_distance": 240.41630560342617,
@@ -1030,10 +1030,10 @@
         "absolute_time": 43224.041630560285,
         "cumulative_hazard": 1.3180113208421282,
         "p_survival": 0.26766707696287095,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.001177206541393806,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 5.557135360849591
+        "cum_noise": 0.0015022187564039864,
+        "cum_objective": 5.5583543154164445
       },
       {
         "cum_distance": 254.55844122715712,
@@ -1041,10 +1041,10 @@
         "absolute_time": 43225.455844122655,
         "cumulative_hazard": 1.5333217520983708,
         "p_survival": 0.21581758281835223,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.0012938623329353037,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 5.883733993220681
+        "cum_noise": 0.0015537667711905804,
+        "cum_objective": 5.885534203362681
       },
       {
         "cum_distance": 268.70057685088807,
@@ -1052,10 +1052,10 @@
         "absolute_time": 43226.870057685024,
         "cumulative_hazard": 1.7531877906066005,
         "p_survival": 0.1732208705145577,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.001402369204052759,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 6.2103326255917715
+        "cum_noise": 0.0016005763233978465,
+        "cum_objective": 6.212673126678777
       },
       {
         "cum_distance": 282.842712474619,
@@ -1063,10 +1063,10 @@
         "absolute_time": 43228.284271247394,
         "cumulative_hazard": 1.9417337608718386,
         "p_survival": 0.14345501734945765,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.0014764886555882276,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 6.536931257962862
+        "cum_noise": 0.001637281927474129,
+        "cum_objective": 6.539642326607994
       },
       {
         "cum_distance": 296.98484809834997,
@@ -1074,10 +1074,10 @@
         "absolute_time": 43229.69848480976,
         "cumulative_hazard": 2.0945645526792833,
         "p_survival": 0.12312384593146387,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.0015200517717336608,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 6.863529890333952
+        "cum_noise": 0.001663523158825742,
+        "cum_objective": 6.866460239870983
       },
       {
         "cum_distance": 311.1269837220809,
@@ -1085,10 +1085,10 @@
         "absolute_time": 43231.11269837213,
         "cumulative_hazard": 2.2117080115526506,
         "p_survival": 0.10951343846449098,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.0015476513657909498,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 7.190128522705042
+        "cum_noise": 0.0016848622240934763,
+        "cum_objective": 7.193199295951255
       },
       {
         "cum_distance": 325.2691193458119,
@@ -1096,10 +1096,10 @@
         "absolute_time": 43232.5269119345,
         "cumulative_hazard": 2.3032294558855275,
         "p_survival": 0.0999355844665703,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.0015650152274297984,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 7.516727155076133
+        "cum_noise": 0.0017018900340667175,
+        "cum_objective": 7.519887418162902
       },
       {
         "cum_distance": 339.4112549695428,
@@ -1107,10 +1107,10 @@
         "absolute_time": 43233.94112549687,
         "cumulative_hazard": 2.3752911315704437,
         "p_survival": 0.0929874136978051,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.0015749515197328804,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 7.843325787447223
+        "cum_noise": 0.0017142623265992306,
+        "cum_objective": 7.846538095082237
       },
       {
         "cum_distance": 353.5533905932738,
@@ -1118,10 +1118,10 @@
         "absolute_time": 43235.35533905924,
         "cumulative_hazard": 2.4351397524840506,
         "p_survival": 0.08758550590069573,
-        "cum_fatality": 0.0010243467636014815,
+        "cum_fatality": 0.001581324015885817,
         "cum_property": 0.0,
-        "cum_noise": 0.0019029705219099566,
-        "cum_objective": 8.169924419818313
+        "cum_noise": 0.0017238546985665851,
+        "cum_objective": 8.173170632010061
       },
       {
         "cum_distance": 367.6955262170047,
@@ -1129,10 +1129,10 @@
         "absolute_time": 43236.76955262161,
         "cumulative_hazard": 2.4882049490033125,
         "p_survival": 0.08305892784985239,
-        "cum_fatality": 0.0010380228794121702,
+        "cum_fatality": 0.0015860328912189509,
         "cum_property": 0.0,
-        "cum_noise": 0.0019305889840676228,
-        "cum_objective": 8.496589370176418
+        "cum_noise": 0.0017318885801528826,
+        "cum_objective": 8.499794618139674
       },
       {
         "cum_distance": 381.8376618407357,
@@ -1140,10 +1140,10 @@
         "absolute_time": 43238.18376618398,
         "cumulative_hazard": 2.535682378222544,
         "p_survival": 0.07920765124314218,
-        "cum_fatality": 0.0010496587121097977,
+        "cum_fatality": 0.0015896995913696123,
         "cum_property": 0.0,
-        "cum_noise": 0.001956780073929892,
-        "cum_objective": 8.823244567181115
+        "cum_noise": 0.0017389061443458828,
+        "cum_objective": 8.82641323491546
       },
       {
         "cum_distance": 395.9797974644666,
@@ -1151,10 +1151,10 @@
         "absolute_time": 43239.59797974635,
         "cumulative_hazard": 2.5795635593298987,
         "p_survival": 0.075807082097721,
-        "cum_fatality": 0.0010496587121097977,
+        "cum_fatality": 0.0015927026344814549,
         "cum_property": 0.0,
-        "cum_noise": 0.001956780073929892,
-        "cum_objective": 9.149843199552206
+        "cum_noise": 0.0017451436317505366,
+        "cum_objective": 9.153028390275004
       },
       {
         "cum_distance": 410.1219330881976,
@@ -1162,10 +1162,10 @@
         "absolute_time": 43241.01219330872,
         "cumulative_hazard": 2.620646194222024,
         "p_survival": 0.07275583323489168,
-        "cum_fatality": 0.0010496587121097977,
+        "cum_fatality": 0.0015952132886527933,
         "cum_property": 0.0,
-        "cum_noise": 0.001956780073929892,
-        "cum_objective": 9.476441831923298
+        "cum_noise": 0.0017507275013716739,
+        "cum_objective": 9.479640953718487
       },
       {
         "cum_distance": 424.26406871192853,
@@ -1173,10 +1173,10 @@
         "absolute_time": 43242.42640687109,
         "cumulative_hazard": 2.659895947179891,
         "p_survival": 0.06995550043306696,
-        "cum_fatality": 0.0010496587121097977,
+        "cum_fatality": 0.00159738691716754,
         "cum_property": 0.0,
-        "cum_noise": 0.001956780073929892,
-        "cum_objective": 9.803040464294389
+        "cum_noise": 0.0017558026380197565,
+        "cum_objective": 9.806251723583504
       },
       {
         "cum_distance": 438.4062043356595,
@@ -1184,10 +1184,10 @@
         "absolute_time": 43243.84062043346,
         "cumulative_hazard": 2.699450368503889,
         "p_survival": 0.06724246115934124,
-        "cum_fatality": 0.0010578555970170418,
+        "cum_fatality": 0.0015994430375888978,
         "cum_property": 0.0,
-        "cum_noise": 0.0019788392413864556,
-        "cum_objective": 10.129679131819502
+        "cum_noise": 0.0017605924435716242,
+        "cum_objective": 10.132861833802734
       },
       {
         "cum_distance": 452.54833995939043,
@@ -1195,10 +1195,10 @@
         "absolute_time": 43245.25483399583,
         "cumulative_hazard": 2.738383895268514,
         "p_survival": 0.06467478370397767,
-        "cum_fatality": 0.0010656133013688986,
+        "cum_fatality": 0.001601431146943088,
         "cum_property": 0.0,
-        "cum_noise": 0.002000042902309796,
-        "cum_objective": 10.45631567131453
+        "cum_noise": 0.0017653293442783742,
+        "cum_objective": 10.45947159788714
       },
       {
         "cum_distance": 466.6904755831214,
@@ -1206,10 +1206,10 @@
         "absolute_time": 43246.6690475582,
         "cumulative_hazard": 2.7764350960348834,
         "p_survival": 0.06226006337659012,
-        "cum_fatality": 0.001072908877514244,
+        "cum_fatality": 0.0016032518160804105,
         "cum_property": 0.0,
-        "cum_noise": 0.0020204368938488613,
-        "cum_objective": 10.782949976306423
+        "cum_noise": 0.0017697842188981185,
+        "cum_objective": 10.786080461589906
       },
       {
         "cum_distance": 480.83261120685233,
@@ -1217,10 +1217,10 @@
         "absolute_time": 43248.08326112057,
         "cumulative_hazard": 2.8141117728678604,
         "p_survival": 0.0599579513744756,
-        "cum_fatality": 0.0010798642309835672,
+        "cum_fatality": 0.001604747334498321,
         "cum_property": 0.0,
-        "cum_noise": 0.0020400694481923828,
-        "cum_objective": 11.109582627620284
+        "cum_noise": 0.0017734737314906489,
+        "cum_objective": 11.112687507695739
       },
       {
         "cum_distance": 494.9747468305833,
@@ -1228,10 +1228,10 @@
         "absolute_time": 43249.49747468294,
         "cumulative_hazard": 2.851623270415801,
         "p_survival": 0.05775050006891111,
-        "cum_fatality": 0.0010865335868109193,
+        "cum_fatality": 0.0016059142913159412,
         "cum_property": 0.0,
-        "cum_noise": 0.0020589760742837438,
-        "cum_objective": 11.436213884346568
+        "cum_noise": 0.0017763526692681525,
+        "cum_objective": 11.439292705325958
       }
     ]
   },
@@ -1245,85 +1245,85 @@
       ],
       [
         3,
+        2,
+        5,
+        18
+      ],
+      [
+        4,
+        2,
+        5,
+        18
+      ],
+      [
+        5,
         3,
         5,
         18
       ],
       [
-        4,
-        4,
-        5,
-        18
-      ],
-      [
-        5,
-        5,
-        5,
-        18
-      ],
-      [
         6,
-        6,
+        4,
         5,
         18
       ],
       [
         7,
-        7,
+        4,
         5,
         18
       ],
       [
         8,
-        8,
+        5,
         5,
         18
       ],
       [
         9,
-        8,
+        6,
         5,
         18
       ],
       [
         10,
-        8,
+        7,
         5,
         18
       ],
       [
         11,
-        9,
+        8,
         5,
         18
       ],
       [
         12,
-        10,
+        9,
         5,
         18
       ],
       [
         13,
-        11,
+        10,
         5,
         18
       ],
       [
         14,
-        12,
+        11,
         5,
         18
       ],
       [
         15,
-        13,
+        12,
         5,
         18
       ],
       [
         16,
-        14,
+        13,
         5,
         18
       ],
@@ -1485,422 +1485,422 @@
         "cum_objective": 0.0
       },
       {
-        "cum_distance": 14.142135623730951,
-        "cum_time": 1.4142135623730951,
-        "absolute_time": 64801.41421356237,
-        "cumulative_hazard": 0.0376938832882205,
-        "p_survival": 0.9630076885223389,
-        "cum_fatality": 0.00011176458909822884,
+        "cum_distance": 10.0,
+        "cum_time": 1.0,
+        "absolute_time": 64801.0,
+        "cumulative_hazard": 0.037576724324260666,
+        "p_survival": 0.9631205201148987,
+        "cum_fatality": 3.069825342271598e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.00031533142240429407,
-        "cum_objective": 0.32714527057587134
+        "cum_noise": 5.240505561232567e-05,
+        "cum_objective": 0.23110540435331567
       },
       {
-        "cum_distance": 28.284271247461902,
-        "cum_time": 2.8284271247461903,
-        "absolute_time": 64802.82842712474,
-        "cumulative_hazard": 0.07548785459765656,
-        "p_survival": 0.9272909927878032,
-        "cum_fatality": 0.0002196751700611794,
+        "cum_distance": 20.0,
+        "cum_time": 2.0,
+        "absolute_time": 64802.0,
+        "cumulative_hazard": 0.07504329584605149,
+        "p_survival": 0.9277033197589226,
+        "cum_fatality": 6.0750516878393195e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0006189980066123146,
-        "cum_objective": 0.6542716500449736
+        "cum_noise": 0.00010388399763435504,
+        "cum_objective": 0.4622073864496451
       },
       {
-        "cum_distance": 42.42640687119285,
-        "cum_time": 4.242640687119286,
-        "absolute_time": 64804.24264068711,
-        "cumulative_hazard": 0.1144172293118394,
-        "p_survival": 0.8918857573609581,
-        "cum_fatality": 0.0003266447383672037,
+        "cum_distance": 34.14213562373095,
+        "cum_time": 3.414213562373095,
+        "absolute_time": 64803.41421356237,
+        "cumulative_hazard": 0.1129226315216364,
+        "p_survival": 0.893219764496754,
+        "cum_fatality": 9.646888750924172e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114019943507825,
-        "cum_objective": 0.9813929784178312
+        "cum_noise": 0.0001894570067565764,
+        "cum_objective": 0.7890061604243865
       },
       {
-        "cum_distance": 56.568542494923804,
-        "cum_time": 5.656854249492381,
-        "absolute_time": 64805.65685424948,
-        "cumulative_hazard": 0.15299281350077037,
-        "p_survival": 0.858135888782138,
-        "cum_fatality": 0.0003266447383672037,
+        "cum_distance": 48.2842712474619,
+        "cum_time": 4.82842712474619,
+        "absolute_time": 64804.82842712474,
+        "cumulative_hazard": 0.1511987378558622,
+        "p_survival": 0.8596768313506695,
+        "cum_fatality": 0.00013647340402848668,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114019943507825,
-        "cum_objective": 1.3079916107889216
+        "cum_noise": 0.0002844435106285129,
+        "cum_objective": 1.1158286794254726
       },
       {
-        "cum_distance": 70.71067811865476,
-        "cum_time": 7.0710678118654755,
-        "absolute_time": 64807.07106781185,
-        "cumulative_hazard": 0.19364180560418487,
-        "p_survival": 0.8239529867592469,
-        "cum_fatality": 0.0003266447383672037,
+        "cum_distance": 58.2842712474619,
+        "cum_time": 5.82842712474619,
+        "absolute_time": 64805.82842712474,
+        "cumulative_hazard": 0.19016306469709932,
+        "p_survival": 0.8268242970965359,
+        "cum_fatality": 0.00017694132235623666,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114019943507825,
-        "cum_objective": 1.634590243160012
+        "cum_noise": 0.0003512923436852265,
+        "cum_objective": 1.3469859794934445
       },
       {
-        "cum_distance": 84.8528137423857,
-        "cum_time": 8.485281374238571,
-        "absolute_time": 64808.48528137422,
-        "cumulative_hazard": 0.2359333490819941,
-        "p_survival": 0.7898333152940218,
-        "cum_fatality": 0.0003266447383672037,
+        "cum_distance": 72.42640687119285,
+        "cum_time": 7.242640687119285,
+        "absolute_time": 64807.24264068711,
+        "cumulative_hazard": 0.2288913025099886,
+        "p_survival": 0.7954149884190513,
+        "cum_fatality": 0.0002194488178057544,
         "cum_property": 0.0,
-        "cum_noise": 0.0009114019943507825,
-        "cum_objective": 1.9611888755311022
+        "cum_noise": 0.0004515155998825926,
+        "cum_objective": 1.6738222821365285
       },
       {
-        "cum_distance": 94.8528137423857,
-        "cum_time": 9.485281374238571,
-        "absolute_time": 64809.48528137422,
-        "cumulative_hazard": 0.2787818648863961,
-        "p_survival": 0.7567049491332817,
-        "cum_fatality": 0.0004267352188900737,
+        "cum_distance": 86.5685424949238,
+        "cum_time": 8.65685424949238,
+        "absolute_time": 64808.65685424948,
+        "cumulative_hazard": 0.2701356081099169,
+        "p_survival": 0.7632759809052659,
+        "cum_fatality": 0.00026863988891893096,
         "cum_property": 0.0,
-        "cum_noise": 0.001087513487975574,
-        "cum_objective": 2.1926129842197013
+        "cum_noise": 0.0005610278335840495,
+        "cum_objective": 2.0006938992971373
       },
       {
-        "cum_distance": 104.8528137423857,
-        "cum_time": 10.485281374238571,
-        "absolute_time": 64810.48528137422,
-        "cumulative_hazard": 0.323515377661414,
-        "p_survival": 0.7236008305482549,
-        "cum_fatality": 0.0005267524403970031,
+        "cum_distance": 100.71067811865476,
+        "cum_time": 10.071067811865476,
+        "absolute_time": 64810.07106781185,
+        "cumulative_hazard": 0.3128499992619259,
+        "p_survival": 0.7313596088225378,
+        "cum_fatality": 0.0003256845814334152,
         "cum_property": 0.0,
-        "cum_noise": 0.0012562382508396544,
-        "cum_objective": 2.424036360381673
+        "cum_noise": 0.0006845069138712444,
+        "cum_objective": 2.3276079826371805
       },
       {
-        "cum_distance": 118.99494936611666,
-        "cum_time": 11.899494936611667,
-        "absolute_time": 64811.89949493659,
-        "cumulative_hazard": 0.3723581741172372,
-        "p_survival": 0.689107377889843,
-        "cum_fatality": 0.00063096724636485,
+        "cum_distance": 114.8528137423857,
+        "cum_time": 11.485281374238571,
+        "absolute_time": 64811.48528137422,
+        "cumulative_hazard": 0.35923903517235245,
+        "p_survival": 0.6982074352683338,
+        "cum_fatality": 0.00039564454434296915,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 2.7511412727396354
+        "cum_noise": 0.000825106079599683,
+        "cum_objective": 2.6545900437704457
       },
       {
-        "cum_distance": 133.1370849898476,
-        "cum_time": 13.313708498984763,
-        "absolute_time": 64813.31370849896,
-        "cumulative_hazard": 0.42788854734059223,
-        "p_survival": 0.6518840649627954,
-        "cum_fatality": 0.00063096724636485,
+        "cum_distance": 128.99494936611666,
+        "cum_time": 12.899494936611667,
+        "absolute_time": 64812.89949493659,
+        "cumulative_hazard": 0.4110133103899948,
+        "p_survival": 0.6629781070448356,
+        "cum_fatality": 0.00047272709829382305,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 3.0777399051107257
+        "cum_noise": 0.0009641645020436409,
+        "cum_objective": 2.981606105110088
       },
       {
-        "cum_distance": 147.27922061357856,
-        "cum_time": 14.727922061357859,
-        "absolute_time": 64814.72792206133,
-        "cumulative_hazard": 0.4987159391006982,
-        "p_survival": 0.6073099822587231,
-        "cum_fatality": 0.00063096724636485,
+        "cum_distance": 143.1370849898476,
+        "cum_time": 14.313708498984763,
+        "absolute_time": 64814.31370849896,
+        "cumulative_hazard": 0.4725813560987935,
+        "p_survival": 0.62339099539497,
+        "cum_fatality": 0.0005531547946568455,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 3.404338537481816
+        "cum_noise": 0.001085786323130109,
+        "cum_objective": 3.3086328257122406
       },
       {
-        "cum_distance": 161.4213562373095,
-        "cum_time": 16.142135623730955,
-        "absolute_time": 64816.1421356237,
-        "cumulative_hazard": 0.5892994116797738,
-        "p_survival": 0.5547157760261153,
-        "cum_fatality": 0.00063096724636485,
+        "cum_distance": 157.27922061357856,
+        "cum_time": 15.727922061357859,
+        "absolute_time": 64815.72792206133,
+        "cumulative_hazard": 0.5434952517264504,
+        "p_survival": 0.580714956050065,
+        "cum_fatality": 0.0006384418145756456,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 3.7309371698529064
+        "cum_noise": 0.0011973450817777754,
+        "cum_objective": 3.635679879943235
       },
       {
-        "cum_distance": 175.56349186104046,
-        "cum_time": 17.55634918610405,
-        "absolute_time": 64817.55634918607,
-        "cumulative_hazard": 0.7000214337344137,
-        "p_survival": 0.4965746602279604,
-        "cum_fatality": 0.00063096724636485,
+        "cum_distance": 171.4213562373095,
+        "cum_time": 17.142135623730955,
+        "absolute_time": 64817.1421356237,
+        "cumulative_hazard": 0.637371799714249,
+        "p_survival": 0.5286800768585957,
+        "cum_fatality": 0.000757488965732281,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 4.057535802223997
+        "cum_noise": 0.0013152335207801944,
+        "cum_objective": 3.962892421123135
       },
       {
-        "cum_distance": 189.7056274847714,
-        "cum_time": 18.970562748477146,
-        "absolute_time": 64818.970562748436,
-        "cumulative_hazard": 0.8497053287893644,
-        "p_survival": 0.42754089738244966,
-        "cum_fatality": 0.00063096724636485,
+        "cum_distance": 185.56349186104046,
+        "cum_time": 18.55634918610405,
+        "absolute_time": 64818.55634918607,
+        "cumulative_hazard": 0.7697422230874736,
+        "p_survival": 0.46313243777512164,
+        "cum_fatality": 0.0009711229693712086,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 4.3841344345950874
+        "cum_noise": 0.0016178285917300254,
+        "cum_objective": 4.290621652653584
       },
       {
         "cum_distance": 199.7056274847714,
         "cum_time": 19.970562748477146,
         "absolute_time": 64819.970562748436,
-        "cumulative_hazard": 1.028139051061101,
-        "p_survival": 0.35767195085817205,
-        "cum_fatality": 0.00063096724636485,
+        "cumulative_hazard": 0.9481759453592103,
+        "p_survival": 0.38744710398207755,
+        "cum_fatality": 0.0011511930187599107,
         "cum_property": 0.0,
-        "cum_noise": 0.0014844123299893642,
-        "cum_objective": 4.615074542270937
+        "cum_noise": 0.0017153138745464836,
+        "cum_objective": 4.618123203042526
       },
       {
         "cum_distance": 213.84776310850236,
         "cum_time": 21.384776310850242,
         "absolute_time": 64821.384776310806,
-        "cumulative_hazard": 1.2421527271959745,
-        "p_survival": 0.28876192271925105,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 1.162189621494084,
+        "p_survival": 0.3128005157503506,
+        "cum_fatality": 0.0013129662683818459,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 4.942666726500999
+        "cum_noise": 0.0017898803187096394,
+        "cum_objective": 4.945528874702166
       },
       {
         "cum_distance": 227.9898987322333,
         "cum_time": 22.798989873223338,
         "absolute_time": 64822.798989873176,
-        "cumulative_hazard": 1.5503014046525732,
-        "p_survival": 0.21218401093977254,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 1.4703382989506826,
+        "p_survival": 0.22984771479191318,
+        "cum_fatality": 0.0014983710916660104,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 5.269265358872089
+        "cum_noise": 0.0018520076008259813,
+        "cum_objective": 5.2730450258419355
       },
       {
         "cum_distance": 242.13203435596427,
         "cum_time": 24.213203435596434,
         "absolute_time": 64824.213203435545,
-        "cumulative_hazard": 1.9088961996758693,
-        "p_survival": 0.1482439280161159,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 1.8289330939739787,
+        "p_survival": 0.16058480530822247,
+        "cum_fatality": 0.001663788757019531,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 5.59586399124318
+        "cum_noise": 0.0019007509651519502,
+        "cum_objective": 5.600460141897704
       },
       {
         "cum_distance": 256.2741699796952,
         "cum_time": 25.62741699796953,
         "absolute_time": 64825.627416997915,
-        "cumulative_hazard": 2.277385602278631,
-        "p_survival": 0.10255196817747042,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 2.197422496576741,
+        "p_survival": 0.11108912226046656,
+        "cum_fatality": 0.0017883390864781015,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 5.92246262361427
+        "cum_noise": 0.0019365734232910637,
+        "cum_objective": 5.92767326211654
       },
       {
         "cum_distance": 270.41630560342617,
         "cum_time": 27.041630560342625,
         "absolute_time": 64827.041630560285,
-        "cumulative_hazard": 2.6783654614669294,
-        "p_survival": 0.06867531491226055,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 2.5984023557650393,
+        "p_survival": 0.074392335809311,
+        "cum_fatality": 0.0018804607348891608,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 6.24906125598536
+        "cum_noise": 0.0019612604252938976,
+        "cum_objective": 6.254725816057321
       },
       {
         "cum_distance": 284.5584412271571,
         "cum_time": 28.45584412271572,
         "absolute_time": 64828.455844122655,
-        "cumulative_hazard": 3.0306874463724225,
-        "p_survival": 0.04828243512985398,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 2.9507243406705324,
+        "p_survival": 0.05230180789793689,
+        "cum_fatality": 0.001933586755425785,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 6.5756598883564505
+        "cum_noise": 0.001977086827208166,
+        "cum_objective": 6.58158672729987
       },
       {
         "cum_distance": 298.70057685088807,
         "cum_time": 29.870057685088817,
         "absolute_time": 64829.870057685024,
-        "cumulative_hazard": 3.328944744476053,
-        "p_survival": 0.03583089587546963,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.248981638774163,
+        "p_survival": 0.038813714093949,
+        "cum_fatality": 0.0019647609327135677,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 6.902258520727541
+        "cum_noise": 0.001987774331567021,
+        "cum_objective": 6.908339708985112
       },
       {
         "cum_distance": 312.842712474619,
         "cum_time": 31.284271247461913,
         "absolute_time": 64831.284271247394,
-        "cumulative_hazard": 3.5529180982177815,
-        "p_survival": 0.02864094051500607,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.4729549925158913,
+        "p_survival": 0.031025215791277663,
+        "cum_fatality": 0.001983921694756931,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 7.228857153098631
+        "cum_noise": 0.0019961935601019855,
+        "cum_objective": 7.235033797719004
       },
       {
         "cum_distance": 326.98484809834997,
         "cum_time": 32.69848480983501,
         "absolute_time": 64832.69848480976,
-        "cumulative_hazard": 3.7217229863395183,
-        "p_survival": 0.024192249000961282,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.641759880637628,
+        "p_survival": 0.026206183604127575,
+        "cum_fatality": 0.001999682333307264,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 7.5554557854697215
+        "cum_noise": 0.002013969242331128,
+        "cum_objective": 7.561714394230725
       },
       {
         "cum_distance": 341.1269837220809,
         "cum_time": 34.1126983722081,
         "absolute_time": 64834.11269837213,
-        "cumulative_hazard": 3.850703394286512,
-        "p_survival": 0.02126477365633255,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.770740288584622,
+        "p_survival": 0.023035004422942363,
+        "cum_fatality": 0.0020067422463131345,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 7.882054417840812
+        "cum_noise": 0.0020191242462038904,
+        "cum_objective": 7.888348850262321
       },
       {
         "cum_distance": 355.2691193458119,
         "cum_time": 35.52691193458119,
         "absolute_time": 64835.5269119345,
-        "cumulative_hazard": 3.941998670836218,
-        "p_survival": 0.019409382984637867,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.862035565134328,
+        "p_survival": 0.021025157856057054,
+        "cum_fatality": 0.0020104472530611582,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 8.208653050211902
+        "cum_noise": 0.0020229008986013507,
+        "cum_objective": 8.21496662302736
       },
       {
         "cum_distance": 369.4112549695428,
         "cum_time": 36.941125496954285,
         "absolute_time": 64836.94112549687,
-        "cumulative_hazard": 4.017738867464251,
-        "p_survival": 0.017993604901495822,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.9377757617623614,
+        "p_survival": 0.019491520351414715,
+        "cum_fatality": 0.0020130949309052786,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 8.535251682582993
+        "cum_noise": 0.0020261430021154773,
+        "cum_objective": 8.541579106097624
       },
       {
         "cum_distance": 383.5533905932738,
         "cum_time": 38.35533905932738,
         "absolute_time": 64838.35533905924,
-        "cumulative_hazard": 4.077907044240337,
-        "p_survival": 0.01694288928744359,
-        "cum_fatality": 0.0008391645898681018,
+        "cumulative_hazard": 3.997943938538447,
+        "p_survival": 0.018353335708205968,
+        "cum_fatality": 0.002015008114739818,
         "cum_property": 0.0,
-        "cum_noise": 0.0015971975350075904,
-        "cum_objective": 8.861850314954085
+        "cum_noise": 0.0020290795324270786,
+        "cum_objective": 8.868187935468614
       },
       {
         "cum_distance": 397.6955262170047,
         "cum_time": 39.76955262170047,
         "absolute_time": 64839.76955262161,
-        "cumulative_hazard": 4.130876520218756,
-        "p_survival": 0.01606878803045888,
-        "cum_fatality": 0.0008418055053425549,
+        "cumulative_hazard": 4.050913414516866,
+        "p_survival": 0.017406468055337906,
+        "cum_fatality": 0.002016549096259452,
         "cum_property": 0.0,
-        "cum_noise": 0.0016025401603862385,
-        "cum_objective": 9.188461754096448
+        "cum_noise": 0.0020317611978753515,
+        "cum_objective": 9.194794881568928
       },
       {
         "cum_distance": 411.8376618407357,
         "cum_time": 41.18376618407356,
         "absolute_time": 64841.18376618398,
-        "cumulative_hazard": 4.176896509798256,
-        "p_survival": 0.015346060086281971,
-        "cum_fatality": 0.0008439890777792088,
+        "cumulative_hazard": 4.096933404096366,
+        "p_survival": 0.016623575104782493,
+        "cum_fatality": 0.0020177376811746227,
         "cum_property": 0.0,
-        "cum_noise": 0.0016076071541721963,
-        "cum_objective": 9.51507100926984
+        "cum_noise": 0.002034130887581234,
+        "cum_objective": 9.521400022161778
       },
       {
         "cum_distance": 425.9797974644666,
         "cum_time": 42.597979746446654,
         "absolute_time": 64842.59797974635,
-        "cumulative_hazard": 4.220712176173087,
-        "p_survival": 0.014688180207162765,
-        "cum_fatality": 0.000845976725250499,
+        "cumulative_hazard": 4.1407490704711964,
+        "p_survival": 0.01591092863272551,
+        "cum_fatality": 0.002018728587633557,
         "cum_property": 0.0,
-        "cum_noise": 0.0016124462491275053,
-        "cum_objective": 9.841679323111038
+        "cum_noise": 0.0020361983126840387,
+        "cum_objective": 9.848004109521797
       },
       {
         "cum_distance": 440.1219330881976,
         "cum_time": 44.01219330881975,
         "absolute_time": 64844.01219330872,
-        "cumulative_hazard": 4.261978346280032,
-        "p_survival": 0.01409439122382451,
-        "cum_fatality": 0.0008477707353861979,
+        "cumulative_hazard": 4.182015240578142,
+        "p_survival": 0.01526770843774272,
+        "cum_fatality": 0.0020195524873914705,
         "cum_property": 0.0,
-        "cum_noise": 0.0016170778938847604,
-        "cum_objective": 10.16828670753816
+        "cum_noise": 0.002038016814107663,
+        "cum_objective": 10.17460730911464
       },
       {
         "cum_distance": 454.26406871192853,
         "cum_time": 45.42640687119284,
         "absolute_time": 64845.42640687109,
-        "cumulative_hazard": 4.3012338643831765,
-        "p_survival": 0.013551827574789791,
-        "cum_fatality": 0.0008494099788092703,
+        "cumulative_hazard": 4.221270758681286,
+        "p_survival": 0.014679977937657162,
+        "cum_fatality": 0.0020202622841107155,
         "cum_property": 0.0,
-        "cum_noise": 0.0016215222983172917,
-        "cum_objective": 10.494893348004037
+        "cum_noise": 0.0020396582173898337,
+        "cum_objective": 10.50120989993104
       },
       {
         "cum_distance": 464.26406871192853,
         "cum_time": 46.42640687119284,
         "absolute_time": 64846.42640687109,
-        "cumulative_hazard": 4.340954298972183,
-        "p_survival": 0.013024093392179845,
-        "cum_fatality": 0.0008510044180783089,
+        "cumulative_hazard": 4.260991193270293,
+        "p_survival": 0.01410831141409001,
+        "cum_fatality": 0.002020946255904258,
         "cum_property": 0.0,
-        "cum_noise": 0.0016245439897923512,
-        "cum_objective": 10.725841177076155
+        "cum_noise": 0.002040762305079034,
+        "cum_objective": 10.732153670317752
       },
       {
         "cum_distance": 478.4062043356595,
         "cum_time": 47.84062043356593,
         "absolute_time": 64847.84062043346,
-        "cumulative_hazard": 4.378893746924022,
-        "p_survival": 0.01253922250464472,
-        "cum_fatality": 0.0008524693548001946,
+        "cumulative_hazard": 4.298930641222132,
+        "p_survival": 0.013583076430664661,
+        "cum_fatality": 0.0020215377720366667,
         "cum_property": 0.0,
-        "cum_noise": 0.0016286508956872335,
-        "cum_objective": 11.052446973053106
+        "cum_noise": 0.002042172394744496,
+        "cum_objective": 11.058755614906826
       },
       {
         "cum_distance": 492.54833995939043,
         "cum_time": 49.25483399593902,
         "absolute_time": 64849.25483399583,
-        "cumulative_hazard": 4.416698612772279,
-        "p_survival": 0.012074027599210859,
-        "cum_fatality": 0.0008538748446271226,
+        "cumulative_hazard": 4.336735507070389,
+        "p_survival": 0.013079155397815666,
+        "cum_fatality": 0.002022015116658985,
         "cum_property": 0.0,
-        "cum_noise": 0.0016326049065554672,
-        "cum_objective": 11.379052479049385
+        "cum_noise": 0.002043314652260236,
+        "cum_objective": 11.385356921565494
       },
       {
         "cum_distance": 502.54833995939043,
         "cum_time": 50.25483399593902,
         "absolute_time": 64850.25483399583,
-        "cumulative_hazard": 4.45454291041519,
-        "p_survival": 0.011625632615924652,
-        "cum_fatality": 0.0008552295769771396,
+        "cumulative_hazard": 4.3745798047133,
+        "p_survival": 0.012593432831935118,
+        "cum_fatality": 0.0020224438089906658,
         "cum_property": 0.0,
-        "cum_noise": 0.0016352970885556307,
-        "cum_objective": 11.60999915379492
+        "cum_noise": 0.0020440396833551664,
+        "cum_objective": 11.616299335405117
       },
       {
         "cum_distance": 512.5483399593904,
         "cum_time": 51.25483399593902,
         "absolute_time": 64851.25483399583,
-        "cumulative_hazard": 4.49238795090118,
-        "p_survival": 0.011193881429434343,
-        "cum_fatality": 0.0008565340235505823,
+        "cumulative_hazard": 4.41242484519929,
+        "p_survival": 0.01212573961068829,
+        "cum_fatality": 0.0020228335136867528,
         "cum_property": 0.0,
-        "cum_noise": 0.0016378892905869686,
-        "cum_objective": 11.84094558477738
+        "cum_noise": 0.0020446988121003607,
+        "cum_objective": 11.847241539520962
       }
     ]
   },
@@ -2141,10 +2141,10 @@
         "absolute_time": 79201.41421356237,
         "cumulative_hazard": 0.037397639367462925,
         "p_survival": 0.9632930159568787,
-        "cum_fatality": 0.00011090253149204088,
+        "cum_fatality": 2.6655910995199844e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0004729971233166832,
-        "cum_objective": 0.3271493984560487
+        "cum_noise": 9.468822527433494e-05,
+        "cum_objective": 0.32675778645988673
       },
       {
         "cum_distance": 28.284271247461902,
@@ -2152,10 +2152,10 @@
         "absolute_time": 79202.82842712474,
         "cumulative_hazard": 0.07499299185383532,
         "p_survival": 0.9277499881132911,
-        "cum_fatality": 0.00021828841097795368,
+        "cum_fatality": 5.6544256209720844e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0009286319487753386,
-        "cum_objective": 0.6542812092516865
+        "cum_noise": 0.00020070619487747292,
+        "cum_objective": 0.6535348242833472
       },
       {
         "cum_distance": 42.42640687119285,
@@ -2163,10 +2163,10 @@
         "absolute_time": 79204.24264068711,
         "cumulative_hazard": 0.11231335117926994,
         "p_survival": 0.8937641515660043,
-        "cum_fatality": 0.00032096956025300913,
+        "cum_fatality": 9.005261940537134e-05,
         "cum_property": 0.0,
-        "cum_noise": 0.0013674550243100124,
-        "cum_objective": 0.9813898249215001
+        "cum_noise": 0.00032153570185257483,
+        "cum_objective": 0.980334096282758
       },
       {
         "cum_distance": 56.568542494923804,
@@ -2174,10 +2174,10 @@
         "absolute_time": 79205.65685424948,
         "cumulative_hazard": 0.14993395435298223,
         "p_survival": 0.8607648243175114,
-        "cum_fatality": 0.00032096956025300913,
+        "cum_fatality": 0.00012884969757033667,
         "cum_property": 0.0,
-        "cum_noise": 0.0013674550243100124,
-        "cum_objective": 1.3079884572925904
+        "cum_noise": 0.00046243852968746123,
+        "cum_objective": 1.307165354218148
       },
       {
         "cum_distance": 70.71067811865476,
@@ -2185,10 +2185,10 @@
         "absolute_time": 79207.07106781185,
         "cumulative_hazard": 0.18759163015671562,
         "p_survival": 0.828953157592573,
-        "cum_fatality": 0.00032096956025300913,
+        "cum_fatality": 0.0001753463021878992,
         "cum_property": 0.0,
-        "cum_noise": 0.0013674550243100124,
-        "cum_objective": 1.6345870896636807
+        "cum_noise": 0.0006344398510278323,
+        "cum_objective": 1.634043774169583
       },
       {
         "cum_distance": 84.8528137423857,
@@ -2196,10 +2196,10 @@
         "absolute_time": 79208.48528137422,
         "cumulative_hazard": 0.22516377485306732,
         "p_survival": 0.798385452591375,
-        "cum_fatality": 0.00032096956025300913,
+        "cum_fatality": 0.0002372701828436888,
         "cum_property": 0.0,
-        "cum_noise": 0.0013674550243100124,
-        "cum_objective": 1.961185722034771
+        "cum_noise": 0.0008703176552773838,
+        "cum_objective": 1.9610171883233445
       },
       {
         "cum_distance": 98.99494936611666,
@@ -2207,10 +2207,10 @@
         "absolute_time": 79209.89949493659,
         "cumulative_hazard": 0.26364061744594913,
         "p_survival": 0.7682495855488993,
-        "cum_fatality": 0.0004120188259674564,
+        "cum_fatality": 0.00035230384509514435,
         "cum_property": 0.0,
-        "cum_noise": 0.001745089046683621,
-        "cum_objective": 2.2882359677371764
+        "cum_noise": 0.0013150290246329928,
+        "cum_objective": 2.2883141130296014
       },
       {
         "cum_distance": 113.13708498984761,
@@ -2218,10 +2218,10 @@
         "absolute_time": 79211.31370849896,
         "cumulative_hazard": 0.3018516990760284,
         "p_survival": 0.739447717538276,
-        "cum_fatality": 0.0004990376905607825,
+        "cum_fatality": 0.0006097186479652453,
         "cum_property": 0.0,
-        "cum_noise": 0.0021084688906374844,
-        "cum_objective": 2.6152663505823583
+        "cum_noise": 0.0023434978181217725,
+        "cum_objective": 2.616485923557911
       },
       {
         "cum_distance": 127.27922061357856,
@@ -2229,10 +2229,10 @@
         "absolute_time": 79212.72792206133,
         "cumulative_hazard": 0.3398858729838904,
         "p_survival": 0.711851559621274,
-        "cum_fatality": 0.0005824137524255863,
+        "cum_fatality": 0.0007190728191452144,
         "cum_property": 0.0,
-        "cum_noise": 0.0024582255338761764,
-        "cum_objective": 2.9422787421959677
+        "cum_noise": 0.0027688937477680095,
+        "cum_objective": 2.943749210824999
       },
       {
         "cum_distance": 141.4213562373095,
@@ -2240,10 +2240,10 @@
         "absolute_time": 79214.1421356237,
         "cumulative_hazard": 0.37841456299089715,
         "p_survival": 0.6849464883346287,
-        "cum_fatality": 0.0005824137524255863,
+        "cum_fatality": 0.000782365711628332,
         "cum_property": 0.0,
-        "cum_noise": 0.0024582255338761764,
-        "cum_objective": 3.268877374567058
+        "cum_noise": 0.0030007947664773297,
+        "cum_objective": 3.2707279908694464
       },
       {
         "cum_distance": 155.56349186104046,
@@ -2251,10 +2251,10 @@
         "absolute_time": 79215.55634918607,
         "cumulative_hazard": 0.4166982248506491,
         "p_survival": 0.6592198260916189,
-        "cum_fatality": 0.0005824137524255863,
+        "cum_fatality": 0.0008348224519151639,
         "cum_property": 0.0,
-        "cum_noise": 0.0024582255338761764,
-        "cum_objective": 3.5954760069381484
+        "cum_noise": 0.0031875664296302647,
+        "cum_objective": 3.5976399634342076
       },
       {
         "cum_distance": 169.7056274847714,
@@ -2262,10 +2262,10 @@
         "absolute_time": 79216.97056274844,
         "cumulative_hazard": 0.4553662409994705,
         "p_survival": 0.6342156496351772,
-        "cum_fatality": 0.0005824137524255863,
+        "cum_fatality": 0.0008866804084546855,
         "cum_property": 0.0,
-        "cum_noise": 0.0024582255338761764,
-        "cum_objective": 3.9220746393092387
+        "cum_noise": 0.003366083894293343,
+        "cum_objective": 3.924546414501578
       },
       {
         "cum_distance": 183.84776310850236,
@@ -2273,10 +2273,10 @@
         "absolute_time": 79218.3847763108,
         "cumulative_hazard": 0.4945622495247471,
         "p_survival": 0.6098378056638601,
-        "cum_fatality": 0.0005824137524255863,
+        "cum_fatality": 0.0009370075138795465,
         "cum_property": 0.0,
-        "cum_noise": 0.0024582255338761764,
-        "cum_objective": 4.248673271680329
+        "cum_noise": 0.003535758779943433,
+        "cum_objective": 4.251442643829137
       },
       {
         "cum_distance": 197.9898987322333,
@@ -2284,10 +2284,10 @@
         "absolute_time": 79219.79898987318,
         "cumulative_hazard": 0.5342433023064128,
         "p_survival": 0.5861126324627515,
-        "cum_fatality": 0.0005824137524255863,
+        "cum_fatality": 0.0009835256964206922,
         "cum_property": 0.0,
-        "cum_noise": 0.0024582255338761764,
-        "cum_objective": 4.575271904051419
+        "cum_noise": 0.003691327033179249,
+        "cum_objective": 4.578315948167691
       },
       {
         "cum_distance": 212.13203435596427,
@@ -2295,10 +2295,10 @@
         "absolute_time": 79221.21320343555,
         "cumulative_hazard": 0.5748289774345996,
         "p_survival": 0.5628011122668495,
-        "cum_fatality": 0.0006528446709564112,
+        "cum_fatality": 0.001029128739629087,
         "cum_property": 0.0,
-        "cum_noise": 0.0027354551229706262,
-        "cum_objective": 4.902219104757169
+        "cum_noise": 0.003840946611664044,
+        "cum_objective": 4.905182931492642
       },
       {
         "cum_distance": 226.27416997969522,
@@ -2306,10 +2306,10 @@
         "absolute_time": 79222.62741699792,
         "cumulative_hazard": 0.6154204874888787,
         "p_survival": 0.5404136103654493,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0010747187298078367,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 5.229152487012762
+        "cum_noise": 0.003990463009259972,
+        "cum_objective": 5.232049818834807
       },
       {
         "cum_distance": 240.41630560342617,
@@ -2317,10 +2317,10 @@
         "absolute_time": 79224.04163056028,
         "cumulative_hazard": 0.6554513174020669,
         "p_survival": 0.5192076822387804,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0011208008412905944,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 5.555751119383852
+        "cum_noise": 0.00414308758978604,
+        "cum_objective": 5.558920076509892
       },
       {
         "cum_distance": 254.55844122715712,
@@ -2328,10 +2328,10 @@
         "absolute_time": 79225.45584412265,
         "cumulative_hazard": 0.6955221012739067,
         "p_survival": 0.4988139485895193,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0011696431084411178,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 5.882349751754942
+        "cum_noise": 0.0043033620341428715,
+        "cum_objective": 5.88580612969551
       },
       {
         "cum_distance": 268.70057685088807,
@@ -2339,10 +2339,10 @@
         "absolute_time": 79226.87005768502,
         "cumulative_hazard": 0.7363667805858505,
         "p_survival": 0.478850527898254,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0012203068910024838,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 6.208948384126033
+        "cum_noise": 0.004465188720874496,
+        "cum_objective": 6.21270149626567
       },
       {
         "cum_distance": 282.842712474619,
@@ -2350,10 +2350,10 @@
         "absolute_time": 79228.2842712474,
         "cumulative_hazard": 0.7770012466758751,
         "p_survival": 0.4597827210301818,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0012674064063078882,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 6.535547016497123
+        "cum_noise": 0.004616170882386536,
+        "cum_objective": 6.539576158775016
       },
       {
         "cum_distance": 296.98484809834997,
@@ -2361,10 +2361,10 @@
         "absolute_time": 79229.69848480976,
         "cumulative_hazard": 0.8165951688443867,
         "p_survival": 0.4419338057596867,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0013070704223900726,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 6.862145648868213
+        "cum_noise": 0.004747266323979285,
+        "cum_objective": 6.866408499276365
       },
       {
         "cum_distance": 311.1269837220809,
@@ -2372,10 +2372,10 @@
         "absolute_time": 79231.11269837213,
         "cumulative_hazard": 0.8561301193685995,
         "p_survival": 0.42480284178803673,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0013435767486914747,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 7.188744281239304
+        "cum_noise": 0.004868211377864993,
+        "cum_objective": 7.193222324980571
       },
       {
         "cum_distance": 325.2691193458119,
@@ -2383,10 +2383,10 @@
         "absolute_time": 79232.5269119345,
         "cumulative_hazard": 0.8958292193686731,
         "p_survival": 0.40826891374731206,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0013764384715388531,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 7.515342913610394
+        "cum_noise": 0.004977206981426141,
+        "cum_objective": 7.520014706624407
       },
       {
         "cum_distance": 339.4112549695428,
@@ -2394,10 +2394,10 @@
         "absolute_time": 79233.94112549687,
         "cumulative_hazard": 0.9346359614418529,
         "p_survival": 0.392728807940651,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0014036164004738072,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 7.841941545981484
+        "cum_noise": 0.005070643875950482,
+        "cum_objective": 7.846774623349912
       },
       {
         "cum_distance": 353.5533905932738,
@@ -2405,10 +2405,10 @@
         "absolute_time": 79235.35533905924,
         "cumulative_hazard": 0.9723252645655898,
         "p_survival": 0.37820259377718063,
-        "cum_fatality": 0.0007204838600472791,
+        "cum_fatality": 0.0014269098678787798,
         "cum_property": 0.0,
-        "cum_noise": 0.0030016584300722755,
-        "cum_objective": 8.168540178352576
+        "cum_noise": 0.0051541081334610835,
+        "cum_objective": 8.173512562504223
       },
       {
         "cum_distance": 367.6955262170047,
@@ -2416,10 +2416,10 @@
         "absolute_time": 79236.76955262161,
         "cumulative_hazard": 1.0104266188543787,
         "p_survival": 0.36406363002759395,
-        "cum_fatality": 0.0007632018036043228,
+        "cum_fatality": 0.0014485257625509553,
         "cum_property": 0.0,
-        "cum_noise": 0.00318054716895979,
-        "cum_objective": 8.495350785198102
+        "cum_noise": 0.005231459712013103,
+        "cum_objective": 8.500240436625642
       },
       {
         "cum_distance": 381.8376618407357,
@@ -2427,10 +2427,10 @@
         "absolute_time": 79238.18376618398,
         "cumulative_hazard": 1.0484806058615606,
         "p_survival": 0.3504698466065165,
-        "cum_fatality": 0.0008042725979845149,
+        "cum_fatality": 0.0014684901737617895,
         "cum_property": 0.0,
-        "cum_noise": 0.003352748218667071,
-        "cum_objective": 8.822153229526142
+        "cum_noise": 0.00530337440455663,
+        "cum_objective": 8.826958586717128
       },
       {
         "cum_distance": 395.9797974644666,
@@ -2438,10 +2438,10 @@
         "absolute_time": 79239.59797974635,
         "cumulative_hazard": 1.0863652654446039,
         "p_survival": 0.3374407750354673,
-        "cum_fatality": 0.0008042725979845149,
+        "cum_fatality": 0.0014865267885660733,
         "cum_property": 0.0,
-        "cum_noise": 0.003352748218667071,
-        "cum_objective": 9.148751861897233
+        "cum_noise": 0.005368654364940827,
+        "cum_objective": 9.153665294286164
       },
       {
         "cum_distance": 410.1219330881976,
@@ -2449,10 +2449,10 @@
         "absolute_time": 79241.01219330872,
         "cumulative_hazard": 1.1242121011369777,
         "p_survival": 0.3249083614643584,
-        "cum_fatality": 0.0008042725979845149,
+        "cum_fatality": 0.0015024388279479201,
         "cum_property": 0.0,
-        "cum_noise": 0.003352748218667071,
-        "cum_objective": 9.475350494268325
+        "cum_noise": 0.005426032491968315,
+        "cum_objective": 9.480359203966982
       },
       {
         "cum_distance": 424.26406871192853,
@@ -2460,10 +2460,10 @@
         "absolute_time": 79242.42640687109,
         "cumulative_hazard": 1.162535213676062,
         "p_survival": 0.3126924330149385,
-        "cum_fatality": 0.0008042725979845149,
+        "cum_fatality": 0.001516408440098473,
         "cum_property": 0.0,
-        "cum_noise": 0.003352748218667071,
-        "cum_objective": 9.801949126639416
+        "cum_noise": 0.005475361047908998,
+        "cum_objective": 9.807041150843451
       },
       {
         "cum_distance": 438.4062043356595,
@@ -2471,10 +2471,10 @@
         "absolute_time": 79243.84062043346,
         "cumulative_hazard": 1.1999366274819698,
         "p_survival": 0.3012132999526493,
-        "cum_fatality": 0.0008389544153314896,
+        "cum_fatality": 0.0015281518456736866,
         "cum_property": 0.0,
-        "cum_noise": 0.0035006508399660317,
-        "cum_objective": 10.128719995692782
+        "cum_noise": 0.005517306936797759,
+        "cum_objective": 10.133709972621855
       },
       {
         "cum_distance": 452.54833995939043,
@@ -2482,10 +2482,10 @@
         "absolute_time": 79245.25483399583,
         "cumulative_hazard": 1.2374850698447266,
         "p_survival": 0.29011291496218816,
-        "cum_fatality": 0.0008724919240119143,
+        "cum_fatality": 0.0015382848808401794,
         "cum_property": 0.0,
-        "cum_noise": 0.00364312386434836,
-        "cum_objective": 10.455485153239579
+        "cum_noise": 0.0055527734456845635,
+        "cum_objective": 10.460368938294758
       },
       {
         "cum_distance": 466.6904755831214,
@@ -2493,10 +2493,10 @@
         "absolute_time": 79246.6690475582,
         "cumulative_hazard": 1.2751337713464974,
         "p_survival": 0.2793935908646007,
-        "cum_fatality": 0.0009048781363171681,
+        "cum_fatality": 0.0015469625748297875,
         "cum_property": 0.0,
-        "cum_noise": 0.0037803464385624927,
-        "cum_objective": 10.782244575467603
+        "cum_noise": 0.005582684469173869,
+        "cum_objective": 10.78701909204106
       },
       {
         "cum_distance": 480.83261120685233,
@@ -2504,10 +2504,10 @@
         "absolute_time": 79248.08326112057,
         "cumulative_hazard": 1.3131974792990815,
         "p_survival": 0.2689586901741083,
-        "cum_fatality": 0.0009364050223474716,
+        "cum_fatality": 0.001554397094876776,
         "cum_property": 0.0,
-        "cum_noise": 0.003912498803314567,
-        "cum_objective": 11.10899965685652
+        "cum_noise": 0.005608018800267795,
+        "cum_objective": 11.11366177215724
       },
       {
         "cum_distance": 494.9747468305833,
@@ -2515,10 +2515,10 @@
         "absolute_time": 79249.49747468294,
         "cumulative_hazard": 1.3506067514077857,
         "p_survival": 0.2590830139624373,
-        "cum_fatality": 0.000966242327716483,
+        "cum_fatality": 0.0015605696786414349,
         "cum_property": 0.0,
-        "cum_noise": 0.004039715490057943,
-        "cum_objective": 11.435746465749508
+        "cum_noise": 0.005629526658016212,
+        "cum_objective": 11.440297126103907
       }
     ]
   }
