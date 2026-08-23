@@ -111,6 +111,8 @@ result = pipeline.run_all()  # 一键处理所有数据
 
 **职责边界**：唯一允许**扩展高度维 `nz`** 并**输出 4D 风险张量**的模块。
 
+**共享基础设施**：`grid_system.py` 定义的 `GridSystem`、`SpatialGridConfig`、`TemporalGridConfig` 是纯数据结构，不依赖任何风险模型。所有层（`data_provision`、`tensor_engine`、`algorithms`）均可引用 `grid_system`，这不属于跨层调用违规。
+
 ### 4.3 `algorithms/` — 路径规划
 
 | 子模块 | 职责 |
