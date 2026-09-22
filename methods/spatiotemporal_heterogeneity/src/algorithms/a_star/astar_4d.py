@@ -88,6 +88,13 @@ class AStar4D:
         self.max_descent_rate = self._optional_float(
             self._cfg("max_descent_rate", "flight_parameters.uav_constraints.max_descent_rate", default=None)
         )
+        # 飞行高度硬约束：网格层对应的物理高度范围
+        self.min_altitude = float(self._cfg(
+            "min_altitude", "flight_parameters.uav_constraints.min_altitude", default=0.0,
+        ))
+        self.max_altitude = float(self._cfg(
+            "max_altitude", "flight_parameters.uav_constraints.max_altitude", default=np.inf,
+        ))
 
     def _cfg(self, *paths: str, default: Any = None) -> Any:
         """Read a flat or dotted config value from dict/EasyDict-like objects."""
@@ -128,6 +135,10 @@ class AStar4D:
                         continue
                     nx, ny, nz = x + ox, y + oy, z + oz
                     if 0 <= nx < self.nx and 0 <= ny < self.ny and 0 <= nz < self.nz:
+                        # 飞行高度硬约束：检查目标层的物理高度是否在允许范围内
+                        z_center = (nz + 1.0) * self.dz
+                        if z_center < self.min_altitude or z_center > self.max_altitude:
+                            continue
                         dist = float(np.sqrt((ox * self.dx) ** 2 + (oy * self.dy) ** 2 + (oz * self.dz) ** 2))
                         if self._vertical_rate_allowed(oz, dist):
                             neighbors.append((nx, ny, nz, dist))
@@ -239,6 +250,11 @@ class AStar4D:
         - Same spatial position (x,y,z) can be reached with different (t, H, J)
         - Multiple non-dominated labels coexist (Pareto-optimal)
         - A label is dominated if an existing label has <= t, <= H, and <= J
+
+        Goal selection:
+        - All non-dominated labels reaching the goal are collected.
+        - The returned path is the one with minimum cumulative objective J.
+        - The full Pareto front of goal labels is included in the result.
         """
         start_time = time.time()
         self._validate_start_goal(start_coords, goal_coords)
@@ -257,14 +273,13 @@ class AStar4D:
             return self._failed(start_time, 0, "start_in_obstacle")
 
         open_set: List[SearchNode] = [start_node]
-
-        # Label-Setting: track the best label per spatial position (x,y,z).
-        # Each entry stores {t, H, J} of the non-dominated label.
-        # Because labels at the same (x,y,z) can be non-dominated, we keep
-        # a list per position and check Pareto dominance.
         visited_labels: Dict[Coord3D, List[Dict[str, float]]] = {
             start_node.pos_3d: [{"t": float(start_t), "H": 0.0, "J": 0.0}]
         }
+
+        # 收集所有到达目标的非支配标签
+        goal_nodes: List[SearchNode] = []
+        best_goal_J = float("inf")
 
         iterations = 0
         total_labels = 1
@@ -272,12 +287,20 @@ class AStar4D:
         while open_set:
             iterations += 1
             if iterations > self.max_iterations:
-                return self._failed(start_time, total_labels, "max_iterations")
+                break
 
             current = heapq.heappop(open_set)
 
+            # 剪枝：f > 已知最优目标 J 时不可能更优
+            if current.f > best_goal_J:
+                break
+
             if current.pos_3d == goal_coords:
-                return self._success(start_time, current, total_labels)
+                # 收集目标标签，不立即返回
+                goal_nodes.append(current)
+                if current.g < best_goal_J:
+                    best_goal_J = current.g
+                continue
 
             for nx, ny, nz, dist in self._get_neighbors(current.x, current.y, current.z):
                 neighbor = self._expand_node(current, (nx, ny, nz), dist)
@@ -293,7 +316,6 @@ class AStar4D:
                 pos = neighbor.pos_3d
                 labels_at_pos = visited_labels.get(pos, [])
 
-                # Check if new label is dominated by any existing label
                 dominated = False
                 non_dominated = []
                 for existing in labels_at_pos:
@@ -302,7 +324,6 @@ class AStar4D:
                             and existing["J"] <= new_label["J"]):
                         dominated = True
                         break
-                    # Keep existing labels that are NOT dominated by the new one
                     if not (new_label["t"] <= existing["t"]
                             and new_label["H"] <= existing["H"]
                             and new_label["J"] <= existing["J"]):
@@ -311,21 +332,38 @@ class AStar4D:
                 if dominated:
                     continue
 
-                # Enforce per-cell label cap to bound memory/runtime
                 if len(non_dominated) >= self.max_labels_per_cell:
-                    # Only admit if better than worst existing label by J
                     worst = max(non_dominated, key=lambda lbl: lbl["J"])
                     if new_label["J"] >= worst["J"]:
                         continue
                     non_dominated.remove(worst)
 
-                # New label is non-dominated: register it and push to open set
                 non_dominated.append(new_label)
                 visited_labels[pos] = non_dominated
                 total_labels += 1
 
                 neighbor.f = neighbor.g + self._heuristic(neighbor.pos_3d, goal_coords)
                 heapq.heappush(open_set, neighbor)
+
+        # 从所有到达目标的标签中选择 J 最小的
+        if goal_nodes:
+            best_node = min(goal_nodes, key=lambda n: n.g)
+            result = self._success(start_time, best_node, total_labels)
+            # 附加 Pareto 前沿信息
+            result["goal_pareto_front"] = [
+                {
+                    "objective_cost": n.g,
+                    "total_time": n.state["cum_time"],
+                    "cumulative_hazard": n.state["cumulative_hazard"],
+                    "p_survival": n.state["p_survival"],
+                    "cum_fatality": n.state["cum_fatality"],
+                    "cum_property": n.state["cum_property"],
+                    "cum_noise": n.state["cum_noise"],
+                }
+                for n in sorted(goal_nodes, key=lambda n: n.g)
+            ]
+            result["num_goal_labels"] = len(goal_nodes)
+            return result
 
         return self._failed(start_time, total_labels, "open_set_exhausted")
 
