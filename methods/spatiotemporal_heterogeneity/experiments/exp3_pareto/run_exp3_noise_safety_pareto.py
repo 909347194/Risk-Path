@@ -40,6 +40,7 @@ from methods.spatiotemporal_heterogeneity.src.tensor_engine.grid_system import (
 from methods.spatiotemporal_heterogeneity.src.tensor_engine.dynamic_p_crash import DynamicCrashProbability
 from methods.spatiotemporal_heterogeneity.src.tensor_engine.dynamic_fatality import DynamicFatalityModel
 from methods.spatiotemporal_heterogeneity.src.tensor_engine.static_obstacle import PropertyDamageModel
+from methods.spatiotemporal_heterogeneity.src.tensor_engine.risk_tensor_assembler import compute_urban_canyon_fobs
 from methods.spatiotemporal_heterogeneity.src.tensor_engine.dynamic_noise import DynamicNoiseCost
 from methods.spatiotemporal_heterogeneity.src.algorithms.env_tensor import EnvTensor
 from methods.spatiotemporal_heterogeneity.src.algorithms.a_star.astar_4d import AStar4D
@@ -129,7 +130,9 @@ def build_env_tensor(scenario, flight_altitude=50.0):
     crash_model = DynamicCrashProbability()
     f_wind = crash_model.compute_wind_factor(wind_2d[:, :, np.newaxis, :])
     f_rain = crash_model.compute_rain_factor(rain_2d[:, :, np.newaxis, :])
-    f_obs = np.ones((nx, ny, nz, nt), dtype=np.float32)
+    # 城市峡谷因子（真实计算，替代 ones 占位）
+    f_obs = compute_urban_canyon_fobs(
+        np.transpose(scenario["building_heights"], (1, 0)), grid)
     p_crash = crash_model.compute_pcrash(f_wind, f_rain, f_obs, dt=3600.0)
     p_crash = np.clip(p_crash, 0.0, 1.0).astype(np.float32)
 
@@ -254,6 +257,7 @@ def run_experiment():
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     _save_metrics_csv(all_metrics)
+    _save_paths_json(all_results)
     _plot_pareto_frontier(all_metrics)
     _plot_weight_sensitivity(all_metrics)
     _plot_paths_2d(all_results, scenario)
@@ -294,6 +298,21 @@ def _save_metrics_csv(all_metrics):
             m["runtime_ms"], m["nodes_explored"]))
     csv_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"  [OK] Saved: {csv_path}")
+
+
+def _save_paths_json(all_results):
+    """保存路径坐标 + 逐步状态（与 exp1 同 schema，供 analysis 包做分解/约束分析）。"""
+    paths_data = {}
+    for entry in all_results:
+        result = entry["result"]
+        if result["status"] == "success":
+            paths_data[entry["config"]["label"]] = {
+                "coords": [list(step["coords"]) for step in result["path"]],
+                "states": [step["state"] for step in result["path"]],
+            }
+    json_path = OUTPUT_DIR / "paths.json"
+    json_path.write_text(json.dumps(paths_data, indent=2), encoding="utf-8")
+    print(f"  [OK] Saved: {json_path}")
 
 
 def _plot_pareto_frontier(all_metrics):

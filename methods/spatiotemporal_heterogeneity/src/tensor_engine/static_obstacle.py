@@ -65,6 +65,15 @@ class StaticBuildingObstacle:
             如果提供 config_path，将从 YAML 文件加载 urban_canyon 相关参数
             否则使用传入的参数值
         """
+        # 构造参数先落属性，供 _load_config_from_yaml 的缺省回退使用
+        # （否则 YAML 缺键时引用 self.K_obs 会 AttributeError）
+        self.K_obs = K_obs
+        self.w_svf = w_svf
+        self.w_height_ratio = w_height_ratio
+        self.w_proximity = w_proximity
+        self.alpha_svf = alpha_svf
+        self.epsilon = epsilon
+
         # 从配置文件加载参数（如果提供）
         if config_path is not None:
             config = self._load_config_from_yaml(config_path)

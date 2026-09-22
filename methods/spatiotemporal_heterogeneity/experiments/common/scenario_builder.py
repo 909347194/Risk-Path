@@ -40,6 +40,9 @@ from methods.spatiotemporal_heterogeneity.src.tensor_engine.dynamic_noise import
 )
 from methods.spatiotemporal_heterogeneity.src.algorithms.env_tensor import EnvTensor
 from methods.spatiotemporal_heterogeneity.src.algorithms.a_star.astar_4d import AStar4D
+from methods.spatiotemporal_heterogeneity.src.tensor_engine.risk_tensor_assembler import (
+    compute_urban_canyon_fobs,
+)
 
 
 @dataclass
@@ -136,7 +139,9 @@ def build_env_tensor(scenario: MicroScenario, flight_altitude: float = 50.0) -> 
 
     f_wind = crash_model.compute_wind_factor(wind_3d)
     f_rain = crash_model.compute_rain_factor(rain_3d)
-    f_obs = np.ones((nx, ny, nz, nt), dtype=np.float32)
+    # 城市峡谷因子：SVF + 建筑距离场逐层计算（与 risk_tensor_assembler 同口径）
+    building_t = np.transpose(scenario.building_heights, (1, 0))  # (ny,nx) -> (nx,ny)
+    f_obs = compute_urban_canyon_fobs(building_t, grid, config_path)
 
     p_crash = crash_model.compute_pcrash(f_wind, f_rain, f_obs, dt=grid.temporal.dt_minutes * 60.0)
     p_crash = np.clip(p_crash, 0.0, 1.0).astype(np.float32)
@@ -177,8 +182,7 @@ def build_env_tensor(scenario: MicroScenario, flight_altitude: float = 50.0) -> 
     )
     e_fatality = np.broadcast_to(e_fatality_3d[:, :, np.newaxis, :], (nx, ny, nz, nt)).astype(np.float32)
 
-    # 4. E_property(x,y)
-    building_t = np.transpose(scenario.building_heights, (1, 0))
+    # 4. E_property(x,y)（building_t 已在上方 f_obs 处转置）
     prop_model = PropertyDamageModel(
         building_heights=building_t,
         max_prop_damage=1000.0, log_normal_mu=3.04, log_normal_sigma=0.5,

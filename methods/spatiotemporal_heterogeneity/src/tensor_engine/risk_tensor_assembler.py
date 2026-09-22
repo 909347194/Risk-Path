@@ -63,7 +63,8 @@ def _compute_dist_to_building(
     nx, ny = h.shape
     building_mask = h > 0
     if not np.any(building_mask):
-        return np.ones((nx, ny, nz), dtype=np.float32)
+        # 无建筑 → 邶近度为 0（无峡谷放大）；返回 ones 会误报最大风险
+        return np.zeros((nx, ny, nz), dtype=np.float32)
 
     # 两遍扫描近似 EDT（Chamfer distance，精度足够）
     INF = nx + ny + 1.0
@@ -104,17 +105,22 @@ def _compute_dist_to_building(
     return dist_3d.astype(np.float32)
 
 
-def _compute_urban_canyon_fobs(
+def compute_urban_canyon_fobs(
     building_heights: np.ndarray,
     grid: GridSystem,
-    flight_altitude: float,
-    config_path: Union[str, Path],
+    config_path: Union[str, Path, None] = None,
 ) -> np.ndarray:
     """计算城市峡谷风险放大系数 f_obs，返回 4D (nx, ny, nz, nt)。
 
     对每个 z 层用该层的实际高度计算 f_obs，体现高度越高、
     建筑影响越小的物理规律。时间维度假设静态建筑不随时间变化。
+
+    公开入口：build_risk_tensors 与实验管线（scenario_builder / exp3~exp5）
+    共用本函数，保证 f_obs 口径一致（不再各自传 np.ones 占位符）。
     """
+    if config_path is None:
+        project_dir = Path(__file__).resolve().parents[2]
+        config_path = project_dir / "configs" / "common.yaml"
     nx, ny, nz, nt = grid.shape
     svf = _compute_svf(building_heights)
     dist_3d = _compute_dist_to_building(building_heights, nz, grid.spatial.dz)
@@ -183,7 +189,7 @@ def build_risk_tensors(
     f_wind = crash_model.compute_wind_factor(wind_3d)
     f_rain = crash_model.compute_rain_factor(rain_3d)
     # 城市峡谷因子：从建筑高度推导 SVF + 距离场，逐 z 层计算
-    f_obs = _compute_urban_canyon_fobs(building, grid, flight_altitude, config_path)
+    f_obs = compute_urban_canyon_fobs(building, grid, config_path)
     p_crash = crash_model.compute_pcrash(
         f_wind, f_rain, f_obs, dt=grid.temporal.dt_minutes * 60.0
     )

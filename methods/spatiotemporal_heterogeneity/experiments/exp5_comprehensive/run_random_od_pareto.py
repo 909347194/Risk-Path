@@ -21,6 +21,7 @@ from src.tensor_engine.grid_system import GridSystem, SpatialGridConfig, Tempora
 from src.tensor_engine.dynamic_p_crash import DynamicCrashProbability
 from src.tensor_engine.dynamic_fatality import DynamicFatalityModel
 from src.tensor_engine.static_obstacle import PropertyDamageModel
+from src.tensor_engine.risk_tensor_assembler import compute_urban_canyon_fobs
 from src.tensor_engine.dynamic_noise import DynamicNoiseCost
 from src.algorithms.env_tensor import EnvTensor
 from src.algorithms.a_star.astar_4d import AStar4D
@@ -81,7 +82,8 @@ def build_env_tensor(grid, landuse, bh, wind, rain, rp, alt=50.0):
     r2d = np.transpose(rain, (1, 0, 2))
     fw = cm.compute_wind_factor(w2d[:, :, np.newaxis, :])
     fr = cm.compute_rain_factor(r2d[:, :, np.newaxis, :])
-    fo = np.ones((nx, ny, nz, nt), dtype=np.float32)
+    # 城市峡谷因子（真实计算，替代 ones 占位）
+    fo = compute_urban_canyon_fobs(np.transpose(bh, (1, 0)), grid)
     pc = np.clip(cm.compute_pcrash(fw, fr, fo, dt=3600.0), 0, 1).astype(np.float32)
 
     rv = rp * 0.1

@@ -239,7 +239,7 @@ def fig1_temporal_adaptability():
                 arrowprops=dict(arrowstyle='->', color='red', lw=1.5),
                 fontsize=9, color='red', fontweight='bold')
 
-    fig.suptitle("Figure 1: Figure 1: Temporal Adaptability of TD-RiskA*",
+    fig.suptitle("Figure 1: Temporal Adaptability of TD-RiskA*",
                 fontsize=14, fontweight='bold', y=1.02)
 
     output_dir = OUTPUT_BASE / "fig1_temporal"
@@ -405,7 +405,7 @@ def fig2_microclimate_terrain():
     # 共享 colorbar
     fig.colorbar(im, ax=axes, shrink=0.6, label="Crash Probability", pad=0.02)
 
-    fig.suptitle("Figure 2: Figure 2: Microclimate-Terrain — Distance-only vs TD-RiskA*",
+    fig.suptitle("Figure 2: Microclimate-Terrain — Distance-only vs TD-RiskA*",
                 fontsize=14, fontweight='bold', y=1.02)
 
     output_dir = OUTPUT_BASE / "fig2_microclimate"
@@ -512,7 +512,7 @@ def fig3_pareto_frontier():
 
     ax1.set_xlabel("Cumulative Noise Cost", fontsize=11)
     ax1.set_ylabel("Cumulative Fatality Risk", fontsize=11)
-    ax1.set_title("(a) (a) Noise-Fatality Pareto Frontier", fontsize=12, fontweight='bold')
+    ax1.set_title("(a) Noise-Fatality Pareto Frontier", fontsize=12, fontweight='bold')
     ax1.grid(True, alpha=0.3)
 
     # Panel B: 权重敏感性
@@ -537,7 +537,7 @@ def fig3_pareto_frontier():
     ax2.set_xlabel("w_noise (Noise Weight)", fontsize=11)
     ax2.set_ylabel("Path Length (m)", fontsize=11, color=COLORS["evening"])
     ax2_twin.set_ylabel("Cumulative Noise", fontsize=11, color=COLORS["wind"])
-    ax2.set_title("(b) (b) Weight Sensitivity", fontsize=12, fontweight='bold')
+    ax2.set_title("(b) Weight Sensitivity", fontsize=12, fontweight='bold')
     ax2.legend(handles=[l1, l2], fontsize=9, loc='upper left')
     ax2.grid(True, alpha=0.3)
 
@@ -579,7 +579,7 @@ def fig3_pareto_frontier():
 
     ax3.set_xlabel("X (m)", fontsize=11)
     ax3.set_ylabel("Y (m)", fontsize=11)
-    ax3.set_title("(c) (c) Path Evolution: Through → Detour", fontsize=12, fontweight='bold')
+    ax3.set_title("(c) Path Evolution: Through → Detour", fontsize=12, fontweight='bold')
     ax3.legend(fontsize=8, loc='upper left')
     ax3.set_xlim(extent[0], extent[1])
     ax3.set_ylim(extent[2], extent[3])
@@ -625,11 +625,11 @@ def fig3_pareto_frontier():
         ax4.set_xticks(x)
         ax4.set_xticklabels(categories, fontsize=10)
         ax4.set_ylabel("Value (Mixed Units)", fontsize=11)
-        ax4.set_title("(d) (d) Pareto Jump: Before vs After", fontsize=12, fontweight='bold')
+        ax4.set_title("(d) Pareto Jump: Before vs After", fontsize=12, fontweight='bold')
         ax4.legend(fontsize=9)
         ax4.grid(True, alpha=0.3, axis='y')
 
-    fig.suptitle("Figure 3: Figure 3: Noise-Safety Pareto Trade-off",
+    fig.suptitle("Figure 3: Noise-Safety Pareto Trade-off",
                 fontsize=14, fontweight='bold', y=1.02)
 
     output_dir = OUTPUT_BASE / "fig3_pareto"
@@ -716,7 +716,7 @@ def fig4_storm_window():
     ax1.set_xlabel("Time (h)", fontsize=11)
     ax1.set_ylabel("Wind (m/s)", fontsize=11, color='steelblue')
     ax1_twin.set_ylabel("Path Length (m)", fontsize=11, color=COLORS["wind"])
-    ax1.set_title("(a) (a) Wind Speed vs Path Length", fontsize=12, fontweight='bold')
+    ax1.set_title("(a) Wind Speed vs Path Length", fontsize=12, fontweight='bold')
     ax1.legend(handles=[l1, l2], fontsize=9, loc='upper left')
     ax1.grid(True, alpha=0.3)
 
@@ -726,7 +726,7 @@ def fig4_storm_window():
     ax2.axvspan(12, 18, alpha=0.15, color='red', label='Storm Window')
     ax2.set_xlabel("Time (h)", fontsize=11)
     ax2.set_ylabel("Survival Probability", fontsize=11)
-    ax2.set_title("(b) (b) Survival Over Time", fontsize=12, fontweight='bold')
+    ax2.set_title("(b) Survival Over Time", fontsize=12, fontweight='bold')
     ax2.grid(True, alpha=0.3)
     ax2.legend(fontsize=9)
 
@@ -743,7 +743,7 @@ def fig4_storm_window():
     ax3.axvspan(12, 18, alpha=0.15, color='red', label='Storm Window')
     ax3.set_xlabel("Time (h)", fontsize=11)
     ax3.set_ylabel("Nodes Explored (log)", fontsize=11)
-    ax3.set_title("(c) (c) Computational Complexity", fontsize=12, fontweight='bold')
+    ax3.set_title("(c) Computational Complexity", fontsize=12, fontweight='bold')
     ax3.grid(True, alpha=0.3)
     ax3.legend(fontsize=9)
 
@@ -794,12 +794,12 @@ def fig4_storm_window():
 
     ax4.set_xlabel("X (m)", fontsize=11)
     ax4.set_ylabel("Y (m)", fontsize=11)
-    ax4.set_title("(d) (d) Storm vs Calm Path", fontsize=12, fontweight='bold')
+    ax4.set_title("(d) Storm vs Calm Path", fontsize=12, fontweight='bold')
     ax4.legend(fontsize=9, loc='upper left')
     ax4.set_xlim(extent[0], extent[1])
     ax4.set_ylim(extent[2], extent[3])
 
-    fig.suptitle("Figure 4: Figure 4: Storm Window Adaptability — 100×100 Canyon",
+    fig.suptitle("Figure 4: Storm Window Adaptability — 100×100 Canyon",
                 fontsize=14, fontweight='bold', y=1.02)
 
     output_dir = OUTPUT_BASE / "fig4_storm"

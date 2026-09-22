@@ -151,7 +151,7 @@ def _plot_paths_2d(results, scenario):
 
     bh = scenario.building_heights
     im = ax.imshow(bh, cmap="YlOrRd", origin="lower", alpha=0.6, interpolation="bilinear")
-    plt.colorbar(im, ax=ax, shrink=0.7, label="Building Height (layers)")
+    plt.colorbar(im, ax=ax, shrink=0.7, label="Building Height (m)")
 
     for t_start in TIME_SLOTS:
         result = results.get(t_start)

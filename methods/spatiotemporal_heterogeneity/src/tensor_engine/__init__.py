@@ -20,7 +20,7 @@ from .config_manager import (
 from .tensor_builder import TensorBuilder
 from .dynamic_noise import DynamicNoiseCost, NoiseConfig, get_micro_grid_noise_model, get_macro_grid_noise_model
 from .dynamic_fatality import DynamicFatalityModel, FatalityConfig
-from .risk_tensor_assembler import build_risk_tensors
+from .risk_tensor_assembler import build_risk_tensors, compute_urban_canyon_fobs
 
 __all__ = [
     # Grid system
@@ -52,4 +52,5 @@ __all__ = [
     'DynamicFatalityModel',
     'FatalityConfig',
     'build_risk_tensors',
+    'compute_urban_canyon_fobs',
 ]
