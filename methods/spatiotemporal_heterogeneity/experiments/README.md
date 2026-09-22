@@ -8,6 +8,13 @@ experiments/
 │   ├── scenario_builder.py          #   场景构建器 (Exp1~3 共用)
 │   └── paper_figures.py             #   论文级图表生成
 │
+├── analysis/                        # 结果分析绘图（拆分组织，一脚本一主题）
+│   ├── _common.py                   #   共享 IO / 样式 / 参数常量
+│   ├── plot_risk_decomposition.py   #   缺口1：沿路径累积风险分量逐步分解
+│   ├── plot_constraint_satisfaction.py #  缺口3：安全约束满足可视化
+│   ├── plot_baseline_comparison.py  #   缺口4：基线方法系统对比
+│   └── run_all.py                   #   编排入口（详见 analysis/README.md）
+│
 ├── exp1_temporal/                   # Exp1: 时间节律自适应性
 │   └── run_exp1_temporal_adaptability.py
 │
@@ -48,6 +55,11 @@ uv run python -m methods.spatiotemporal_heterogeneity.experiments.exp5_comprehen
 
 # 论文图表 (需要先运行上述实验)
 uv run python -m methods.spatiotemporal_heterogeneity.experiments.common.paper_figures
+
+# 结果分析图（缺口1/3/4，读取 results/ 下已有产物，无需重跑实验）
+uv run python methods/spatiotemporal_heterogeneity/experiments/analysis/run_all.py
+# 或单独运行：plot_risk_decomposition.py / plot_constraint_satisfaction.py /
+#            plot_baseline_comparison.py（支持 --paths/--baseline/--out）
 ```
 
 ## 输出位置

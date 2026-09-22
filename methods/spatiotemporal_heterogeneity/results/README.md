@@ -14,6 +14,11 @@ results/
 │   ├── fig3_pareto/             #   Fig3: 噪声-安全 Pareto
 │   └── fig4_storm/              #   Fig4: 风暴窗口效应
 │
+├── analysis_figures/            # ★ 结果分析图（experiments/analysis 产出）
+│   ├── risk_decomposition/      #   缺口1: 分量逐步分解 figA1~A3
+│   ├── constraint_satisfaction/ #   缺口3: 约束满足 figB + margins.csv
+│   └── baseline_comparison/     #   缺口4: 基线对比 figC1~C2 + summary.csv
+│
 ├── exp1_temporal/               # Exp1 原始输出
 ├── exp2_microclimate/           # Exp2 原始输出
 ├── exp3_pareto/                 # Exp3 原始输出
@@ -34,4 +39,7 @@ uv run python -m methods.spatiotemporal_heterogeneity.experiments.exp1_temporal.
 
 # 2. 生成论文图表 (汇总到 paper_figures/)
 uv run python -m methods.spatiotemporal_heterogeneity.experiments.common.paper_figures
+
+# 3. 生成结果分析图 (汇总到 analysis_figures/，缺口1/3/4)
+uv run python methods/spatiotemporal_heterogeneity/experiments/analysis/run_all.py
 ```

@@ -1,0 +1,19 @@
+algorithm,metric,mean,improvement_vs_StaticA_pct,improvement_vs_DistanceOnly_pct
+TD-RiskA*,path_length,477.19805,-2.642,-2.642
+TD-RiskA*,final_survival,0.10694787,-27.071,1.488
+TD-RiskA*,cum_fatality,0.00070509888,-5.049,-3.766
+TD-RiskA*,cum_noise,0.0017368923,4.869,-0.617
+TD-RiskA*,runtime_ms,55.277133,-1083.181,-1087.095
+TD-RiskA*,nodes_explored,646.3,-303.433,-303.433
+Static A*,path_length,464.91378,,
+Static A*,final_survival,0.14664753,,
+Static A*,cum_fatality,0.00067120742,,
+Static A*,cum_noise,0.0018257809,,
+Static A*,runtime_ms,4.6719074,,
+Static A*,nodes_explored,160.2,,
+Distance-only,path_length,464.91378,,
+Distance-only,final_survival,0.10537984,,
+Distance-only,cum_fatality,0.00067950999,,
+Distance-only,cum_noise,0.001726248,,
+Distance-only,runtime_ms,4.6565056,,
+Distance-only,nodes_explored,160.2,,
