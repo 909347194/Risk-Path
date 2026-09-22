@@ -28,7 +28,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -45,7 +45,7 @@ from _common import (  # noqa: E402
     save_fig,
     setup_style,
     state_series,
-    TIME_COLORS,
+    time_color,
 )
 
 import matplotlib.pyplot as plt  # noqa: E402
@@ -126,10 +126,6 @@ def compute_margins(record: Dict[str, Any],
     }
 
 
-def _time_color(key: str) -> str:
-    return TIME_COLORS.get(int(key), "#555555") if str(key).isdigit() else "#555555"
-
-
 # ============================================================
 # 面板
 # ============================================================
@@ -138,7 +134,7 @@ def panel_survival(ax, all_margins: Dict[str, Dict[str, np.ndarray]]) -> None:
     p_th = CONSTRAINTS["survival_threshold"]
     for key in sorted(all_margins, key=label_sort_key):
         m = all_margins[key]
-        ax.plot(m["cum_distance"], m["p_survival"], color=_time_color(key),
+        ax.plot(m["cum_distance"], m["p_survival"], color=time_color(key),
                 linewidth=2, label=display_label(key))
     ax.axhline(p_th, color="red", linewidth=1.6, linestyle="--",
                label=f"Survival threshold P_th = {p_th}")
@@ -240,7 +236,10 @@ def panel_matrix(ax, all_margins: Dict[str, Dict[str, np.ndarray]]) -> None:
 
     # (显示名, 裕度字段, 裕度计算函数, 警戒阈值的尺度函数)
     def _min_margin(m, field):
-        return float(np.nanmin(m[field]))
+        values = np.asarray(m[field], dtype=float)
+        if np.all(np.isnan(values)):
+            return float("nan")
+        return float(np.nanmin(values))
 
     def _climb_margin(m):
         return float(CONSTRAINTS["max_climb_rate"] - np.max(m["climb_rate"]))
@@ -281,6 +280,11 @@ def panel_matrix(ax, all_margins: Dict[str, Dict[str, np.ndarray]]) -> None:
                 texts[ri][ci] = "inactive"
                 continue
             margin = margin_fn(m)
+            if not np.isfinite(margin):
+                # 该约束数据缺失（如建筑高度未加载）——如实标注 n/a，不误判为满足
+                status_img[ri, ci] = 3.0
+                texts[ri][ci] = "n/a"
+                continue
             scale = float(scale_fn(m))
             ratio = margin / scale if scale > 0 else margin
             if margin <= 0:

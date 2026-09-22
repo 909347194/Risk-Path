@@ -20,7 +20,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 
 import numpy as np
 
@@ -31,22 +31,15 @@ from _common import (  # noqa: E402
     COMPONENT_LABELS,
     EXP1_PATHS,
     OUTPUT_BASE,
-    coords_array,
     display_label,
     label_sort_key,
     load_path_records,
     save_fig,
     setup_style,
     state_series,
-    TIME_COLORS,
-    TIME_LABELS,
 )
 
 import matplotlib.pyplot as plt  # noqa: E402
-
-
-def _time_color(key: str) -> str:
-    return TIME_COLORS.get(int(key), "#555555") if str(key).isdigit() else "#555555"
 
 
 def _record_series(record: Dict[str, Any]) -> Dict[str, np.ndarray]:
@@ -165,7 +158,7 @@ def fig_a2(records: Dict[str, Dict[str, Any]], out_dir: Path) -> None:
         ax.set_xlabel("Cumulative distance (m)")
         ax.set_ylabel("Cumulative risk contribution")
         ax.set_xlim(dist[0], dist[-1])
-        ax.set_ylim(0, y_max)
+        ax.set_ylim(0, y_max if y_max > 0 else 1.0)
         if idx == 0:
             ax.legend(loc="upper left", fontsize=8)
 
@@ -184,7 +177,8 @@ def fig_a3(records: Dict[str, Dict[str, Any]], out_dir: Path) -> None:
     keys = sorted(records.keys(), key=label_sort_key)
     labels = [display_label(k) for k in keys]
 
-    finals = {k: np.array([_record_series(records[k])[c][-1] for c in COMPONENT_KEYS])
+    series_map = {k: _record_series(records[k]) for k in keys}
+    finals = {k: np.array([series_map[k][c][-1] for c in COMPONENT_KEYS])
               for k in keys}
     totals = {k: float(finals[k].sum()) for k in keys}
 
@@ -199,7 +193,11 @@ def fig_a3(records: Dict[str, Dict[str, Any]], out_dir: Path) -> None:
         bars = ax.bar(x + (ci - 1) * width, vals, width,
                       color=COMPONENT_COLORS[comp],
                       label=COMPONENT_LABELS[comp], alpha=0.9)
-        ax.bar_label(bars, fmt="%.1e", fontsize=7, padding=2)
+        # 只标注非零值，避免 0.0e+00 标注堆在轴线上
+        for rect, val in zip(bars, vals):
+            if val > 0:
+                ax.text(rect.get_x() + rect.get_width() / 2, rect.get_height(),
+                        f"{val:.1e}", ha="center", va="bottom", fontsize=7)
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=9)
     ax.set_ylabel("Final cumulative contribution")

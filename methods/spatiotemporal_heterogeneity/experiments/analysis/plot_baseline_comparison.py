@@ -26,7 +26,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import numpy as np
 
@@ -57,7 +57,13 @@ def _grouped_bars(ax, od_order: List[str], per_algo: Dict[str, Dict[str, np.ndar
     width = 0.8 / n_algos
 
     for ai, algo in enumerate(ALGO_ORDER):
-        values = per_algo[algo][metric]
+        values = np.asarray(per_algo[algo][metric], dtype=float)
+        bad = ~np.isfinite(values)
+        if bad.any():
+            # 失败运行可能写 inf/NaN；按缺失处理（不画柱）而非破坏坐标轴
+            print(f"  [WARN] {algo}/{metric} 非有限值按缺失处理: "
+                  f"{[od_order[i] for i in np.where(bad)[0]]}")
+            values = np.where(bad, np.nan, values)
         offset = (ai - (n_algos - 1) / 2) * width
         ax.bar(x + offset, values, width, label=algo,
                color=ALGO_COLORS[algo], alpha=0.9, edgecolor="white")

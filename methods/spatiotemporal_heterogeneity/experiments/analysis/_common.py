@@ -15,7 +15,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 
@@ -138,6 +138,11 @@ def display_label(key: str) -> str:
     return key
 
 
+def time_color(key: str) -> str:
+    """出发时刻键 -> 时次配色；非数字键/未知时次回退灰色。"""
+    return TIME_COLORS.get(int(key), "#555555") if str(key).isdigit() else "#555555"
+
+
 def label_sort_key(key: str) -> Tuple[int, str]:
     """数字出发时刻按时间排序，其余按字符串排在后面。"""
     key = str(key)
@@ -207,33 +212,49 @@ def col_float(rows: Sequence[Dict[str, str]], key: str) -> np.ndarray:
 
 
 def load_baseline_rows(csv_path: Path = EXP5_BASELINE):
-    """基线对比 CSV -> (od 顺序, {algorithm: {列: np.ndarray}})。"""
+    """基线对比 CSV -> (od 顺序, {algorithm: {列: np.ndarray}})。
+
+    数组下标与 od_order 严格对齐（按 od 键控重建，不依赖 CSV 行序）；
+    缺失的 (od, algorithm) 组合以 nan / 空串占位并告警。
+    """
     rows = read_csv_rows(csv_path)
+    if not rows:
+        raise ValueError(f"baseline CSV 无数据行: {csv_path}")
+
     od_order: List[str] = []
-    per_algo: Dict[str, Dict[str, List[Any]]] = {}
+    by_od: Dict[str, Dict[str, Dict[str, str]]] = {}
     for row in rows:
-        od = row["od"]
-        algo = row["algorithm"]
-        if od not in od_order:
+        od = row.get("od", "")
+        algo = row.get("algorithm", "")
+        if od not in by_od:
+            by_od[od] = {}
             od_order.append(od)
-        bucket = per_algo.setdefault(algo, {})
-        for key, value in row.items():
-            bucket.setdefault(key, []).append(value)
+        by_od[od][algo] = row
 
     numeric_cols = ("path_length", "objective_cost", "final_survival",
                     "cum_fatality", "cum_noise", "runtime_ms", "nodes_explored")
+    columns = [k for k in rows[0].keys() if k not in ("od", "algorithm")]
+
     parsed: Dict[str, Dict[str, np.ndarray]] = {}
-    for algo, bucket in per_algo.items():
+    for algo in sorted({r["algorithm"] for r in rows}):
         parsed[algo] = {}
-        for key, values in bucket.items():
+        for key in columns:
             if key in numeric_cols:
-                arr = np.full(len(values), np.nan, dtype=float)
-                for i, v in enumerate(values):
-                    if v not in (None, ""):
-                        arr[i] = float(v)
+                arr = np.full(len(od_order), np.nan, dtype=float)
+                for i, od in enumerate(od_order):
+                    raw = by_od.get(od, {}).get(algo, {}).get(key, "")
+                    if raw not in (None, ""):
+                        arr[i] = float(raw)
                 parsed[algo][key] = arr
             else:
-                parsed[algo][key] = np.asarray(values)
+                parsed[algo][key] = np.asarray([
+                    by_od.get(od, {}).get(algo, {}).get(key, "") for od in od_order
+                ])
+
+    missing = [(od, algo) for od in od_order for algo in parsed
+               if algo not in by_od.get(od, {})]
+    if missing:
+        print(f"  [WARN] baseline CSV 缺失组合（nan 占位）: {missing}")
     return od_order, parsed
 
 

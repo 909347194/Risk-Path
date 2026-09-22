@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 import plot_baseline_comparison
 import plot_constraint_satisfaction
