@@ -143,74 +143,80 @@ class StaticBuildingObstacle:
             print("警告: 未安装 pyyaml 库，无法加载 YAML 配置，使用默认参数")
             return {}
     
-    def compute_r_canyon(self, flight_altitude: Optional[Union[float, np.ndarray]] = None) -> np.ndarray:
+    def compute_r_canyon(
+        self,
+        flight_altitude: Optional[Union[float, np.ndarray]] = None,
+        z_layer: Optional[int] = None,
+    ) -> np.ndarray:
         """
         计算城市峡谷风险指数 R_canyon
-        
+
         公式:
-        R_canyon = w_1 * (1 - SVF)^α + w_2 * (H_avg / (z + ε)) + w_3 * D_building
-        
+        R_canyon = w_1 * (1 - SVF)^α + w_2 * (H_avg / (z + ε)) + w_3 * D_building(z)
+
         Args:
             flight_altitude: 无人机飞行高度 (m)
                              - 如果为标量，对所有网格点使用相同高度
                              - 如果为数组，形状应为 (nx, ny) 或 (ny, nx)
                              - 如果为 None，使用建筑高度的平均值作为参考高度
-        
+            z_layer: 距离场的 z 层索引。提供时使用 dist_to_building[:, :, z_layer]
+                     使邻近度项随高度变化；不提供时使用地面层（向后兼容）。
+
         Returns:
             城市峡谷风险指数数组，形状与输入数据一致 (nx, ny) 或 (ny, nx)
         """
         # 确定飞行高度
         if flight_altitude is None:
-            # 使用建筑平均高度作为参考
             avg_height = float(np.mean(self.building_heights[self.building_heights > 0]))
-            flight_altitude = avg_height if avg_height > 0 else 30.0  # 默认 30m
-        
+            flight_altitude = avg_height if avg_height > 0 else 30.0
+
         if isinstance(flight_altitude, (int, float)):
-            # 标量高度，广播到所有位置
             z = np.full_like(self.building_heights, float(flight_altitude))
         else:
-            # 数组高度，确保维度匹配
             z = np.asarray(flight_altitude, dtype=np.float64)
             assert z.shape == self.building_heights.shape, \
                 f"飞行高度数组形状 {z.shape} 与建筑高度 {self.building_heights.shape} 不匹配"
-        
+
         # 三项分量计算
-        
-        # 1. 天空遮挡项: (1 - SVF)^α
-        # 反映 GPS 信号质量和视觉传感器视野受限程度
         sky_occlusion = np.power(1.0 - self.svf, self.alpha_svf)
-        
-        # 2. 相对高度比: H_avg / (z + ε)
-        # 反映无人机相对于周围建筑的"淹没程度"
         height_ratio = self.building_heights / (z + self.epsilon)
-        
-        # 3. 建筑邻近度: D_building (已经是归一化的距离倒数)
-        # 反映直接碰撞风险和气流扰动强度
-        proximity = self.dist_to_building[:, :, 0] if self.dist_to_building.ndim == 3 else self.dist_to_building
-        
-        # 加权求和得到 R_canyon
+
+        # 邻近度：按 z 层取距离场，使建筑影响随高度衰减
+        if self.dist_to_building.ndim == 3:
+            if z_layer is not None:
+                proximity = self.dist_to_building[:, :, z_layer]
+            else:
+                proximity = self.dist_to_building[:, :, 0]
+        else:
+            proximity = self.dist_to_building
+
         R_canyon = (
             self.w_svf * sky_occlusion +
             self.w_height_ratio * height_ratio +
             self.w_proximity * proximity
         )
-        
+
         return R_canyon
     
-    def compute_f_obs(self, flight_altitude: Optional[Union[float, np.ndarray]] = None) -> np.ndarray:
+    def compute_f_obs(
+        self,
+        flight_altitude: Optional[Union[float, np.ndarray]] = None,
+        z_layer: Optional[int] = None,
+    ) -> np.ndarray:
         """
         计算城市峡谷风险放大系数 f_obs
-        
+
         公式:
         f_obs = 1 + K_obs * R_canyon
-        
+
         Args:
             flight_altitude: 无人机飞行高度 (m)，同 compute_r_canyon
-        
+            z_layer: 距离场的 z 层索引，使邻近度随高度变化
+
         Returns:
             风险放大系数数组，值域 [1, 1+K_obs]
         """
-        R_canyon = self.compute_r_canyon(flight_altitude)
+        R_canyon = self.compute_r_canyon(flight_altitude, z_layer=z_layer)
         
         # 归一化 R_canyon 到 [0, 1] 范围
         R_max = np.max(R_canyon)

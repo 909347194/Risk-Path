@@ -129,7 +129,7 @@ def _compute_urban_canyon_fobs(
     )
     for k in range(nz):
         z_alt = float(grid.z_heights[k])
-        f_obs_3d[:, :, k] = obstacle.compute_f_obs(flight_altitude=z_alt)
+        f_obs_3d[:, :, k] = obstacle.compute_f_obs(flight_altitude=z_alt, z_layer=k)
 
     # 广播到 4D：建筑是静态的，不随时间变化
     f_obs_4d = np.broadcast_to(

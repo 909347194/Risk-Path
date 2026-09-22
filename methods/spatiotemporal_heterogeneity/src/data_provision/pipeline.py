@@ -333,6 +333,8 @@ class DataPipeline:
             self._base_pop, self._poi_counts,
             save_path=self.paths.rho_vehicle_path,
         )
+        # 注：build_vehicle_density 的 base_vehicle 参数在质量守恒模式下未使用，
+        # 此处传 _base_pop 仅作占位。若切换到 legacy 乘法模式需传真实车辆密度。
         print(f"  ✓ rho_pop: {self._rho_pop.shape}")
         print(f"  ✓ rho_vehicle: {self._rho_vehicle.shape}")
         return self._rho_pop, self._rho_vehicle

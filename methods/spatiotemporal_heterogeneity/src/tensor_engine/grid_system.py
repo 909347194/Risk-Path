@@ -204,20 +204,25 @@ class GridSystem:
     def get_altitude_layer(self, altitude_m: float) -> int:
         """
         根据给定高度获取对应的网格层索引
-        
+
         计算步骤：
-        1. 将高度除以垂直分辨率得到理论层号
-        2. 减去1以对齐网格索引（因为第一层从dz开始）
+        1. 层边界在中心 ± 半层：第 k 层覆盖 [(k+0.5)*dz, (k+1.5)*dz)
+        2. layer = floor((altitude - 0.5*dz) / dz)
         3. 使用 clip 确保索引在有效范围内 [0, NZ-1]
-        
+
+        示例（dz=10m，z_heights=[10,20,...]）：
+        - 0~14m   → layer 0（中心 10m）
+        - 15~24m  → layer 1（中心 20m）
+        - 25~34m  → layer 2（中心 30m）
+
         Args:
             altitude_m: 高度值（米）
-            
+
         Returns:
             层索引（从0开始）
         """
-        layer = int(altitude_m / self.spatial.dz) - 1
-        return np.clip(layer, 0, self.spatial.nz - 1)
+        layer = int((altitude_m - 0.5 * self.spatial.dz) / self.spatial.dz)
+        return int(np.clip(layer, 0, self.spatial.nz - 1))
     
     def get_time_index(self, hour: float) -> int:
         """

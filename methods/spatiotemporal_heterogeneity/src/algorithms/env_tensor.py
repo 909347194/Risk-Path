@@ -141,10 +141,17 @@ class EnvTensor:
             return arr
         if arr.shape == (nx, ny):
             return np.broadcast_to(arr[:, :, None, None], shape).astype(np.float32, copy=True)
-        if arr.shape == (nx, ny, nz):
+        if arr.shape == (nx, ny, nz) and nz != nt:
             return np.broadcast_to(arr[:, :, :, None], shape).astype(np.float32, copy=True)
-        if arr.shape == (nx, ny, nt):
+        if arr.shape == (nx, ny, nt) and nz != nt:
             return np.broadcast_to(arr[:, :, None, :], shape).astype(np.float32, copy=True)
+        # nz == nt 时 3D 形状歧义，无法自动区分空间/时间维度
+        if arr.shape == (nx, ny, nz) and nz == nt:
+            raise ValueError(
+                f"{name} has shape {arr.shape} but nz == nt == {nz}; "
+                f"cannot auto-disambiguate spatial vs temporal 3D tensor. "
+                f"Pass a 4D array or a 2D array instead."
+            )
 
         raise ValueError(
             f"{name} shape {arr.shape} is not compatible with {shape}; "
