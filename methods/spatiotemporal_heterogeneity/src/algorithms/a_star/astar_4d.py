@@ -78,6 +78,7 @@ class AStar4D:
         self.omega_noise = float(np.max(env_tensor.noise)) if np.max(env_tensor.noise) > 0 else 1.0
 
         self.survival_threshold = float(self._cfg("survival_threshold", default=0.0))
+        self.complete_pareto = bool(self._cfg("complete_pareto", default=False))
         self.max_battery_time = float(self._cfg("max_battery_time", default=np.inf))
         self.max_iterations = int(self._cfg("max_iterations", default=1_000_000))
         self.max_labels_per_cell = int(self._cfg("max_labels_per_cell", default=8))
@@ -291,9 +292,16 @@ class AStar4D:
 
             current = heapq.heappop(open_set)
 
-            # 剪枝：f > 已知最优目标 J 时不可能更优
-            if current.f > best_goal_J:
+            # 剪枝：f > 已知最优目标 J 时，J 不可能更优
+            # 注意：这会遗漏 J 较大但 t/H 更优的 Pareto 解。
+            # 若需要完整 Pareto 前沿，设置 config 中 complete_pareto=True。
+            if not self.complete_pareto and current.f > best_goal_J:
                 break
+            if self.complete_pareto and goal_nodes:
+                # 完整 Pareto 模式：仅当 f 超过所有目标标签的最大 J 时才剪枝
+                max_goal_J = max(n.g for n in goal_nodes)
+                if current.f > max_goal_J:
+                    continue
 
             if current.pos_3d == goal_coords:
                 # 收集目标标签，不立即返回
@@ -316,30 +324,39 @@ class AStar4D:
                 pos = neighbor.pos_3d
                 labels_at_pos = visited_labels.get(pos, [])
 
+                # 支配判断：existing 三维全 ≤ new → new 被支配，剪枝
+                #          new 三维全 ≤ existing → existing 被移除
+                #          否则互不支配，共存
                 dominated = False
-                non_dominated = []
+                survivors = []
                 for existing in labels_at_pos:
-                    if (existing["t"] <= new_label["t"]
-                            and existing["H"] <= new_label["H"]
-                            and existing["J"] <= new_label["J"]):
+                    existing_dominates_new = (
+                        existing["t"] <= new_label["t"]
+                        and existing["H"] <= new_label["H"]
+                        and existing["J"] <= new_label["J"]
+                    )
+                    if existing_dominates_new:
                         dominated = True
                         break
-                    if not (new_label["t"] <= existing["t"]
-                            and new_label["H"] <= existing["H"]
-                            and new_label["J"] <= existing["J"]):
-                        non_dominated.append(existing)
+                    new_dominates_existing = (
+                        new_label["t"] <= existing["t"]
+                        and new_label["H"] <= existing["H"]
+                        and new_label["J"] <= existing["J"]
+                    )
+                    if not new_dominates_existing:
+                        survivors.append(existing)  # 互不支配，保留
 
                 if dominated:
                     continue
 
-                if len(non_dominated) >= self.max_labels_per_cell:
-                    worst = max(non_dominated, key=lambda lbl: lbl["J"])
+                if len(survivors) >= self.max_labels_per_cell:
+                    worst = max(survivors, key=lambda lbl: lbl["J"])
                     if new_label["J"] >= worst["J"]:
                         continue
-                    non_dominated.remove(worst)
+                    survivors.remove(worst)
 
-                non_dominated.append(new_label)
-                visited_labels[pos] = non_dominated
+                survivors.append(new_label)
+                visited_labels[pos] = survivors
                 total_labels += 1
 
                 neighbor.f = neighbor.g + self._heuristic(neighbor.pos_3d, goal_coords)
