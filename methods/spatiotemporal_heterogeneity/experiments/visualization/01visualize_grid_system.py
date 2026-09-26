@@ -16,8 +16,8 @@ import numpy as np
 import sys
 from pathlib import Path
 
-# 添加 src 目录到路径
-src_path = Path(__file__).parent.parent
+# 添加 src 目录到路径（本文件位于 experiments/visualization/ 下）
+src_path = Path(__file__).resolve().parents[2] / "src"
 sys.path.insert(0, str(src_path))
 
 from tensor_engine.grid_system import GridSystem, create_grid_from_config,get_macro_grid,get_micro_grid
