@@ -85,10 +85,14 @@ def parse_osm_poi_geojson(
     features_used = False
     try:
         # 尝试使用 geopandas 读取（支持 CRS 转换）
-        records = _iter_records_geopandas(
-            geojson_path,
-            source_crs=source_crs,
-            target_crs=bounds_crs or source_crs,
+        # 注意：必须立即求值（list），否则 ImportError 会在后续迭代时才抛出，
+        # 逃逸到本 except 之外，导致无 geopandas 的环境直接崩溃。
+        records = list(
+            _iter_records_geopandas(
+                geojson_path,
+                source_crs=source_crs,
+                target_crs=bounds_crs or source_crs,
+            )
         )
     except ImportError:
         # 如果没有 geopandas，使用纯 JSON 解析
@@ -193,7 +197,11 @@ def classify_poi(properties: Mapping[str, Any]) -> Optional[str]:
     """
 
     # 将所有键值转换为小写字符串，便于匹配
-    props = {str(k).lower(): str(v).lower() for k, v in properties.items() if v is not None}
+    props = {
+        str(k).lower(): str(v).lower()
+        for k, v in properties.items()
+        if v is not None and not (isinstance(v, float) and v != v)  # 排除 NaN（geopandas 缺失字段填充值）
+    }
 
     landuse = props.get("landuse", "")
     building = props.get("building", "")
