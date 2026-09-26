@@ -1,0 +1,29 @@
+% ============================================================================
+%  文献对比表 —— assets/tables/literature-comparison.tex
+%  位置：第 \ref{sec:related-work} 节
+% ============================================================================
+
+\begin{table}[t]
+  \centering
+  \caption{相关工作在四个维度上的对比（$\checkmark$~支持，$	imes$~不支持，$\sim$~部分支持）}
+  \label{tab:literature-comparison}
+  \footnotesize
+  \begin{threeparttable}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    工作 & 多维风险 & 时间动态 & 暴露度演化 & 最优性保证 \\
+    \midrule
+    Primatesta 等 \cite{primatesta2022review} & $\checkmark$        & $	imes$           & $	imes$           & --          \\
+    Cooper 等 \cite{cooper2023proportional}   & $	imes$            & $\checkmark$       & $	imes$           & --          \\
+    Zhang 等 \cite{zhang2024spatiotemporal}   & $\sim$              & $\sim$             & $	imes$           & $	imes$    \\
+    Chen 等 \cite{chen2024costastar}          & $	imes$            & $\sim$             & $	imes$           & $\sim$      \\
+    \midrule
+    \textbf{本文} & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \footnotesize
+    \item[] 注：$\checkmark$/$	imes$/$\sim$ 分别表示支持、不支持、部分支持。
+  \end{tablenotes}
+  \end{threeparttable}
+\end{table}

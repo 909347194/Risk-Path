@@ -1,0 +1,89 @@
+{
+  // ================= LaTeX Workshop 配置（manuscript3）=================
+  // 说明：outDir 与 .latexmkrc 中的 $out_dir 必须一致（均为 build）
+  "latex-workshop.latex.outdir": "%DIR%/build",
+
+  // 保存源码即自动编译
+  "latex-workshop.latex.autoBuild.run": "onSave",
+
+  // 编译失败时自动清理残缺的中间文件
+  "latex-workshop.latex.autoClean.run": "onFailed",
+
+  // 使用配方列表中的第一个
+  "latex-workshop.latex.recipe.default": "first",
+
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (XeLaTeX)  推荐",
+      "tools": ["latexmk"]
+    },
+    {
+      "name": "xelatex → bibtex → xelatex × 2",
+      "tools": ["xelatex", "bibtex", "xelatex", "xelatex"]
+    },
+    {
+      "name": "仅 xelatex（快速排错）",
+      "tools": ["xelatex"]
+    }
+  ],
+
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk",
+      "command": "latexmk",
+      "args": [
+        "-xelatex",
+        "-outdir=%DIR%/build",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-synctex=1",
+        "%DOC%"
+      ]
+    },
+    {
+      "name": "xelatex",
+      "command": "xelatex",
+      "args": [
+        "-outdir=%DIR%/build",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-synctex=1",
+        "%DOC%"
+      ]
+    },
+    {
+      // 注意：使用 outdir 时，bibtex 需在输出目录内对 .aux 执行
+      "name": "bibtex",
+      "command": "bibtex",
+      "args": ["%DIR%/build/%DOCFILE%"]
+    }
+  ],
+
+  // 清理时要删除的文件类型
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux", "*.bbl", "*.blg", "*.log", "*.out", "*.toc",
+    "*.lof", "*.lot", "*.fls", "*.fdb_latexmk", "*.synctex.gz",
+    "*.bcf", "*.run.xml", "*.xdv"
+  ],
+
+  // PDF 用内置标签页查看（正向/反向 SyncTeX 均可直接使用）
+  "latex-workshop.view.pdf.viewer": "tab",
+
+  // 编辑体验
+  "[latex]": {
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": false,
+    "editor.tabSize": 2
+  },
+  "[bibtex]": {
+    "editor.wordWrap": "on"
+  },
+
+  "files.exclude": {
+    "**/*.aux": true,
+    "**/*.log": true,
+    "**/*.fls": true,
+    "**/*.fdb_latexmk": true,
+    "**/*.synctex.gz": true
+  }
+}

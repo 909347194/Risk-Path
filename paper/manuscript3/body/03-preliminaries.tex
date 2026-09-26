@@ -1,0 +1,51 @@
+% ============================================================================
+%  第 3 章 预备知识与问题定义 —— body/03-preliminaries.tex
+%  职责：符号、空域离散化、时空状态空间、优化目标。
+% ============================================================================
+
+\section{预备知识与问题定义}
+\label{sec:preliminaries}
+
+% ---------------------------------------------------------------------------
+\subsection{空域离散化}
+
+将城市低空空域离散为三维栅格节点集 $\nodeset$，记节点 $v \in \nodeset$ 的
+空间坐标为 $\mathbf{x}_v = (x_v, y_v, z_v)^{\top}$，
+可行转移边集为 $\edgeset$。
+
+\todo{补网格分辨率的取值依据与敏感性分析指向（→ \refsec{sec:experiments}）。}
+
+% ---------------------------------------------------------------------------
+\subsection{时空状态空间}
+
+引入离散时间索引 $t \in \mathcal{T}$，定义时空状态
+\begin{equation}
+  s = (v, t) \in \statespace = \nodeset \times \mathcal{T},
+  \quad |\mathcal{T}| = T.
+  \label{eq:state-def}
+\end{equation}
+
+符号表见 \refapp{app:notation}，全文符号均在
+\file{preamble/math-notation.tex} 中统一定义。
+
+% ---------------------------------------------------------------------------
+\subsection{优化目标}
+
+对给定起点 $v_0$、终点 $v_d$ 与出发时刻 $t_0$，求解
+\begin{subequations}
+\label{eq:objective}
+\begin{alignat}{2}
+  & \min_{\pi \in \Pi}        & \quad & J(\pi) = \sum_{k=0}^{K-1}
+      \riskcost\bigl((v_k, t_k) \to (v_{k+1}, t_{k+1})\bigr) \\
+  & \text{s.t.}               &       & (v_k, t_k) \in \statespace,\;
+      t_{k+1} = t_k + \Delta t(v_k, v_{k+1}), \\
+  &                           &       & v_K = v_d,\; t_K \le t_0 + T_{\max},
+\end{alignat}
+\end{subequations}
+其中 $\riskcost$ 为 \refsec{sec:risk-model} 定义的综合风险代价，$\Delta t$ 为
+边长对应的飞行时间。
+
+\begin{assumption}[代价可加性]
+综合风险代价沿路径可加，即
+$J(\pi) = \sum_k \riskcost_k$，且 $\riskcost \ge 0$。
+\end{assumption}

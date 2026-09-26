@@ -1,0 +1,53 @@
+% ============================================================================
+%  记号系统：preamble/math-notation.tex
+%  ★ 全稿所有数学符号的唯一定义处。新增符号请写在这里并在附录符号表同步。
+%  ★ 采用「\x 系列」命名，避免 \a \b \c 之类与已有宏冲突。
+% ============================================================================
+
+% --- 常用集合与空间 ---
+\newcommand{\Rset}{\mathbb{R}}              % 实数集
+\newcommand{\Nset}{\mathbb{N}}              % 自然数集
+\newcommand{\Zset}{\mathbb{Z}}              % 整数集
+
+% --- 运算符 ---
+\DeclareMathOperator*{\argmin}{arg\,min}    % 带下划线的 argmin
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\sign}{sgn}
+\DeclareMathOperator{\tr}{tr}               % 矩阵迹
+
+% --- 范数与括号 ---
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\inner}{\langle}{\rangle}
+\DeclarePairedDelimiterX{\set}[1]{\{}{\}}{#1}
+
+% --- 偏导与微分 ---
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dd}[1]{\mathrm{d}#1}
+
+% --- 论文专属符号（示例，按实际模型增删）---
+% 风险类
+\newcommand{\pcrash}[0]{P_{\mathrm{crash}}}              % 坠机概率
+\newcommand{\pcrashT}[2]{\pcrash\!\left(#1 \mid #2\right)} % 时变坠机概率 P(t | x, \theta)
+\newcommand{\hazard}[0]{\lambda}                          % 危险率
+\newcommand{\survival}[0]{S}                              % 生存函数
+\newcommand{\exposure}[0]{\rho}                           % 暴露密度
+\newcommand{\casualty}[0]{C_{\mathrm{fat}}}               % 致死代价
+\newcommand{\propertyloss}[0]{C_{\mathrm{prop}}}          % 财产代价
+\newcommand{\noisecost}[0]{C_{\mathrm{noise}}}            % 噪声代价
+\newcommand{\riskcost}[0]{\mathcal{R}}                    % 综合风险代价
+\newcommand{\riskfield}[0]{\mathcal{F}}                   % 风险张量场
+
+% 规划类
+\newcommand{\statespace}[0]{\mathcal{S}}    % 状态空间
+\newcommand{\action}[0]{\mathcal{A}}        % 动作集
+\newcommand{\nodeset}[0]{\mathcal{V}}       % 节点集
+\newcommand{\edgeset}[0]{\mathcal{E}}       % 边集
+\newcommand{\heur}[0]{h}                    % 启发函数
+\newcommand{\gcost}[0]{g}                   % 累积代价
+\newcommand{\tlabel}[0]{\tau}               % 时间标签
+
+% --- 矩阵转置与向量 ---
+\newcommand{\transpose}[0]{^{\mathsf{T}}}
+\newcommand{\superscript}[1]{^{\mathrm{#1}}}
+\newcommand{\subscript}[1]{_{\mathrm{#1}}}

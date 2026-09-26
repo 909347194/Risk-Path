@@ -1,0 +1,44 @@
+% ============================================================================
+%  版式设置：preamble/layout.tex
+%  职责：页面几何、行距、缩进、标题与图表题注格式、浮动体比例
+% ============================================================================
+
+% --- 页面几何 ---
+\geometry{top=2.5cm, bottom=2.5cm, left=2.8cm, right=2.8cm, headsep=1.0cm}
+
+% --- 段落 ---
+\setlength{\parindent}{2em}          % 中文首行缩进两个字符
+\setlength{\parskip}{0pt}            % 段落之间不额外加间距（期刊标准做法）
+\renewcommand{\arraystretch}{1.2}    % 表格行高，避免内容挤在一起
+
+% --- 浮动体控制（防止图表大量漂移到文末）---
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.10}
+\renewcommand{\floatpagefraction}{0.80}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+
+% --- 题注格式 ---
+\captionsetup{
+  font        = small,
+  labelfont   = bf,
+  labelsep    = quad,
+  figurename  = 图,
+  tablename   = 表,
+  justification = centering,
+  width       = 0.92\linewidth
+}
+
+% --- 定理类环境 ---
+\newtheoremstyle{plaincn}
+  {1.0em}{1.0em}{\itshape}{}{\bfseries}{}{0.6em}{}
+\theoremstyle{plaincn}
+\newtheorem{theorem}{定理}[section]
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{corollary}[theorem]{推论}
+\newtheorem{proposition}[theorem]{命题}
+\newtheorem{definition}[theorem]{定义}
+\newtheorem{assumption}[theorem]{假设}
+\newtheorem{remark}[theorem]{注}

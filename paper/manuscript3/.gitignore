@@ -1,0 +1,32 @@
+# ============================================================================
+#  LaTeX 中间文件 —— 源码目录只留可编辑资产
+# ============================================================================
+
+# 编译输出目录（推荐：latexmk -outdir=build）
+build/
+_build/
+
+# 中间与辅助文件
+*.aux  *.bbl  *.blg  *.log  *.out  *.toc  *.lof  *.lot
+*.fls  *.fdb_latexmk  *.synctex.gz  *.bcf  *.run.xml
+*.acn  *.acr  *.alg  *.glg  *.glo  *.gls  *.idx  *.ilg  *.ind  *.ist
+*.nav  *.snm  *.vrb  *.spl  *.ent  *.brf  *.xdv
+
+# 同步 TeX
+*.synctex
+*.synctex\(busy\)
+
+# 只忽略根目录产物 PDF（保留 assets/figures/*.pdf 矢量图 —— 那是源码）
+/main.pdf
+/*.pdf
+
+# 编辑器与系统
+.vscode/*
+!.vscode/settings.json
+!.vscode/latex-workshop.json
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.bak
+*.tmp

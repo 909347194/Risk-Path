@@ -1,0 +1,58 @@
+% ============================================================================
+%  宏包集合：preamble/packages.tex
+%  原则：① 只用 TeX Live 主流发行版默认就有的宏包；
+%        ② 一个宏包只加载一次，避免重复 \usepackage；
+%        ③ 冲突宏包（如 caption/subcaption 与部分期刊类）集中在此处便于排查。
+%  编译引擎：XeLaTeX（中文必需，故不加载 inputenc / fontenc）
+% ============================================================================
+
+% --- 工具宏（\AtBeginEnvironment 等）---
+\usepackage{etoolbox}
+
+% --- 排版基础 ---
+\usepackage{xcolor}               % 颜色（其余宏包依赖它）
+\usepackage{microtype}            % 字符 protrusion，改善中文排版灰度
+\usepackage{geometry}             % 页边距（layout.tex 中设置）
+
+% --- 数学 ---
+\usepackage{amsmath, amssymb}     % 公式与数学符号
+\usepackage{amsthm}               % 定理/证明/引理环境
+\usepackage{mathtools}            % amsmath 增强：\coloneqq, \DeclarePairedDelimiter 等
+\usepackage{bm}                   % 加粗数学符号（向量/矩阵）
+
+% --- 插图与表格 ---
+\usepackage{graphicx}             % 插图
+\usepackage{subcaption}           % 子图（若与期刊模板冲突，改用 \subfigure 或并列 minipage）
+\usepackage{booktabs}             % 三线表
+\usepackage{array}                % 列格式控制
+\usepackage{multirow}             % 跨行单元格
+\usepackage{makecell}             % 单元格内换行 \makecell{}
+\usepackage{threeparttable}       % 表注（置于表格宽度内）
+\usepackage{longtable}            % 跨页长表（符号表适用）
+\usepackage{tabularx}             % 自适应宽度列
+
+% --- 算法伪代码 ---
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% --- 单位与数值 ---
+\usepackage{siunitx}              % \SI{}{\metre\per\second}、\num{}
+\sisetup{
+  range-phrase = {$\sim$},
+  list-final-separator = { 和 },
+  output-decimal-marker = {.}
+}
+
+% --- 中文支持 ---
+\usepackage[UTF8]{ctex}           % XeLaTeX + UTF-8 源码，勿改
+
+% --- 列表 ---
+\usepackage{enumitem}
+\setlist[enumerate]{labelsep=0.6em, leftmargin=2.2em}
+\setlist[itemize]{labelsep=0.6em, leftmargin=2.2em}
+
+% --- 审稿辅助（draft 模式下由 draft-tools.tex 决定是否启用）---
+\ifdraft
+  \usepackage{lineno}
+  \modulolinenumbers[5]
+\fi

@@ -1,0 +1,38 @@
+% ============================================================================
+%  符号表 —— assets/tables/notation.tex
+%  位置：附录 \ref{app:notation}
+%  规范：改动符号 → 同步本表 + preamble/math-notation.tex
+% ============================================================================
+
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}p{0.16\linewidth}p{0.62\linewidth}l@{}}
+  \caption{主要符号一览} \label{tab:notation} \\
+  \toprule
+  符号 & 含义 & 单位 \\
+  \midrule
+  \endfirsthead
+  \multicolumn{3}{l}{\tablename~\thetable（续）} \\
+  \toprule
+  符号 & 含义 & 单位 \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+
+  $\nodeset, \edgeset$    & 空域节点集与可行边集 & -- \\
+  $\statespace$           & 时空状态空间 & -- \\
+  $t, \mathcal{T}$        & 时刻与时间索引集 & \si{\second} \\
+  $\pcrash$               & 坠机（失效）概率 & -- \\
+  $\hazard, \hazard_0$    & 危险率与基线危险率 & \si{\per\second} \\
+  $\survival$             & 生存函数 & -- \\
+  $\exposure$             & 地面暴露密度 & \si{\per\square\metre} \\
+  $\casualty$             & 致死代价 & 元 \\
+  $\propertyloss$         & 财产损失代价 & 元 \\
+  $\noisecost$            & 噪声影响代价 & 元 \\
+  $\riskcost$             & 综合风险代价 & 元 \\
+  $w_1, w_2, w_3$         & 三维风险权重 & -- \\
+  $\gcost, \heur$         & 累积代价与启发函数 & 元 \\
+  $\tlabel$               & 到达时刻标签 & \si{\second} \\
+\end{longtable}
+\renewcommand{\arraystretch}{1.2}

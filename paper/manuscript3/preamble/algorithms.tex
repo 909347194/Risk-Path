@@ -1,0 +1,17 @@
+% ============================================================================
+%  伪代码环境：preamble/algorithms.tex
+%  约定：仅重定义 algpseudocode 中确定存在的关键字，避免因版本差异报错。
+%        正文中使用 \begin{algorithmic} 块，\Input / \Output 已中文化。
+% ============================================================================
+
+\algnewcommand\algorithmicinput{\textbf{输入：}}
+\algnewcommand\algorithmicoutput{\textbf{输出：}}
+\algnewcommand\Input{\item[\algorithmicinput]}
+\algnewcommand\Output{\item[\algorithmicoutput]}
+
+\algrenewcommand\algorithmicrequire{\textbf{输入：}}
+\algrenewcommand\algorithmicensure{\textbf{输出：}}
+
+% 伪代码体统一用脚注字号 + 单栏，编号按节（第 5 节 → 算法 5.1）
+\renewcommand{\thealgorithm}{\arabic{section}.\arabic{algorithm}}
+\AtBeginEnvironment{algorithm}{\footnotesize}

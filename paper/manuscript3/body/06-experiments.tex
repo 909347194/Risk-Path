@@ -1,0 +1,80 @@
+% ============================================================================
+%  第 6 章 实验 —— body/06-experiments.tex
+%  职责：可复现。设置 → 基线 → 结果（图/表）→ 消融 → 效率。
+% ============================================================================
+
+\section{实验与结果}
+\label{sec:experiments}
+
+% ---------------------------------------------------------------------------
+\subsection{实验设置}
+
+\begin{table}[t]
+  \centering
+  \caption{主要实验参数}
+  \label{tab:settings}
+  \begin{threeparttable}
+  \begin{tabular}{@{}llcc@{}}
+    \toprule
+    类别 & 参数 & 取值 & 单位 \\
+    \midrule
+    空域   & 栅格分辨率     & \num{50}            & \si{\metre} \\
+    时间   & 时间步长       & \num{60}            & \si{\second} \\
+    风险   & 权重 $w_1$/$w_2$/$w_3$ & 0.5/0.2/0.3 & -- \\
+    算法   & 标签上限 $q$   & \num{3}             & -- \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \footnotesize \item[] 注：权重组合的敏感性分析见 \refsec{sec:sensitivity}。
+  \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+基线方法选取 \basestatic（静态风险场）与 Greedy-Risk（贪心）。
+
+% ---------------------------------------------------------------------------
+\subsection{合成场景}
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{0.48\linewidth}
+    \centering
+    \placeholderfig{静态风险场下的规划结果}
+    \caption{静态风险场}
+    \label{fig:synthetic-static}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\linewidth}
+    \centering
+    \placeholderfig{本文方法结果}
+    \caption{\methodnamelatex（本文）}
+    \label{fig:synthetic-ours}
+  \end{subfigure}
+  \caption{合成场景中不同时刻的规划路径对比。}
+  \label{fig:synthetic}
+\end{figure}
+
+如 \reffig{fig:synthetic} 所示，……\todo{补 2～3 句结果分析，务必给出定量指标。}
+
+% ---------------------------------------------------------------------------
+\subsection{真实城市场景}
+
+\input{assets/tables/main-results.tex}
+
+% ---------------------------------------------------------------------------
+\subsection{消融实验}
+
+依次移除时间维传播、累积危险率形式与支配剪枝，观察各项指标变化，
+验证各模块贡献。
+
+% ---------------------------------------------------------------------------
+\subsection{计算效率}
+
+记录各方法在相同地图上的运行时间与扩展节点数：在不显著增加运行时间的
+前提下，本文方法将……$X\%$。
+
+% ---------------------------------------------------------------------------
+\subsection{敏感性分析}
+\label{sec:sensitivity}
+
+考察权重 $w_i$、栅格分辨率与时间步长对结果的影响。

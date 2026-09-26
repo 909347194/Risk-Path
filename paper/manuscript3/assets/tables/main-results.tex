@@ -1,0 +1,27 @@
+% ============================================================================
+%  主结果表 —— assets/tables/main-results.tex
+%  位置：第 \ref{sec:experiments} 节
+% ============================================================================
+
+\begin{table}[t]
+  \centering
+  \caption{真实城市场景下的主要结果（均值 $\pm$ 标准差；风险类指标越低越好，路径长度自然越低越好）}
+  \label{tab:main-results}
+  \begin{threeparttable}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    方法 & 综合风险 & 致死风险 & 噪声影响 & 路径长度 (km) \\
+    \midrule
+    \basestatic     & xx.xx $\pm$ x.xx & xx.xx & xx.xx & xx.xx \\
+    Greedy-Risk     & xx.xx $\pm$ x.xx & xx.xx & xx.xx & xx.xx \\
+    \textbf{本文}   & \textbf{xx.xx} $\pm$ x.xx & \textbf{xx.xx} & xx.xx & xx.xx \\
+    \midrule
+    相对最优基线   & $-$\,xx.x\% & $-$\,xx.x\% & $-$\,xx.x\% & $+\,$x.x\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \footnotesize
+    \item[] 注：最优值加粗显示；相对值为各方法的均值对比。
+  \end{tablenotes}
+  \end{threeparttable}
+\end{table}

@@ -1,0 +1,37 @@
+% ============================================================================
+%  写作辅助：preamble/draft-tools.tex
+%  仅在草稿模式（\drafttrue）下显示批注与占位图框；
+%  切成 \draftfalse 后，一切自动消失，直接产出可投稿版本。
+%  依赖：xcolor（已在 packages.tex 加载）—— 不引入额外宏包，降低环境风险。
+%  注：批注一律用「行内」而非页边 \marginpar，
+%      因为 marginpar 在 frontmatter / 标题框 / 表格内会触发 Float(s) lost。
+% ============================================================================
+
+\definecolor{todocolor}{RGB}{200, 40, 40}
+\definecolor{notecolor}{RGB}{40, 90, 180}
+\definecolor{phcolor}{RGB}{140, 140, 140}
+
+\ifdraft
+
+  % TODO：红色行内标记，编译后可在 PDF 里直接检索 "[TODO"
+  \newcommand{\todo}[1]{\textcolor{todocolor}{\textbf{[TODO]~#1}}}
+
+  % 作者批注：蓝色行内标记，可带作者名：\note[张三]{建议再补一组消融}
+  \newcommand{\note}[2][note]{\textcolor{notecolor}{$\langle$#1：#2$\rangle$}}
+
+  % 占位图：尚未出图的灰色占位框，#1 = 宽度比例，#2 = 占位说明
+  \newcommand{\placeholderfig}[2][0.8]{%
+    \fbox{\parbox{\dimexpr#1\linewidth-2\fboxsep-2\fboxrule\relax}{%
+      \centering\vspace{2.2cm}%
+      \textcolor{phcolor}{(占位图) #2}%
+      \vspace{2.2cm}}}%
+  }
+
+\else
+
+  % 定稿模式：批注全部隐形（正文中的命令无需逐个删除）
+  \newcommand{\todo}[1]{\relax}
+  \newcommand{\note}[2][note]{\relax}
+  \newcommand{\placeholderfig}[2][0.8]{\textcolor{phcolor}{(待补插图：#2)}}
+
+\fi

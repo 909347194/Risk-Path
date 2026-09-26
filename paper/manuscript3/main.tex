@@ -1,0 +1,108 @@
+% ============================================================================
+%  主文件：main.tex
+%  职责：仅做「编排 + 全局开关」，不包含任何正文内容
+%  编译：XeLaTeX（latexmk -xelatex，见 .latexmkrc / Makefile）
+%  约定：所有正文写在 body/ 与 back/，所有宏与创新命令写在 preamble/
+% ============================================================================
+
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8
+\documentclass[review, 12pt, a4paper, onecolumn]{elsarticle}
+
+% ---------------------------------------------------------------------------
+% 全局开关（投稿前只改这里）
+% ---------------------------------------------------------------------------
+\newif\ifdraft
+\drafttrue                % 投稿/定稿时改为 \draftfalse：自动关闭行号与 TODO 标记
+
+% ---------------------------------------------------------------------------
+% 导言区：分层加载（顺序敏感，勿随意调整）
+% ---------------------------------------------------------------------------
+\input{preamble/packages.tex}          % 宏包
+\input{preamble/layout.tex}            % 版式、间距、中文字号、标题格式
+\input{preamble/math-notation.tex}     % 数学符号与记号（全稿唯一定义处）
+\input{preamble/text-macros.tex}       % 文本层自定义命令（术语、缩写、单位）
+\input{preamble/algorithms.tex}        % 伪代码环境中文配置
+\input{preamble/draft-tools.tex}       % TODO / 批注 / 占位图工具
+\input{preamble/references-setup.tex}  % hyperref 与 cleveref（必须最后加载）
+
+% ---------------------------------------------------------------------------
+% 元数据：标题、作者、摘要、关键词、亮点
+% ---------------------------------------------------------------------------
+\input{config/metadata.tex}
+\input{config/abstract.tex}
+\input{config/highlights.tex}
+
+% ---------------------------------------------------------------------------
+% 资源路径
+% ---------------------------------------------------------------------------
+\graphicspath{{assets/figures/}}       % 插入插图时只需写文件名，不带路径
+
+% ===========================================================================
+\begin{document}
+
+% ---------------------------------------------------------------------------
+% 前置部分
+% ---------------------------------------------------------------------------
+\ifdraft\linenumbers\fi                % 审稿行号（draft 模式下每 5 行一个编号）
+
+\begin{frontmatter}
+
+\title{\papertitle}
+
+\author[addr1]{\authorname\corref{cor1}\fnref{fn1}}
+\ead{\authoremail}
+\cortext[cor1]{\correspondingnote}
+\fntext[fn1]{本工作得到了 \fundingname 的资助（项目编号 \fundingnumber）。}
+\address[addr1]{\authoraddress}
+
+\begin{abstract}
+\abstracttext
+\end{abstract}
+
+% 图形摘要（可选，按需取消注释）：一张图概括全文研究逻辑。
+% 注意：留空（仅保留环境但不放内容）会触发 “Float(s) lost” 错误，故默认注释。
+% \begin{graphicalabstract}
+%   \includegraphics[width=\linewidth]{graphical-abstract.pdf}
+% \end{graphicalabstract}
+
+\begin{highlights}
+  \researchhighlights
+\end{highlights}
+
+\begin{keyword}
+\paperkeywords
+\MSC[2020]{\msccodes}
+\end{keyword}
+
+\end{frontmatter}
+
+% ---------------------------------------------------------------------------
+% 正文：按章节编号前缀顺序加载（body/NN-name.tex）
+% ---------------------------------------------------------------------------
+\input{body/01-introduction.tex}
+\input{body/02-related-work.tex}
+\input{body/03-preliminaries.tex}
+\input{body/04-risk-model.tex}
+\input{body/05-planning-algorithm.tex}
+\input{body/06-experiments.tex}
+\input{body/07-discussion.tex}
+\input{body/08-conclusion.tex}
+
+% ---------------------------------------------------------------------------
+% 尾部：声明、致谢、附录
+% ---------------------------------------------------------------------------
+\input{back/declarations.tex}
+\input{back/acknowledgments.tex}
+
+\appendix
+\input{back/appendix-a-notation.tex}
+\input{back/appendix-b-supplement.tex}
+
+% ---------------------------------------------------------------------------
+% 参考文献
+% ---------------------------------------------------------------------------
+\bibliographystyle{elsarticle-num-names}
+\bibliography{bib/references}
+
+\end{document}

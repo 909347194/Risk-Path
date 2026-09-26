@@ -1,0 +1,90 @@
+% ============================================================================
+%  第 5 章 求解算法 —— body/05-planning-algorithm.tex
+%  职责：给出算法结构（含伪代码）、关键机制、复杂度与最优性。
+% ============================================================================
+
+\section{\termTD 风险感知路径规划算法}
+\label{sec:planning}
+
+% ---------------------------------------------------------------------------
+\subsection{总体思路}
+
+直接在三维节点上再展开一维时间，会把搜索图规模放大 $T$ 倍。
+\methodnamelatex 的核心是把时间从\textbf{图拓扑}中剥离，作为
+\textbf{标签状态}沿路径传播，从而在不膨胀搜索图的前提下支持任意时刻的
+在线风险查询。
+
+% ---------------------------------------------------------------------------
+\subsection{标签化传播}
+
+对节点 $v$，维护标签 $\ell = (\gcost, \tlabel, \mathrm{parent})$，
+其中 $\tlabel$ 为到达时刻；松弛时按
+\refeqn{eq:state-def} 更新时间：
+\begin{equation}
+  \tlabel(v') = \tlabel(v) + \Delta t(v, v'),
+  \qquad
+  \gcost(v') = \gcost(v) + \riskcost\bigl((v, \tlabel(v)) \to (v', \tlabel(v'))\bigr).
+  \label{eq:label-prop}
+\end{equation}
+
+% ---------------------------------------------------------------------------
+\subsection{累积危险率的加法形式}
+
+为避免长路径上概率乘积导致的数值下溢，改以累积危险率传播：
+\begin{equation}
+  H(v') = H(v) + \int_{\tlabel(v)}^{\tlabel(v')} \hazard(u) \, \dd{u},
+  \qquad
+  \survival = \exp(-H).
+  \label{eq:cumulative-hazard}
+\end{equation}
+
+% ---------------------------------------------------------------------------
+\subsection{算法流程}
+
+\begin{algorithm}[t]
+\caption{\methodnamelatex：时间依赖风险感知最短路搜索}
+\label{alg:td-risk-astar}
+\begin{algorithmic}[1]
+  \Input 时空图 $G = (\statespace, \edgeset)$，起点 $(v_0, t_0)$，终点 $v_d$，权重 $\{w_i\}$
+  \Output 最优路径 $\pi^{*}$
+  \State $\mathrm{OPEN} \gets \{(v_0, \gcost{=}0, \tlabel{=}t_0)\}$，$\mathrm{CLOSED} \gets \emptyset$
+  \While {$\mathrm{OPEN} \neq \emptyset$}
+    \State $\ell \gets \argmin\{\gcost + \heur(\cdot) \mid \ell \in \mathrm{OPEN}\}$
+    \State 从 $\mathrm{OPEN}$ 取出 $\ell$
+    \If {$\ell.v = v_d$}
+      \State \textbf{return} 回溯标签链得到 $\pi^{*}$
+    \EndIf
+    \For {每个后继 $v' \in \mathcal{N}(\ell.v)$}
+      \State $\tlabel' \gets \ell.\tlabel + \Delta t(\ell.v, v')$
+      \State $\riskcost' \gets \textsc{RiskQuery}(\ell.v, v', \tlabel')$       \Comment 在线查询动态风险张量
+      \State $\ell' \gets (\gcost{=}\ell.\gcost + \riskcost',\; \tlabel{=}\tlabel',\; \mathrm{parent}{=}\ell)$
+      \If {$\ell'$ 被 $\mathrm{CLOSED}(v')$ 中的标签支配} \Comment 见第 \ref{sec:dominance} 节
+        \State \textbf{continue}
+      \EndIf
+      \State 更新 $\mathrm{OPEN}(v')$ 与 $\mathrm{CLOSED}(v')$
+    \EndFor
+  \EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+% ---------------------------------------------------------------------------
+\subsection{支配剪枝}
+\label{sec:dominance}
+
+\begin{definition}[标签支配]
+标签 $\ell_1$ 支配 $\ell_2$，当且仅当
+$\gcost_1 \le \gcost_2$ 且 $\tlabel_1 \le \tlabel_2$，且至少一处严格不等。
+\end{definition}
+
+\begin{theorem}[剪枝安全性（单标签覆盖）]
+在 \cref{thm:monotone} 的单调代价结构下，被支配标签不可能导出优于保留标签的解。
+\end{theorem}
+
+% \todo{补充剪枝正确性的完整证明，并与 \cref{thm:monotone} 的前提条件对齐。}
+
+% ---------------------------------------------------------------------------
+\subsection{复杂度分析}
+
+设平均出度为 $b$、路径长度为 $K$、支配检查代价为 $O(\log q)$（$q$ 为标签数上界），
+则时间复杂度为 $O(bK \log q)$，空间复杂度为 $O(|\nodeset| \, q)$；
+在 $q$ 有界的情形下与传统三维 \basestatic \ 同阶。

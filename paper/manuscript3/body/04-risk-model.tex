@@ -1,0 +1,71 @@
+% ============================================================================
+%  第 4 章 风险建模 —— body/04-risk-model.tex
+%  职责：把「风险的成本」拆成人能验证的子模块：概率 × 暴露 × 后果 × 集成
+% ============================================================================
+
+\section{时空异质性风险建模}
+\label{sec:risk-model}
+
+% ---------------------------------------------------------------------------
+\subsection{时变失效概率}
+
+沿用比例风险模型的构造，令基线危险率为 $\hazard_0(t)$，协变量向量
+$\mathbf{z}(t)$ 包含风速、降雨与建筑峡谷因子，则
+\begin{equation}
+  \pcrashT{t}{\mathbf{x}, \mathbf{z}}
+    = 1 - \exp\!\left[-\int_{0}^{t} \hazard_0(u)
+      \exp\bigl(\boldsymbol{\beta}\transpose \mathbf{z}(u)\bigr) \, \dd{u}\right],
+  \label{eq:hazard}
+\end{equation}
+其中 $\boldsymbol{\beta}$ 为回归系数向量，其物理意义为各协变量对
+失效风险的弹性。
+
+\todo{说明 $\hazard_0$ 的分布族选择（Weibull / 常数）与标定数据来源。}
+
+% ---------------------------------------------------------------------------
+\subsection{暴露度演化}
+
+地表 $h$ 处单元 $m$ 在时刻 $t$ 的暴露密度由静态基底与活动强度合成：
+\begin{equation}
+  \exposure(m, t) = \exposure_{\mathrm{static}}(m)
+    + \exposure_{\mathrm{tidal}}(m) \, \phi\bigl(t; \pi(m)\bigr),
+  \label{eq:exposure}
+\end{equation}
+其中 $\pi(m)$ 标识土地利用类型，$\phi(\cdot)$ 为对应的昼夜激活曲线。
+
+% ---------------------------------------------------------------------------
+\subsection{后果代价：致死、财产与噪声}
+
+三个维度的后果代价分别为 $\casualty$、$\propertyloss$ 与 $\noisecost$。
+以致死代价为例：
+\begin{equation}
+  \casualty(m, t) = \exposure(m, t) \, A_{\mathrm{exp}}
+    \, \pcrashT{t}{\mathbf{x}_m, \mathbf{z}}.
+  \label{eq:casualty}
+\end{equation}
+
+% ---------------------------------------------------------------------------
+\subsection{综合集成与性质}
+
+\begin{definition}[综合风险代价]
+给定边 $(u \to v)$ 与其通过时刻 $t$，定义
+\begin{equation}
+  \riskcost\bigl((u, t) \to (v, t')\bigr)
+    = w_1 \casualty + w_2 \propertyloss + w_3 \noisecost,
+  \quad w_i \ge 0,\; \sum_i w_i = 1.
+  \label{eq:risk-cost}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[单调性]
+\label{thm:monotone}
+若 $\hazard_0(t)$ 与 $\boldsymbol{\beta}\transpose \mathbf{z}(t)$ 均非负有界，
+则由 \refeqn{eq:risk-cost} 定义的边代价满足
+$\riskcost(t_2) \ge \riskcost(t_1)$ 对 $t_2 > t_1$ 未必成立，
+但其积分形式对时间可测且满足 Bellman 最优性方程的前提条件。
+\end{theorem}
+
+\begin{proof}
+证明见 \refapp{app:supplement}。
+\todo{补完整证明：核心是证明可加性 + FIFO + 非负性三条。}
+\end{proof}

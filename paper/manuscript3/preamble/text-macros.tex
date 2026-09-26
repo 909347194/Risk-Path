@@ -1,0 +1,31 @@
+% ============================================================================
+%  文本层宏：preamble/text-macros.tex
+%  职责：术语缩写、中英混排、作者自定义短语
+%  原则：凡是「可能全文统一替换」的写法，一律定义成宏（改一次全局生效）
+% ============================================================================
+
+% --- 拉丁文缩写 ---
+\newcommand{\etal}{等}
+\newcommand{\ie}{即}
+\newcommand{\eg}{例如}
+\newcommand{\etc}{等}
+\newcommand{\wrt}{相对于}
+\newcommand{\st}{使得}
+
+% --- 常用中英术语（保证全文写法统一）---
+\newcommand{\UAV}{UAV}
+\newcommand{\TPR}{TPR}
+\newcommand{\termTPR}{第三方风险（third-party risk, \TPR）}
+\newcommand{\termTD}{\mbox{时间依赖}}
+\newcommand{\methodname}{TD-RiskA\textsuperscript{*}}   % 本文算法名称
+\newcommand{\methodnamelatex}{TD-RiskA$^*$}
+\newcommand{\basestatic}{Static-RiskA$^*$}              % 基线方法示例
+
+% --- 作者信息快捷引用 ---
+\newcommand{\Corresponding}{通讯作者}
+\newcommand{\CoFirst}{共同第一作者}
+
+% --- 强调与浮动对象 ---
+\newcommand{\keywordcn}[1]{\textbf{#1}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
