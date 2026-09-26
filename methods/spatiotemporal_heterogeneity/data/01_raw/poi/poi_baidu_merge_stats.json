@@ -1,0 +1,21 @@
+{
+  "sources": {
+    "poi_baidu_agentplan.geojson": 2168,
+    "poi_baidu.geojson": 0
+  },
+  "merged_total": 2168,
+  "by_class": {
+    "industrial": 39,
+    "institution": 571,
+    "office": 693,
+    "residential": 311,
+    "transport": 554
+  },
+  "npz": {
+    "residential": 311.0,
+    "office": 693.0,
+    "institution": 571.0,
+    "transport": 554.0,
+    "industrial": 39.0
+  }
+}

@@ -5,6 +5,10 @@ Rasterizes OSM-style POI features into five category count maps:
 
     residential, office, institution, transport, industrial
 
+Features may carry an explicit ``poi_class`` property (written by
+``scripts/fetch_baidu_poi.py`` for Baidu Map POI data); when present and
+valid it is used directly instead of the OSM tag rules in ``classify_poi``.
+
 Supports both real and synthetic data with automatic path switching:
 
     Synthetic: data/02_processed/synthetic/poi_counts.npz
@@ -202,6 +206,11 @@ def classify_poi(properties: Mapping[str, Any]) -> Optional[str]:
         for k, v in properties.items()
         if v is not None and not (isinstance(v, float) and v != v)  # 排除 NaN（geopandas 缺失字段填充值）
     }
+
+    # 0. 显式分类字段（如百度 POI 抓取脚本写入的 poi_class）优先于 OSM 标签规则
+    explicit = props.get("poi_class", "")
+    if explicit in POI_CATEGORIES:
+        return explicit
 
     landuse = props.get("landuse", "")
     building = props.get("building", "")

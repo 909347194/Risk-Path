@@ -1,0 +1,9 @@
+{
+  "calls_used": 965,
+  "poi_total": 2168,
+  "stopped_reason": "call budget exhausted",
+  "grid": [
+    6,
+    5
+  ]
+}
