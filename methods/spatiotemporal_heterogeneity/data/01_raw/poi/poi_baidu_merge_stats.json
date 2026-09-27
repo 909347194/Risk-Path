@@ -5,17 +5,17 @@
   },
   "merged_total": 2834,
   "by_class": {
-    "industrial": 40,
-    "institution": 575,
-    "office": 1343,
-    "residential": 314,
-    "transport": 562
+    "industrial": 21,
+    "transport": 492,
+    "office": 1444,
+    "institution": 561,
+    "residential": 316
   },
   "npz": {
-    "residential": 314.0,
-    "office": 1343.0,
-    "institution": 575.0,
-    "transport": 562.0,
-    "industrial": 40.0
+    "residential": 316.0,
+    "office": 1444.0,
+    "institution": 561.0,
+    "transport": 492.0,
+    "industrial": 21.0
   }
 }

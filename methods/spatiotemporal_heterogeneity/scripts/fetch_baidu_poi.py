@@ -184,14 +184,37 @@ def gcj02_to_wgs84(lat: float, lng: float) -> Tuple[float, float]:
 # 分类
 # ---------------------------------------------------------------------------
 def classify_record(name: str, tag: str, default_class: str) -> str:
-    """百度 POI -> 五分类。优先级：名称/标签规则 > tag 一级分类 > 关键词默认类。"""
+    """百度 POI -> 五分类。优先级：tag 分类体系 > 名称/标签关键字 > 关键词默认类。
+
+    tag 为百度官方分类（如 "酒店;经济型酒店"），比名称启发式可靠，必须先判；
+    否则会出现「酒店名带'地铁站'→ transport」之类的误判。
+    """
+    tag = tag or ""
+    parts = [p.strip() for p in tag.split(";") if p.strip()]
+    first = parts[0] if parts else ""
+
+    # 1) tag 分类体系（权威）
+    if first == "房地产":
+        return "office" if ("写字楼" in tag or "商务" in tag) else "residential"
+    if first == "公司企业":
+        return "industrial" if any(k in tag for k in ("工厂", "物流", "仓储", "园区")) else "office"
+    if first == "交通设施":
+        return "transport"
+    if first in ("教育培训", "政府机构", "公共设施", "文化场馆"):
+        return "institution"
+    if first == "医疗":
+        # 医院/诊所/卫生机构 -> institution；药店等商业医疗 -> office
+        return "institution" if any(k in tag for k in ("医院", "诊所", "卫生", "急救", "医疗")) else "office"
+    if first in ("餐饮", "购物", "生活服务", "体育休闲", "金融", "酒店", "住宿服务"):
+        return "office"
+
+    # 2) 名称/标签关键字（tag 缺失或不在分类体系时的兑底）
     text = f"{name};{tag}"
     for keys, cls in NAME_TAG_RULES:
         if any(k in text for k in keys):
             return cls
-    first = (tag or "").split(";")[0].strip()
-    if first in TAG_CLASS:
-        return TAG_CLASS[first]
+
+    # 3) 关键词默认类
     return default_class
 
 
