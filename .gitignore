@@ -12,3 +12,7 @@ wheels/
 # POI 抓取断点文件（临时）
 .poi_baidu*_checkpoint.json
 **/poi/v2/.ckpt*.json
+
+# Large raster data (exceeds GitHub 100MB limit; keep local only, do not commit)
+methods/spatiotemporal_heterogeneity/data/01_raw/land_cover/*.tif
+methods/spatiotemporal_heterogeneity/data/01_raw/land_cover/*.tif.aux.xml
