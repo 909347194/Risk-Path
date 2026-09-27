@@ -434,16 +434,16 @@ def get_micro_grid() -> GridSystem:
 def get_macro_grid() -> GridSystem:
     """
     获取默认网格系统（宏观案例尺度）
-    区域：5000x5000x120m;
-    单元：50mx50mx10m;
-    96个时间片，15分钟时间步长;    
+    区域：研究区 WGS84 BBOX，≈4845.9x4793.6x120m;
+    单元：48.459x47.936x10m（实测格宽，见 utils/coord_transform.py cell_size_m）;
+    96个时间片，15分钟时间步长;
     Returns:
         默认的 GridSystem 实例
     """
     return GridSystem(
         spatial=SpatialGridConfig(
             nx=100, ny=100, nz=12,
-            dx=50.0, dy=50.0, dz=10.0
+            dx=48.459, dy=47.936, dz=10.0
         ),
 
         temporal=TemporalGridConfig(
