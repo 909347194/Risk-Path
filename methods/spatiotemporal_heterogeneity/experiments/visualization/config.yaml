@@ -1,0 +1,27 @@
+# ============================================================================
+# visualization 实验配置（网格可视化用）
+# ============================================================================
+# 与内置 get_micro_grid() 默认值一致（60×60×12 @10m，96×15min）；
+# 改这里的值即可切换可视化尺度，无需动代码。
+
+experiment:
+  name: visualization
+  description: "数据可视化（网格系统 3D / 各类数据图）"
+  seed: 42
+
+spatial_grid:
+  nx: 60
+  ny: 60
+  nz: 12
+  resolution_xy: 10.0        # m/格（微观验证尺度）
+  resolution_z: 10.0         # m/层
+
+time:
+  total_slices: 96           # 时相数（24h × 15min）
+  slice_minutes: 15
+
+# 可视化参数
+viz:
+  sampling_rate_3d: 3        # 3D 网格采样率（越大越稀疏、越快）
+  sampling_rate_plotly: 4
+  num_layers: 6              # 垂直分层切片层数

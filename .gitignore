@@ -16,3 +16,5 @@ wheels/
 
 # 可视化产物（本地生成，不入库）
 methods/spatiotemporal_heterogeneity/output/
+# 实验产物目录
+methods/spatiotemporal_heterogeneity/experiments/*/output/

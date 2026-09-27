@@ -539,11 +539,23 @@ def main():
     print("三维格网系统可视化")
     print("=" * 70)
     
-    # 步骤1：从配置文件加载网格系统
+    # 步骤1：加载本实验目录的 config.yaml（配置跟着实验走，不再用 configs/ 下的实验配置）
     print("\n步骤1: 加载网格系统配置...")
     project_root = Path(__file__).parent.parent.parent
-    config_path = project_root / "configs" / "micro_experiment.yaml"
-    grid = get_micro_grid()
+    config_path = Path(__file__).resolve().parent / "config.yaml"
+    try:
+        import yaml as _yaml
+        _cfg = _yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+    except Exception as e:
+        print(f"⚠ 读取 {config_path} 失败（{e}），使用内置默认值")
+        _cfg = {}
+    _viz = _cfg.get("viz", {}) or {}
+    try:
+        from tensor_engine.grid_system import create_grid_from_config
+        grid = create_grid_from_config(config_path)
+    except Exception as e:
+        print(f"⚠ 由配置建网格失败（{e}），退回 get_micro_grid()")
+        grid = get_micro_grid()
     print(grid.summary())
     
     # 步骤2：输出目录（默认只显示不保存；加 --save 才写入 output/统计/）
@@ -558,16 +570,16 @@ def main():
     
     # 步骤3：生成 Matplotlib 可视化 - 降低采样率以提高清晰度
     print("\n步骤3: 生成 Matplotlib 3D 可视化...")
-    visualize_grid_matplotlib(grid, output_dir, sampling_rate=3)
+    visualize_grid_matplotlib(grid, output_dir, sampling_rate=int(_viz.get("sampling_rate_3d", 3)))
     
     # 步骤4：生成分层切片图 - 增加层数
     print("\n步骤4: 生成分层切片图...")
-    visualize_grid_layers(grid, output_dir, num_layers=6)
+    visualize_grid_layers(grid, output_dir, num_layers=int(_viz.get("num_layers", 6)))
     
     # 步骤5：生成 Plotly 可视化（如果安装了 kaleido）- 降低采样率
     try:
         print("\n步骤5: 生成 Plotly 交互式 3D 可视化...")
-        visualize_grid_plotly(grid, output_dir, sampling_rate=4)
+        visualize_grid_plotly(grid, output_dir, sampling_rate=int(_viz.get("sampling_rate_plotly", 4)))
     except Exception as e:
         print(f"⚠ Plotly 静态导出失败（需要安装 kaleido）: {e}")
         print("  提示: pip install kaleido")
