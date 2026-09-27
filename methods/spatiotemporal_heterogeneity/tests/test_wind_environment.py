@@ -2,6 +2,8 @@
 
 覆盖实现规格 §24 的 10 条要求，并补充 F_wind 单调性 / 配置容错 / 双计权约束验证。
 """
+import os
+import tempfile
 import unittest
 import numpy as np
 import sys
@@ -17,6 +19,9 @@ from methods.spatiotemporal_heterogeneity.src.tensor_engine.wind_environment imp
 )
 from methods.spatiotemporal_heterogeneity.src.tensor_engine.dynamic_p_crash import (
     DynamicCrashProbability,
+)
+from methods.spatiotemporal_heterogeneity.src.tensor_engine.risk_tensor_assembler import (
+    build_risk_tensors,
 )
 from methods.spatiotemporal_heterogeneity.src.tensor_engine.config_manager import load_config
 
@@ -232,6 +237,104 @@ class TestConfigAndFactory(unittest.TestCase):
         meta = env.get_metadata()
         self.assertFalse(meta["is_observed"])
         self.assertEqual(meta["model"], "scenario_based_low_altitude_wind_environment")
+
+
+class TestWindConfigSectionHonored(unittest.TestCase):
+    """回归（审查 HIGH 项）：传入 wind_environment *节* 时，自定义参数必须生效。
+
+    这直接守卫 get_wind_environment 的契约——若将来又有人把路径字符串当 config 传入，
+    自定义值会被静默忽略，本测试应失败。
+    """
+
+    def setUp(self):
+        self.grid = make_grid()
+        self.building = make_building()
+
+    def _section(self, amplitude):
+        return {
+            "mode": "scenario",
+            "scenarios": {"weak": 3.0, "moderate": 6.0, "strong": 9.0},
+            "default_scenario": "moderate",
+            "temporal_variation": {"enabled": True, "amplitude": amplitude, "period_hours": 24.0, "phase": 0.0},
+            "vertical_profile": {"enabled": True, "min_factor": 0.85, "max_factor": 1.20},
+            "urban_modifier": {"enabled": True, "beta": 0.20, "min_factor": 0.80, "max_factor": 1.05},
+            "gust": {"enabled": False},
+        }
+
+    def test_custom_temporal_amplitude_honored(self):
+        env = get_wind_environment(self._section(0.9), scenario_name="moderate")
+        # 直接的契约断言：自定义 amplitude 必须被读取
+        self.assertAlmostEqual(env.temporal_amplitude, 0.9, places=6)
+        wind = env.build_wind_tensor(grid=self.grid, building_heights=self.building)
+        # 开敞低层单元沿时间的相对摆动应反映 amplitude（采样峰略低于 0.9）
+        i = self.grid.spatial.nx // 2
+        series = wind[i, 0, 0, :]
+        rel = series / series.mean() - 1.0
+        self.assertGreater(float(rel.max()), 0.8)  # 远超默认 0.15
+
+    def test_section_not_path(self):
+        """反例守卫：传入路径字符串时 get_wind_environment 应回退默认（而非崩溃）。"""
+        env = get_wind_environment(str(Path(__file__).resolve().parents[1] / "configs" / "common.yaml"))
+        self.assertAlmostEqual(env.temporal_amplitude, 0.15, places=6)  # 默认振幅
+
+
+class TestBuildRiskTensorsWindConfig(unittest.TestCase):
+    """回归（审查 HIGH 项）：build_risk_tensors 必须加载实验配置并把 wind_environment 节
+    传给风环境——否则每个实验自己的风场配置不会生效。
+
+    用一份临时“实验配置”yaml（amplitude=0.9）对比默认 common.yaml（amplitude=0.15），
+    断言 p_crash 沿时间维度的标准差随振幅增大而增大（风场已真正受配置驱动）。
+
+    注：噪声模型内部写死默认网格 (60,60,12,96)，故本测试使用默认网格以匹配其形状。
+    """
+
+    def setUp(self):
+        self.grid = GridSystem()  # 默认 60×60×12×96，与噪声模型内部网格一致
+        self.building = make_building(self.grid.spatial.nx, self.grid.spatial.ny)
+
+    def _fake_result(self):
+        nx, ny, nz, nt = self.grid.shape
+
+        class _R:
+            pass
+
+        r = _R()
+        r.landuse = np.zeros((nx, ny), np.float32)
+        r.building_heights = self.building.astype(np.float32)
+        r.rho_population = np.full((nx, ny, nt), 0.05, np.float32)
+        r.rho_vehicle = np.full((nx, ny, nt), 0.05, np.float32)
+        r.wind_field = np.zeros((nx, ny, nt), np.float32)   # scenario 模式忽略
+        r.rain_data = np.zeros((nx, ny, nt), np.float32)
+        return r
+
+    def _write_custom_cfg(self, amplitude):
+        text = (
+            "wind_environment:\n"
+            "  mode: scenario\n"
+            "  scenarios: {weak: 3.0, moderate: 6.0, strong: 9.0}\n"
+            "  default_scenario: moderate\n"
+            "  temporal_variation: {enabled: true, amplitude: %s, period_hours: 24.0, phase: 0.0}\n"
+            "  vertical_profile: {enabled: true, min_factor: 0.85, max_factor: 1.20}\n"
+            "  urban_modifier: {enabled: true, beta: 0.20, min_factor: 0.80, max_factor: 1.05}\n"
+            "  gust: {enabled: false}\n"
+        ) % amplitude
+        fd = tempfile.NamedTemporaryFile(suffix=".yaml", delete=False, mode="w", encoding="utf-8")
+        fd.write(text)
+        fd.close()
+        return fd.name
+
+    def test_pipeline_honors_experiment_wind_config(self):
+        result = self._fake_result()
+        t_def = build_risk_tensors(result, grid=self.grid, config_path=None)  # common.yaml：0.15
+        cfg_path = self._write_custom_cfg(0.9)
+        try:
+            t_cus = build_risk_tensors(result, grid=self.grid, config_path=cfg_path)  # 实验：0.9
+        finally:
+            os.remove(cfg_path)
+        # 风场时间摆动更大 → p_crash 沿时间维度的标准差更大
+        std_def = float(np.mean(t_def["p_crash"].std(axis=3)))
+        std_cus = float(np.mean(t_cus["p_crash"].std(axis=3)))
+        self.assertGreater(std_cus, std_def)
 
 
 if __name__ == "__main__":

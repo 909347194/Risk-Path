@@ -384,12 +384,17 @@ class PropertyDamageModel:
             V_building ~ LogNormal(μ + α·ln(H), σ²)
             其中 H 为建筑高度，α 为高度弹性系数
         """
+        # 先落盘参数默认值，避免 _load_config_from_yaml 内引用 self.* 时尚未定义
+        self.max_prop_damage = max_prop_damage
+        self.log_normal_mu = log_normal_mu
+        self.log_normal_sigma = log_normal_sigma
+
         # 从配置文件加载参数（如果提供）
         if config_path is not None:
             config = self._load_config_from_yaml(config_path)
-            max_prop_damage = config.get('max_prop_damage', max_prop_damage)
-            log_normal_mu = config.get('log_normal_mu', log_normal_mu)
-            log_normal_sigma = config.get('log_normal_sigma', log_normal_sigma)
+            self.max_prop_damage = config.get('max_prop_damage', self.max_prop_damage)
+            self.log_normal_mu = config.get('log_normal_mu', self.log_normal_mu)
+            self.log_normal_sigma = config.get('log_normal_sigma', self.log_normal_sigma)
         
         # 验证输入数据
         assert building_heights.ndim == 2, f"建筑高度应为 2D 数组，当前维度: {building_heights.ndim}"
@@ -400,10 +405,7 @@ class PropertyDamageModel:
         self.building_types = building_types
         self.nx, self.ny = building_heights.shape
         
-        # 存储模型参数
-        self.max_prop_damage = max_prop_damage
-        self.log_normal_mu = log_normal_mu
-        self.log_normal_sigma = log_normal_sigma
+        # 模型参数已在上方（含配置覆盖）赋值，此处不再重复赋值以免覆盖配置值
         
         # 预计算建筑价值（假设高度弹性系数 α=0.8）
         self.alpha_height = 0.8

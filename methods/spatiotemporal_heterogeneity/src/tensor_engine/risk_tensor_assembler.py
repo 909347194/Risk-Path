@@ -31,11 +31,15 @@ from .wind_environment import get_wind_environment, _compute_svf
 from .load_config import load_config
 
 
-def _cfg_get_wind_mode(config_path) -> str:
-    """读取 wind_environment.mode，默认 'scenario'。"""
+def _cfg_get_wind_mode(cfg_node) -> str:
+    """读取 wind_environment.mode，默认 'scenario'。
+
+    接受已加载的配置（EasyDict / dict）或配置路径字符串；路径会自动 load_config。
+    """
     try:
-        cfg = load_config(config_path) if config_path is not None else load_config()
-        node = cfg
+        if isinstance(cfg_node, (str, Path)):
+            cfg_node = load_config(cfg_node)
+        node = cfg_node
         for key in ("wind_environment", "mode"):
             if node is None:
                 return "scenario"
@@ -227,9 +231,14 @@ def build_risk_tensors(
     # 风场：情景模式由 tensor_engine 直接构建 4D 风（真正随 z、t 异质）；
     #       否则对历史 3D 风场广播到 nz（兼容 synthetic / real）。
     #       风场只作融合进 p_crash 的状态属性，不构成搜索维度。
-    wind_mode = _cfg_get_wind_mode(config_path)
+    cfg = load_config(config_path)
+    wind_mode = _cfg_get_wind_mode(cfg)
     if wind_mode == "scenario":
-        wind_env = get_wind_environment(config_path)
+        # 必须传入 wind_environment *节*（dict / EasyDict），而非路径字符串：
+        # get_wind_environment 只认配置节，传路径会被静默忽略并回退到硬编码默认值，
+        # 导致各实验对风场的自定义配置失效（审查 HIGH 项）。
+        wind_section = cfg.get("wind_environment") if isinstance(cfg, dict) else getattr(cfg, "wind_environment", None)
+        wind_env = get_wind_environment(wind_section)
         svf = _compute_svf(building)
         wind_4d = wind_env.build_wind_tensor(
             grid=grid, building_heights=building, svf=svf,
@@ -265,9 +274,9 @@ def build_risk_tensors(
     ).astype(np.float32)
 
     # --- 4. Noise cost: r_noise(x,y,z,t) ---
-    noise_model = get_micro_grid_noise_model(grid=grid, config_path=str(config_path))
+    noise_model = get_micro_grid_noise_model(config_path=str(config_path))
     r_noise = noise_model.compute_noise_cost(
-        landuse=landuse, population_density=rho_pop, flight_altitude=flight_altitude,
+        landuse=landuse, population_density=rho_pop,
     ).astype(np.float32)
 
     return {
