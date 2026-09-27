@@ -3,7 +3,7 @@
 ## `poi_baidu.geojson` / `poi_baidu.xlsx`（正式数据，2026-09-26）
 
 - **来源**：百度地图（Agent Plan 语义检索为主，place/v2 检索补充），多源合并、uid 去重
-- **数量**：2168 条（residential 311 / office 693 / institution 571 / transport 554 / industrial 39）
+- **数量**：2834 条（residential 314 / office 1343 / institution 575 / transport 562 / industrial 40）
 - **坐标系**：WGS84（CRS84），原始 gcj02 坐标保留在 `lng_gcj02`/`lat_gcj02` 字段
 - **分类**：属性 `poi_class` 为五分类结果，`poi_parser.classify_poi` 优先识别该字段
 - **抓取脚本**：`scripts/fetch_baidu_poi_agentplan.py`（主）+ `scripts/fetch_baidu_poi.py`（补）

@@ -331,7 +331,10 @@ def crawl(
         """
         if client.quota_exhausted:
             return
-        radius = math.hypot(cw, ch) / 2.0
+        # 单元格宽高以「度」传递，换算为米后再取半对角线作圆形检索半径（API 半径单位为米）
+        w_m = cw * 111320.0 * math.cos(math.radians(cy))
+        h_m = ch * 110540.0
+        radius = math.hypot(w_m, h_m) / 2.0
         page, got = 0, 0
         while True:
             data = client.search_circle(keyword, cx, cy, radius, page)

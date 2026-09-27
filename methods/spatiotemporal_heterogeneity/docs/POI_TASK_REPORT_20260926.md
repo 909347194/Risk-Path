@@ -13,18 +13,18 @@
 - 五分类口径（与 `poi_parser.classify_poi` 一致）：
   `residential / office / institution / transport / industrial`
 
-## 2. 当前数据状态（截至 2026-09-26 23:00）
+## 2. 当前数据状态（截至 2026-09-27 14:00，**抓取已全部完成**）
 
 | 数据集 | 文件 | 数量 | 说明 |
 |---|---|---|---|
-| 最终 POI | `data/01_raw/poi/poi_baidu.geojson` / `.xlsx` | **2168** | 多源合并、uid 去重、裁剪进 bbox、WGS84 |
-| Agent Plan 源 | `data/01_raw/poi/poi_baidu_agentplan.geojson` / `.xlsx` | 2168 | 主源（百度 Agent Plan 语义检索） |
-| place/v2 源 | `data/01_raw/poi/v2/poi_baidu.geojson` | 0 | 尚未抓到（日配额限制，见 §4） |
+| 最终 POI | `data/01_raw/poi/poi_baidu.geojson` / `.xlsx` | **2834** | 多源合并、uid 去重、裁剪进 bbox、WGS84 |
+| Agent Plan 源 | `data/01_raw/poi/poi_baidu_agentplan.geojson` / `.xlsx` | 2834 | 主源，31 关键词 × 6×5 网格 930 格点已全部跑完 |
+| place/v2 源 | `data/01_raw/poi/v2/poi_baidu.geojson` | 0 | 日配额持续 302 未贡献（仅补充源，不影响交付） |
 | 计数栅格 | `data/02_processed/poi_counts.npz` | 100×100×5 | 由 `poi_parser.parse_osm_poi_geojson` 生成 |
 | OSM 占位 | `data/01_raw/poi/poi_osm.geojson` | 1947 | 保留作对照 |
 
 五分类统计（`poi_baidu_merge_stats.json`）：
-**residential 311 / office 693 / institution 571 / transport 554 / industrial 39**
+**residential 314 / office 1343 / institution 575 / transport 562 / industrial 40**
 
 ## 3. 已完成事项
 
@@ -50,30 +50,22 @@
    - 返回坐标为 **gcj02**，已统一转 wgs84。
 3. **断点续传教训**：checkpoint 必须记「已跑格点」而不是只记请求数，否则 resume 会重复消耗配额
    （本次浪费约 200 次调用，已修复）。
-4. 已跑网格：`6×5` 格心 × 31 关键词 = 930 格点，每格点取「最近 10 个」。
+4. **单位教训**：place/v2 圆形检索 `radius` 单位是**米**，脚本曾误传「度」（`int(0.008)=0`）导致一直 0 条；
+   已修复为单元格宽高换算成米后取半对角线。
+5. 已跑网格：`6×5` 格心 × 31 关键词 = 930 格点，每格点取「最近 10 个」（**已全部完成**）。
 
-## 5. 未完成 / 已排期（OpenClaw cron）
+## 5. 任务进度（2026-09-27 14:00 更新）
 
-| 时间 | 任务 | 说明 |
-|---|---|---|
-| 09-27 00:10 | `baidu_poi_crawl_resume` | place/v2 补抓 → `data/01_raw/poi/v2/`，然后跑 `merge_poi_sources.py` 合并 |
-| 09-27 02:40 | `baidu_poi_agentplan_finish` | Agent Plan 收尾：最后 6 个关键词（商场/超市/咖啡厅/便利店/餐厅/公司）×30 格点 ≈180 次调用 → 再合并 |
-
-收尾命令（手动等价）：
-
-```bash
-# Agent Plan 收尾（窗口重置后）
-bash -lc 'cd methods/spatiotemporal_heterogeneity && python3 scripts/fetch_baidu_poi_agentplan.py --resume --max-calls 1150'
-# place/v2 补抓
-BAIDU_MAP_AK=$(cat .openclaw/tmp/baidu_ak.txt) python3 scripts/fetch_baidu_poi.py --out-dir data/01_raw/poi/v2 --checkpoint data/01_raw/poi/v2/.ckpt.json --max-requests 1200 --max-depth 2
-# 合并 + 生成栅格
-bash -lc 'python3 scripts/merge_poi_sources.py'
-```
+- ✅ 09-27 13:40：Agent Plan 全量抓取完成（930/930 格点，最终 2834 条），已合并产出 `poi_baidu.*` + `poi_counts.npz`
+- ⏳ place/v2 补抓：当日日配额持续 302 未解禁；如仍想补充，次日 00:10 后重跑：
+  `BAIDU_MAPS_AK=$(cat .openclaw/tmp/baidu_ak.txt) python3 scripts/fetch_baidu_poi.py --out-dir data/01_raw/poi/v2 --checkpoint data/01_raw/poi/v2/.ckpt2.json --max-requests 1200 --max-depth 2`
+  完成后 `python3 scripts/merge_poi_sources.py` 增量合并（可选，主源已够用）
+- （注：09-27 00:10/02:40 两个 cron 因主会话休眠未执行，其任务已由 13:40 手动接管完成，cron 已删除）
 
 ## 6. 后续可选优化
 
 - 提高空间覆盖：网格从 6×5 加密到 8×7（约 560 次调用/关键词，需新窗口）。
 - 增加关键词（药店/面包店/公园/写字楼变体等）扩充「全部 POI」覆盖面。
-- `industrial` 仅 39 条：研究区为 CBD，工业类天然稀少，可与 `landuse` 工业用地数据交叉验证。
+- `industrial` 仅 40 条：研究区为 CBD，工业类天然稀少，可与 `landuse` 工业用地数据交叉验证。
 - 高密度类别（餐厅/公司）10 条/格心是接口硬上限，密度峰值会被平滑；如需精确密度可改用
   place/v2 网格细分模式（`fetch_baidu_poi.py`，按日配额分多天跑）。

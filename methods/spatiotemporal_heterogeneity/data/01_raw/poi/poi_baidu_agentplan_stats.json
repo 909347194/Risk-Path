@@ -1,7 +1,7 @@
 {
-  "calls_used": 965,
-  "poi_total": 2168,
-  "stopped_reason": "call budget exhausted",
+  "calls_used": 1145,
+  "poi_total": 2834,
+  "stopped_reason": "completed",
   "grid": [
     6,
     5
