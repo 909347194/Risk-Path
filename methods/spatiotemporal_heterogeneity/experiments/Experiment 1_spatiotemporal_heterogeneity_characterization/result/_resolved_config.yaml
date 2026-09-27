@@ -1,0 +1,168 @@
+cost_weight_presets:
+  default:
+    w_fatal: 0.3
+    w_noise: 0.15
+    w_ops: 0.4
+    w_prop: 0.15
+  emergency:
+    w_fatal: 0.1
+    w_noise: 0.05
+    w_ops: 0.8
+    w_prop: 0.05
+  quiet_night:
+    w_fatal: 0.2
+    w_noise: 0.5
+    w_ops: 0.2
+    w_prop: 0.1
+  strict_safety:
+    w_fatal: 0.7
+    w_noise: 0.1
+    w_ops: 0.0
+    w_prop: 0.2
+crash_probability:
+  lambda_base: 1.0e-05
+  rain:
+    gamma_rain: 0.005
+  urban_canyon:
+    K_obs: 10.0
+    alpha_svf: 1.5
+    epsilon: 1.0e-06
+    w_height_ratio: 0.4
+    w_proximity: 0.2
+    w_svf: 0.4
+  wind:
+    V_limit: 12.0
+    k_w: 3.0
+    theta: 2.0
+data:
+  type: real
+experiment:
+  created: '2026-09-27'
+  description: 时空异质性表征（机制实验，真实数据）。基于真实城市数据（建筑高度、用地、 POI、人口潮汐）与情景化低空风场构建四维风险张量 Cost(x,y,z,t)，在
+    08:00 / 12:00 / 18:00 / 22:00 四个出发时刻可视化风险场，并对同一 OD 运行 TD-RiskA*（60 m 定高巡航），证明「出发时刻不同
+    → 风险场不同 → 最优路径不同」。
+  name: exp1_spatiotemporal_heterogeneity_characterization
+  owner: ''
+  seed: 42
+fatal_risk:
+  lethal_alpha: 1000000.0
+  lethal_beta: 100.0
+noise_sensitivity:
+  landuse_coefficients:
+    commercial_administrative: 0.5
+    industrial_logistics: 0.2
+    infrastructure_transport: 0.5
+    natural_open: 0.0
+    quiet_service: 2.0
+    residential: 1.0
+  time_penalty:
+    daytime: 1.5
+    nighttime: 10.0
+params:
+  cruise_altitude_lock: true
+  departure_hours:
+  - 8
+  - 12
+  - 18
+  - 22
+  flight_altitude: 60.0
+  grid: macro
+  od:
+  - 10
+  - 60
+  - 5
+  - 85
+  - 10
+  - 5
+  rain:
+    enabled: false
+  sensitivity:
+    enabled: true
+    w_fatal_values:
+    - 24.0
+    - 30.0
+    - 36.0
+    - 42.0
+  survival_threshold: 0.0
+  uav_speed: 10.0
+  w_fatal: 30.0
+  w_noise: 7.5
+  w_ops: 0.03
+  w_prop: 12.0
+  wind_scenario: moderate
+  z_layer: 5
+population_tidal:
+  activation:
+    office_peaks:
+    - 8.5
+    - 18.0
+    office_std:
+    - 1.0
+    - 1.5
+    school_peaks:
+    - 8.0
+    - 16.0
+    school_std:
+    - 0.5
+    - 0.5
+  poi_weights:
+    industrial: 0.5
+    institution: 0.8
+    office: 1.2
+    residential: 1.0
+    transport: 2.0
+  sigma_decay:
+    macro: 300.0
+    micro: 60.0
+property_risk:
+  log_normal_mu: 3.04
+  log_normal_sigma: 0.5
+  max_prop_damage: 1000.0
+spatial_grid:
+  nx: 100
+  ny: 100
+  nz: 12
+  resolution_xy: 48.459
+  resolution_z: 10.0
+time:
+  slice_minutes: 15
+  total_slices: 96
+uav_constraints:
+  cruise_speed: 10.0
+  max_altitude: 120.0
+  max_climb_rate: 5.0
+  max_descent_rate: 5.0
+  min_altitude: 10.0
+  safety_margin: 5.0
+  turn_radius: 15.0
+wind_environment:
+  default_scenario: moderate
+  gust:
+    enabled: false
+    max_factor: 1.25
+    min_factor: 0.8
+    rho: 0.85
+    seed: 42
+    sigma: 0.1
+  mode: scenario
+  scenarios:
+    moderate:
+      reference_speed: 6.0
+    strong:
+      reference_speed: 9.0
+    weak:
+      reference_speed: 3.0
+  temporal_variation:
+    amplitude: 0.15
+    enabled: true
+    period_hours: 24.0
+    phase: 0.0
+  urban_modifier:
+    beta: 0.2
+    enabled: true
+    max_factor: 1.05
+    min_factor: 0.8
+  vertical_profile:
+    enabled: true
+    max_factor: 1.2
+    min_factor: 0.85

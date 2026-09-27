@@ -26,7 +26,7 @@ from .grid_system import GridSystem
 from .dynamic_p_crash import DynamicCrashProbability
 from .dynamic_fatality import DynamicFatalityModel
 from .static_obstacle import PropertyDamageModel, StaticBuildingObstacle
-from .dynamic_noise import get_micro_grid_noise_model
+from .dynamic_noise import DynamicNoiseCost, get_micro_grid_noise_model
 from .wind_environment import get_wind_environment, _compute_svf
 from .load_config import load_config
 
@@ -274,7 +274,10 @@ def build_risk_tensors(
     ).astype(np.float32)
 
     # --- 4. Noise cost: r_noise(x,y,z,t) ---
-    noise_model = get_micro_grid_noise_model(config_path=str(config_path))
+    # 必须用调用方传入的 grid 构造噪声模型：get_micro_grid_noise_model() 会把
+    # 网格锁死在 60×60 微网格，导致宏观真实数据 (100×100) 进来时
+    # _as_population_4d 形状校验直接失败（审查 HIGH 项）。
+    noise_model = DynamicNoiseCost(grid=grid, config_path=str(config_path))
     r_noise = noise_model.compute_noise_cost(
         landuse=landuse, population_density=rho_pop,
     ).astype(np.float32)
