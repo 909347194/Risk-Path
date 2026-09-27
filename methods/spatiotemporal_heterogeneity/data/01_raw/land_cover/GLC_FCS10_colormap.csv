@@ -1,0 +1,32 @@
+﻿代码,英文名称,中文翻译,颜色描述
+11,Herbaceous rainfed cropland,草本雨养耕地,浅粉色
+12,Tree or shrub covered rainfed cropland,乔木或灌木覆盖的雨养耕地,浅黄色
+20,Irrigated cropland,灌溉耕地,浅蓝色
+51,Closed evergreen broadleaved forest,密闭常绿阔叶林,深绿色
+52,Open evergreen broadleaved forest,开阔常绿阔叶林,中绿色
+61,Closed deciduous broadleaved forest,密闭落叶阔叶林,绿色
+62,Open deciduous broadleaved forest,开阔落叶阔叶林,浅绿色
+71,Closed evergreen needleleaved forest,密闭常绿针叶林,深绿色
+72,Open evergreen needleleaved forest,开阔常绿针叶林,中绿色
+81,Closed deciduous needleleaved forest,密闭落叶针叶林,深绿色
+82,Open deciduous needleleaved forest,开阔落叶针叶林,中绿色
+91,Closed mixed-leaf forest,密闭混交林,橄榄绿
+92,Open mixed-leaf forest,开阔混交林,黄绿色
+121,Evergreen shrubland,常绿灌木地,棕色
+122,Deciduous shrubland,落叶灌木地,浅棕色
+130,Grassland,草地,橙色
+140,Lichens and mosses,地衣与苔藓,浅粉色/米色
+150,Sparse vegetation,稀疏植被,浅米色
+181,Swamp,森林沼泽,蓝绿色
+182,Marsh,草本沼泽,青色
+183,Lake/river flat,湖泊 / 河流滩地,蓝色
+184,Saline,盐渍地,灰色
+185,Mangrove forest,红树林,紫红色
+186,Salt marsh,盐沼,浅蓝绿色
+187,Tidal flat,潮滩,深蓝色
+191,Urban impervious surfaces,城镇不透水面,红色
+192,Rural impervious surfaces,乡村不透水面,深红色
+200,Bare areas,裸地,浅米色/卡其色
+210,Water body,水体,深蓝色
+220,Permanent snow and ice,永久冰雪,白色
+0,filled_value,填充值 (非土地覆盖类型),白色
