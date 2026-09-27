@@ -132,3 +132,52 @@ cost_weight_presets:
         w_fatal: 0.7
         w_prop: 0.2
         w_noise: 0.1
+
+# --------------------------------------------------------------------------
+# 7. 情景化低空风环境 (Scenario-based low-altitude wind environment)
+# --------------------------------------------------------------------------
+# 定位：不是 CFD，也不重建真实城市微尺度风场。借鉴 Dong et al. (2026) 的
+#       时空异质性思想，用典型风速情景 + 时间变化 + 高度修正 + 城市形态修正
+#       生成用于 UAV 动态风险评价的 V(x,y,z,t)。
+# 模型：V = V_ref(t) · F_z(z) · F_urban(x,y) · F_gust(t)
+# 约束：① F_urban 与城市峡谷风险 f_obs 绝不重复计权（遮蔽衰减 vs 放大，独立机制）
+#       ② 风场只作在线查询的状态属性，绝不膨胀成显式 4D 搜索空间
+# 详见：src/tensor_engine/wind_environment.py
+wind_environment:
+
+    mode: scenario                       # 默认情景模式（非 ERA5）
+
+    scenarios:                           # 典型风速情景（实验参数，非实测值，单位 m/s）
+        weak:
+            reference_speed: 3.0
+        moderate:
+            reference_speed: 6.0
+        strong:
+            reference_speed: 9.0
+
+    default_scenario: moderate
+
+    temporal_variation:                 # V_ref(t) = V0·[1 + A_t·sin(2π t/T + φ)]
+        enabled: true
+        amplitude: 0.15
+        period_hours: 24.0
+        phase: 0.0
+
+    vertical_profile:                   # F_z(z)：z_min→min_factor，z_max→max_factor（平滑插值）
+        enabled: true                   # 注：采用端点插值 min+(max-min)·norm，
+        min_factor: 0.85                #      非规格文字中的 “1 + A_z·norm”（后者在 z_min 处恒为 1，
+        max_factor: 1.20                #      与给定端点 0.85/1.20 矛盾，按端点优先实现）
+
+    urban_modifier:                     # F_urban = clip(1 - β·C_shelter, min, max)
+        enabled: true                   # C_shelter = clip(1 - SVF, 0, 1)（遮蔽衰减，≤1）
+        beta: 0.20                       # 与 f_obs(R_canyon) 机制独立、符号相反，杜绝重复计权
+        min_factor: 0.80
+        max_factor: 1.05
+
+    gust:                               # AR(1) 阵风，默认关闭（保证确定性实验）
+        enabled: false
+        rho: 0.85
+        sigma: 0.10
+        min_factor: 0.80
+        max_factor: 1.25
+        seed: 42

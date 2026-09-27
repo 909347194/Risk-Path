@@ -27,6 +27,45 @@ from .dynamic_p_crash import DynamicCrashProbability
 from .dynamic_fatality import DynamicFatalityModel
 from .static_obstacle import PropertyDamageModel, StaticBuildingObstacle
 from .dynamic_noise import get_micro_grid_noise_model
+from .wind_environment import get_wind_environment, _compute_svf
+from .load_config import load_config
+
+
+def _cfg_get_wind_mode(config_path) -> str:
+    """读取 wind_environment.mode，默认 'scenario'。"""
+    try:
+        cfg = load_config(config_path) if config_path is not None else load_config()
+        node = cfg
+        for key in ("wind_environment", "mode"):
+            if node is None:
+                return "scenario"
+            if isinstance(node, dict):
+                node = node.get(key)
+            else:
+                node = getattr(node, key, None)
+        return node if isinstance(node, str) else "scenario"
+    except Exception:
+        return "scenario"
+
+
+def _as_wind_4d(wind: np.ndarray, grid: GridSystem) -> np.ndarray:
+    """将风场规整为 4D (nx, ny, nz, nt)。
+
+    - 已是 4D：直接返回（兼容 synthetic 4D 风场）。
+    - 3D (nx, ny, nt)：广播到 nz（历史 legacy 行为，全高度层同风）。
+    """
+    if wind is None:
+        raise ValueError("wind_field 为空；scenario 模式下应由 wind_environment 生成。")
+    wind = np.asarray(wind, dtype=np.float32)
+    nx, ny, nz, nt = grid.shape
+    if wind.ndim == 4:
+        if wind.shape != (nx, ny, nz, nt):
+            raise ValueError(f"4D 风场形状 {wind.shape} 与网格 {grid.shape} 不符")
+        return wind
+    if wind.ndim == 3:
+        # (nx, ny, nt) → 广播到 nz
+        return np.broadcast_to(wind[:, :, np.newaxis, :], (nx, ny, nz, nt)).astype(np.float32)
+    raise ValueError(f"不支持的风场维数：{wind.ndim}D")
 
 
 def _compute_svf(building_heights: np.ndarray, search_radius: int = 5) -> np.ndarray:
@@ -184,9 +223,22 @@ def build_risk_tensors(
 
     # --- 1. Crash probability: P_crash(x,y,z,t) ---
     crash_model = DynamicCrashProbability(config_path=str(config_path))
-    wind_3d = wind[:, :, np.newaxis, :]  # (nx,ny,1,nt) → broadcast to nz
+
+    # 风场：情景模式由 tensor_engine 直接构建 4D 风（真正随 z、t 异质）；
+    #       否则对历史 3D 风场广播到 nz（兼容 synthetic / real）。
+    #       风场只作融合进 p_crash 的状态属性，不构成搜索维度。
+    wind_mode = _cfg_get_wind_mode(config_path)
+    if wind_mode == "scenario":
+        wind_env = get_wind_environment(config_path)
+        svf = _compute_svf(building)
+        wind_4d = wind_env.build_wind_tensor(
+            grid=grid, building_heights=building, svf=svf,
+        )
+    else:
+        wind_4d = _as_wind_4d(wind, grid)
+
     rain_3d = rain[:, :, np.newaxis, :]
-    f_wind = crash_model.compute_wind_factor(wind_3d)
+    f_wind = crash_model.compute_wind_factor(wind_4d)
     f_rain = crash_model.compute_rain_factor(rain_3d)
     # 城市峡谷因子：从建筑高度推导 SVF + 距离场，逐 z 层计算
     f_obs = compute_urban_canyon_fobs(building, grid, config_path)

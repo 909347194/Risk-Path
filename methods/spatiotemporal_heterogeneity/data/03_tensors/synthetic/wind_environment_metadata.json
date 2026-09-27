@@ -1,0 +1,23 @@
+{
+  "model": "scenario_based_low_altitude_wind_environment",
+  "scenario": "moderate",
+  "reference_speed": 6.0,
+  "mode": "scenario",
+  "temporal_variation": true,
+  "temporal_amplitude": 0.15,
+  "temporal_period_hours": 24.0,
+  "vertical_modifier": true,
+  "vertical_min_factor": 0.85,
+  "vertical_max_factor": 1.2,
+  "urban_modifier": true,
+  "urban_beta": 0.2,
+  "urban_min_factor": 0.8,
+  "urban_max_factor": 1.05,
+  "gust_enabled": false,
+  "gust_rho": 0.85,
+  "gust_sigma": 0.1,
+  "gust_seed": 42,
+  "unit": "m/s",
+  "is_observed": false,
+  "note": "Scenario-based low-altitude wind environment. NOT a real/reconstructed micro-scale urban wind field. Do not treat as observational data."
+}

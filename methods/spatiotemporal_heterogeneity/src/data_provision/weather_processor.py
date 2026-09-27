@@ -1,13 +1,20 @@
 """
 Weather data processor (wind & precipitation).
 
-Handles both real and synthetic weather data:
-- Real:      ERA5 NetCDF -> grid-aligned NumPy matrices
-- Synthetic: Pre-built .npy from synthetic_data_factory -> validated matrices
+Wind field modes (see configs/common.yaml -> wind_environment.mode):
+- scenario : 加载 tensor_engine 预先构建的情景化 4D 风场 wind_speed_4d.npy
+             （默认路径；不在此处重建/插值风场，ERA5 不再是核心风数据源）
+- synthetic: 预生成 wind_field.npy（保留）
+- real     : ERA5 NetCDF -> grid-aligned NumPy（保留，但非默认）
+
+设计原则：本模块不下载/不依赖 ERA5 作为核心风场；不把粗分辨率再分析资料
+插值成伪高分辨率真实风场。情景化低空风环境由 tensor_engine.wind_environment
+负责生成（高度维 nz 仅在该层扩展）。
 
 Output:
-    wind_field.npy  shape (nx, ny, nt), float32 (wind speed in m/s)
-    rain_data.npy   shape (nx, ny, nt), float32 (rain intensity in mm/h)
+    wind_speed_4d.npy  shape (nx, ny, nz, nt), float32 (wind speed in m/s)  [scenario]
+    wind_field.npy     shape (nx, ny, nt),     float32 (wind speed in m/s)  [legacy/synthetic]
+    rain_data.npy      shape (nx, ny, nt),     float32 (rain intensity in mm/h)
 """
 
 from __future__ import annotations
@@ -25,28 +32,58 @@ def load_wind_field(
     grid_nx: Optional[int] = None,
     grid_ny: Optional[int] = None,
     grid_nt: Optional[int] = None,
+    mode: Optional[str] = None,
 ) -> np.ndarray:
     """
     Load wind field data from the current data type.
-    
-    For synthetic data, reads wind_field.npy from 03_tensors/synthetic/.
-    For real data, reads from processed or raw ERA5 NetCDF.
-    
+
+    Modes:
+      - 'scenario' : 加载 tensor_engine 预先构建的情景化 4D 风场
+                     wind_speed_4d.npy（来自 scripts/build_wind_environment.py）。
+                     高度维 (nz) 已由 tensor_engine 生成，此处只做加载。
+      - None (默认): 沿用历史 data_type 分派
+                     synthetic → 03_tensors/synthetic/wind_field.npy
+                     real     → ERA5 NetCDF（保留，但非默认风数据源）
+
     Args:
         paths: DataPaths instance. Uses current global data type if None.
-        grid_nx: Grid X size (for real data interpolation).
-        grid_ny: Grid Y size (for real data interpolation).
-        grid_nt: Number of time steps (for real data interpolation).
-    
+        grid_nx, grid_ny, grid_nt: 仅 real/ERA5 模式用于插值。
+        mode: 'scenario' 或 None。
+
     Returns:
-        (nx, ny, nt) float32 wind speed array (m/s).
+        风速数组。scenario 模式为 (nx, ny, nz, nt) float32（m/s）；
+        历史模式为 (nx, ny, nt) float32。
     """
     paths = paths or get_data_paths()
+
+    if mode == 'scenario':
+        return _load_scenario_wind(paths)
 
     if get_data_type() == 'synthetic':
         return _load_synthetic_wind(paths)
     else:
         return _load_real_wind(paths, grid_nx, grid_ny, grid_nt)
+
+
+def _load_scenario_wind(paths: DataPaths) -> np.ndarray:
+    """Load pre-built scenario-based 4D wind tensor (nx, ny, nz, nt).
+
+    该张量由 src/tensor_engine/wind_environment.py 经
+    scripts/build_wind_environment.py 构建并落盘，data_provision 仅负责加载
+    （不在此处创建 nz 维度）。
+    """
+    candidates = [
+        paths.tensors / "wind_speed_4d.npy",
+        paths.tensors / paths.data_type / "wind_speed_4d.npy",
+    ]
+    for c in candidates:
+        if c.exists():
+            return np.load(c).astype(np.float32)
+    raise FileNotFoundError(
+        f"Scenario wind tensor not found at {candidates[0]}. "
+        "Run: python -m methods.spatiotemporal_heterogeneity.scripts."
+        "build_wind_environment  (or build it via tensor_engine.wind_environment)."
+    )
 
 
 def _load_synthetic_wind(paths: DataPaths) -> np.ndarray:

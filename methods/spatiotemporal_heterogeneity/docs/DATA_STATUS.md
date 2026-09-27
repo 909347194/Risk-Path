@@ -36,9 +36,16 @@
 
 | 项 | 状态 |
 |---|---|
-| synthetic `wind_field/rain_data` | ✅ (60,60,12,96)/(60,60,96) |
-| real `wind_field.npy`/`rain_data.npy` | ❌ **唯一缺口**：需 ERA5（u10/v10 + 降水，逐小时 0.25°） |
-| `Cost_total(100,100,12,96)` | ⏸ 等待气象数据（P_crash 的 Φ 需风×雨×峡谷） |
+| **scenario `wind_speed_4d.npy`** | ✅ **默认风数据源**（新增）：`src/tensor_engine/wind_environment.py` 构建，`scripts/build_wind_environment.py` 落盘，`(nx,ny,nz,nt)` float32，m/s。`is_observed: false`（情景化合成，非真实风场） |
+| `wind_environment_metadata.json` | ✅ 记录 model/scenario/各因子开关与 `is_observed:false`（防误当观测） |
+| synthetic `wind_field/rain_data` | ⚪ legacy：保留 `weather_processor` 兼容入口，现已非默认路径 |
+| real `wind_field.npy`/`rain_data.npy` | ❌ 可选：ERA5（u10/v10 + 降水，逐小时 0.25°），仅作 `real` 模式历史入口；**项目不再以 ERA5 为核心风场依赖** |
+| `Cost_total(100,100,12,96)` | ✅ 可由 scenario 风 + 雨 + 峡谷直接组装（P_crash 的 Φ = f_wind·f_rain·f_obs 已通） |
+
+> **风环境定位变更（2026-09-27）**：不再依赖/插值 ERA5 构造伪高分辨率真实风场。
+> 改为情景化低空风环境 `V(x,y,z,t)=V_ref(t)·F_z(z)·F_urban(x,y)·F_gust(t)`，
+> 含时间变化、高度修正、城市形态遮蔽衰减；默认确定性（gust 关闭）。
+> 详见 `configs/common.yaml` 第 7 节与 `wind_environment.py` 顶部说明。
 
 ## 处理口径备注
 
