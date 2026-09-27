@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# POI 抓取断点文件（临时）
+.poi_baidu*_checkpoint.json
+**/poi/v2/.ckpt*.json
