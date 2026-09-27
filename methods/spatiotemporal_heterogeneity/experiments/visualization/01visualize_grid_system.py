@@ -40,14 +40,14 @@ from matplotlib.colors import LinearSegmentedColormap
 
 
 def visualize_grid_matplotlib(grid: GridSystem, 
-                               output_dir: Path,
+                               output_dir: Path | None = None,
                                sampling_rate: int = 3) -> None:
     """
     使用 Matplotlib 绘制三维格网系统
     
     Args:
         grid: 网格系统实例
-        output_dir: 输出目录路径
+        output_dir: 输出目录路径；None（默认）只弹窗显示不保存
         sampling_rate: 采样率（降低点数以提高性能，默认3以保持清晰度）
     """
     print("正在生成 Matplotlib 3D 可视化...")
@@ -97,12 +97,18 @@ def visualize_grid_matplotlib(grid: GridSystem,
     )
     
     plt.tight_layout()
-    
-    # 保存高分辨率图片
+
+    if output_dir is None:
+        # 只弹窗显示，不保存（2026-09-27 修改：默认不落盘）
+        plt.show()
+        print("✓ Matplotlib 3D 可视化已显示（未保存，如需保存用 --save）")
+        return
+
+    # 保存高分辨率图片（仅在传入 output_dir 时执行）
     output_path = output_dir / 'grid_3d_matplotlib.png'
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
-    
+
     print(f"✓ 已保存 Matplotlib 可视化: {output_path}")
 
 
@@ -218,14 +224,14 @@ def _draw_grid_wireframe(ax, x_coords: np.ndarray, y_coords: np.ndarray,
 
 
 def visualize_grid_layers(grid: GridSystem, 
-                          output_dir: Path,
+                          output_dir: Path | None = None,
                           num_layers: int = 6) -> None:
     """
     绘制垂直分层切片图（突出显示不同高度层）
     
     Args:
         grid: 网格系统实例
-        output_dir: 输出目录路径
+        output_dir: 输出目录路径；None（默认）只弹窗显示不保存
         num_layers: 显示的层数
     """
     print("正在生成分层切片可视化...")
@@ -296,23 +302,28 @@ def visualize_grid_layers(grid: GridSystem,
     plt.suptitle(f'垂直分层切片展示 ({num_layers} 个高度层)', 
                 fontsize=15, fontweight='bold', y=0.98)
     plt.tight_layout()
-    
+
+    if output_dir is None:
+        plt.show()
+        print("✓ 分层切片图已显示（未保存，如需保存用 --save）")
+        return
+
     output_path = output_dir / 'grid_layers_slice.png'
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
-    
+
     print(f"✓ 已保存分层切片图: {output_path}")
 
 
 def visualize_grid_plotly(grid: GridSystem, 
-                          output_dir: Path,
+                          output_dir: Path | None = None,
                           sampling_rate: int = 4) -> None:
     """
     使用 Plotly 绘制交互式三维格网系统
     
     Args:
         grid: 网格系统实例
-        output_dir: 输出目录路径
+        output_dir: 输出目录路径；None（默认）只弹窗显示不保存
         sampling_rate: 采样率（降低点数以提高性能，默认4保持清晰度）
     """
     if not PLOTLY_AVAILABLE:
@@ -452,6 +463,12 @@ def visualize_grid_plotly(grid: GridSystem,
         margin=dict(l=0, r=0, b=0, t=100)
     )
     
+    if output_dir is None:
+        # 只弹窗显示，不保存
+        fig.show()
+        print("✓ Plotly 交互式 3D 图已显示（未保存，如需保存用 --save）")
+        return
+
     # 保存为 HTML（交互式）
     html_path = output_dir / 'grid_3d_plotly.html'
     fig.write_html(str(html_path), include_plotlyjs='cdn')
@@ -463,19 +480,27 @@ def visualize_grid_plotly(grid: GridSystem,
     print(f"✓ 已保存 Plotly PNG: {png_path}")
 
 
-def generate_summary_report(grid: GridSystem, output_dir: Path) -> None:
+def generate_summary_report(grid: GridSystem, output_dir: Path | None = None) -> None:
     """
     生成网格系统摘要报告
     
     Args:
         grid: 网格系统实例
-        output_dir: 输出目录路径
+        output_dir: 输出目录路径；None（默认）只打印到控制台，不写文件
     """
     print("正在生成摘要报告...")
-    
-    report_path = output_dir / 'grid_system_summary.txt'
-    
-    with open(report_path, 'w', encoding='utf-8') as f:
+
+    import contextlib
+    import io
+    buf = io.StringIO()
+    if output_dir is not None:
+        report_path = output_dir / 'grid_system_summary.txt'
+        ctx = open(report_path, 'w', encoding='utf-8')
+    else:
+        report_path = None
+        ctx = contextlib.nullcontext(buf)   # 不落盘：写入内存，最后打印
+
+    with ctx as f:
         f.write("=" * 70 + "\n")
         f.write("时空网格系统可视化报告\n")
         f.write("=" * 70 + "\n\n")
@@ -499,7 +524,11 @@ def generate_summary_report(grid: GridSystem, output_dir: Path) -> None:
         f.write(f"- 内存占用 (float32): {grid.create_empty_tensor().nbytes / (1024**2):.2f} MB\n")
         f.write("-" * 70 + "\n")
     
-    print(f"✓ 已保存: {report_path}")
+    if report_path is not None:
+        print(f"✓ 已保存: {report_path}")
+    else:
+        print(buf.getvalue())
+        print("✓ 摘要报告已打印（未保存，如需保存用 --save）")
 
 
 def main():
@@ -517,10 +546,15 @@ def main():
     grid = get_micro_grid()
     print(grid.summary())
     
-    # 步骤2：创建输出目录
-    output_dir = project_root / "output" / "grid-system-pictures"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"\n步骤2: 输出目录: {output_dir}")
+    # 步骤2：输出目录（默认只显示不保存；加 --save 才写入 output/统计/）
+    save_output = "--save" in sys.argv
+    if save_output:
+        output_dir = project_root / "output" / "统计"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        print(f"\n步骤2: 输出目录: {output_dir}")
+    else:
+        output_dir = None
+        print("\n步骤2: 只显示不保存（如需保存：python3 01visualize_grid_system.py --save，产物写入 output/统计/）")
     
     # 步骤3：生成 Matplotlib 可视化 - 降低采样率以提高清晰度
     print("\n步骤3: 生成 Matplotlib 3D 可视化...")
@@ -544,7 +578,10 @@ def main():
     generate_summary_report(grid, output_dir)
     
     print("\n" + "=" * 70)
-    print("✓ 可视化完成！所有文件已保存到:", output_dir)
+    if output_dir is not None:
+        print("✓ 可视化完成！所有文件已保存到:", output_dir)
+    else:
+        print("✓ 可视化完成！（仅显示，未保存任何文件）")
     print("=" * 70)
 
 

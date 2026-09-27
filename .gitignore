@@ -13,3 +13,6 @@ wheels/
 .poi_baidu*_checkpoint.json
 **/poi/v2/.ckpt*.json
 
+
+# 可视化产物（本地生成，不入库）
+methods/spatiotemporal_heterogeneity/output/
