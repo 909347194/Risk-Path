@@ -80,7 +80,24 @@
 - 环境注：git-lfs 3.3.0 装在 `~/local-git-lfs/usr/bin`（无 sudo，dpkg -x 解包），
   用时 `export PATH=~/local-git-lfs/usr/bin:$PATH`；shapefile 需 `encoding='gbk'`（DBF 中文字段）
 
-## 7. 后续可选优化
+## 7. Travel 出行数据（2026-09-27，用户推送）
+
+- 来源：仓库根 `Guangzhou_travel/gz_user_counts_risk_analysis_20201022_{0..9}.csv`
+  （手机信令，11m 网格，粤港澳大湾区；论文《A risk-based UAV path planning…》所用数据；
+   `_all.csv` 无坐标列，需用分时段文件）
+- 整合：`scripts/build_travel_density.py` → 裁剪研究区 → 100×100 栅格：
+  - `02_processed/travel_user_counts.npz`：pt_drive/bike/walking/subway 各 (100,100,10) + total
+  - `02_processed/base_vehicle_2d.npy`：pt_drive 全时段合计（ρ_veh 底图/校验）
+  - `02_processed/travel_clip_stats.json`
+- 研究区统计：各时段 606~1260 条网格记录；模式占比 pt_drive 32% / bike 67.1% /
+  walking 0.9% / subway 0.01%（与文档分时段表一致：早时段骑行主导）；
+  活跃格数 429/10000（全模式）、418（pt_drive）——手机信令采样稀疏属预期，适合做
+  ρ_veh 校验与潮汐模型真实参考，不适合当满覆盖底图
+- 道路数据：`data/01_raw/road/roadline_clip.*`（研究区，LFS 已拉取）已在土地利用 A 中使用
+- 后续可接：把 `base_vehicle_2d.npy` 传入 `SpatiotemporalTidalModel.build_vehicle_density`
+  的 legacy 乘法模式，或用 travel 时段分布校准 `traffic_activation` 时间曲线
+
+## 8. 后续可选优化
 
 - 提高空间覆盖：网格从 6×5 加密到 8×7（约 560 次调用/关键词，需新窗口）。
 - 增加关键词（药店/面包店/公园/写字楼变体等）扩充「全部 POI」覆盖面。
