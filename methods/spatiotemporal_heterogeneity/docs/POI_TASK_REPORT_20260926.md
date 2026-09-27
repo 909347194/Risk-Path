@@ -62,7 +62,25 @@
   完成后 `python3 scripts/merge_poi_sources.py` 增量合并（可选，主源已够用）
 - （注：09-27 00:10/02:40 两个 cron 因主会话休眠未执行，其任务已由 13:40 手动接管完成，cron 已删除）
 
-## 6. 后续可选优化
+## 6. 土地利用数据（2026-09-27 完成）
+
+编码（PROJECT_SPEC）：`0=未定 1=住宅 2=商业/办公 3=机构 4=工业 5=道路 6=绿地/水域`
+
+| 方案 | 来源 | 产出 | 类别分布（0/1/2/3/4/5/6） |
+|---|---|---|---|
+| A（主） | building 五类 shp + roadline_clip（LFS 已拉取） | `02_processed/landuse_map.npy` | 1188 / 2016 / 783 / 1644 / 1851 / 2518 / 0 |
+| B（交叉验证） | OSM Overpass（landuse/amenity/leisure/natural/highway） | `landuse_map_b.npy` + `01_raw/landuse/osm_landuse.geojson` | 1848 / 2711 / 805 / 1046 / 169 / 2257 / 1164 |
+| C（交叉验证） | `poi_counts.npz` 逐格 argmax 反推 | `landuse_map_c.npy` | 8162 / 252 / 930 / 354 / 10 / 292 / 0 |
+
+- 一致性（双方均定类的格子）：**A~B 35.5%**（7775 格）、A~C 27.1%（1772 格）、B~C 26.8%
+  （口径差异属预期：A=建筑面 footprint，B=OSM 用地分区，C=POI 推断且覆盖仅 18%）
+- 对比图：`docs/figures/landuse_crossval.png` + `landuse_crossval_stats.json`
+- 脚本：`scripts/build_landuse_map.py`（pyshp+matplotlib，不依赖 GDAL；建筑含 Height 字段，
+  可后续生成 `building_heights.npy`）；`scripts/landuse_crossval.py`（B/C + 对比图）
+- 环境注：git-lfs 3.3.0 装在 `~/local-git-lfs/usr/bin`（无 sudo，dpkg -x 解包），
+  用时 `export PATH=~/local-git-lfs/usr/bin:$PATH`；shapefile 需 `encoding='gbk'`（DBF 中文字段）
+
+## 7. 后续可选优化
 
 - 提高空间覆盖：网格从 6×5 加密到 8×7（约 560 次调用/关键词，需新窗口）。
 - 增加关键词（药店/面包店/公园/写字楼变体等）扩充「全部 POI」覆盖面。
