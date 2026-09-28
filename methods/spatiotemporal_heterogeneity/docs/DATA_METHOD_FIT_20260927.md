@@ -1,65 +1,59 @@
-# 数据 × 方法适配分析（2026-09-27）
+# 数据 × 方法适配分析（v2 · 2026-09-28 刷新）
 
 > 范围：`methods/spatiotemporal_heterogeneity/src`（data_provision → tensor_engine → algorithms）
-> 问题：当前已整理的数据是否适合本方法？缺什么？哪里需要校准？
+> v1（09-27）基于旧数据层；v2 通读了 09-27~28 的 10 个提交（情景风/雨、噪声可调、
+> build_real_processed v2、GLC 交叉验证、实验模块化）后刷新。与 `docs/DATA_STATUS.md` 对账。
 
 ## 1. 方法的数据契约（src 硬性要求）
 
 | 组件 | 输入 | 形状/单位 |
 |---|---|---|
-| `GridSystem`（macro） | — | **NX×NY×NZ×NT = 100×100×12×96**，dx=dy=50m、dz=10m、15min/步（24h） |
-| `risk_tensor_assembler.build_risk_tensors` | landuse / building_heights / rho_population / rho_vehicle / wind_field / rain_data | 前两者 (100,100)；后四者 (100,100,96) |
-| `DynamicCrashProbability` | wind、rain、building（SVF/峡谷 f_obs） | 风速/降雨强度，建筑高度 m |
-| `DynamicFatalityModel` | rho_pop、rho_vehicle、flight_altitude | 人/车密度 |
-| `dynamic_noise` | landuse（编码 0-6）+ population | 敏感度系数表 `landuse_code_map` |
-| `SpatiotemporalTidalModel` | base_pop、poi_counts、N_total_pop/veh | 质量守恒密度场，S_cell=dx·dy=2500m² |
-| `algorithms/a_star + env_tensor` | 四张 4D 风险张量 | (100,100,12,96) |
+| `GridSystem`（macro） | — | **100×100×12×96**，dx=dy=50m、dz=10m、15min/步 |
+| `build_risk_tensors` | landuse / building_heights / rho_population / rho_vehicle / wind_field / rain_data | (100,100) / (100,100) / (100,100,96)×2 / 风可 4D / 雨 (100,100,96) |
+| `wind_environment`（scenario） | 配置节 `wind_environment` | 输出 (nx,ny,nz,nt) m/s，`is_observed:false` |
+| `rain_environment`（scenario） | 配置节 `rain_environment` | 输出 (nx,ny,nt) mm/h |
+| `SpatiotemporalTidalModel` | base_pop、poi_counts、N_total | 质量守恒密度场，S_cell=2500m² |
+| `algorithms/a_star + env_tensor` | 四张 4D 张量 | (100,100,12,96) |
 
-## 2. 数据资产盘点（02_processed，全部 (100,100) 对齐）
+## 2. 数据资产现状（对账 `DATA_STATUS.md`，全部形状与网格对齐 ✅）
 
-| 数据 | 形状 | 来源 | 状态 |
+02_processed 已齐全：landuse(v2) / building_heights / road_mask / base_pop_2d / poi_counts /
+rho_pop_3d / rho_vehicle_3d / travel_user_counts / base_vehicle_2d / GLC 校验基准，外加
+03_tensors 的情景风（wind_speed_4d, nx,ny,nz,nt）。
+
+**跨矩阵对齐实证（本报告新增）**：对 6 组配对做了正常 vs y 翻转相关性对比，
+正常方向全面胜出（住宅用地×住宅POI 相关 **0.972**，商办×POI 0.976），
+**无 y 镜像错位**（v2 处理的"y 镜像 bug 修复"已生效且各矩阵一致）。
+
+**质量守恒实证**：rho_pop 每时相总量恒等 223.089 → **N_total_pop = 557,724**；
+rho_vehicle → **N_total_veh = 227,225**。
+
+## 3. 逐项适配结论（v2 更新）
+
+| 数据 | v1 | v2 | 说明 |
 |---|---|---|---|
-| landuse_map.npy | (100,100) | building 五类 shp + roadline_clip（LFS） | ✅ 主源 + B/C 交叉验证 |
-| poi_counts.npz | 5×(100,100) | 百度 Agent Plan 2834 条 | ✅ |
-| building_heights.npy | (100,100) | building shp `Height`（全覆盖，mean 24.7m，max 224.5m） | ✅ 今日补齐 |
-| base_pop_2d.npy | (100,100) | population.tif（51.8 万人，58×54px@90m） | ✅ 今日补齐 |
-| road_mask.npy | (100,100) bool | landuse==5 | ✅ 今日补齐 |
-| travel_user_counts.npz | 4模式×(100,100,10) | 手机信令（论文数据） | ✅ 校验/校准用 |
-| base_vehicle_2d.npy | (100,100) | travel pt_drive | ✅ |
-| rho_pop / rho_vehicle | (100,100,96) | 潮汐模型（真实管线实跑产物） | ✅ 已跑通 |
-| wind_field / rain_data | (100,100,96) | — | ❌ **唯一硬缺口** |
+| landuse | ✅ | ✅ | v2 = 建筑烧录 + GLC 回填，GLC 一致率 81.1% |
+| poi_counts | ✅⚠️ | ⚠️ | 形状/分类 ✅；**口径问题见 §4-3** |
+| building_heights | ✅ | ✅ | 修正 y 镜像后 all_touched 版，覆盖 93.2% |
+| base_pop / rho_* | ⏳ | ✅ | 已生成且守恒；N_total 已实证 |
+| travel | ✅ | ✅ | 校准/校验用；10 时段→96 步的曲线拟合仍开放（§4-2） |
+| **weather** | ❌ | ✅ | **情景风 4D + 情景雨已接入 assembler**（`is_observed:false`，防误当观测）；真实 ERA5 降级为"可选验证数据" |
 
-**端到端验证**：`DataPipeline(data_type='real')` 六阶段（landuse→building→road→pop→poi→tidal）
-**全部跑通**，输出 rho_pop/rho_vehicle 形状正确 → **数据层与方法已对齐，可以进入实验**。
+## 4. 剩余待办（按优先级）
 
-## 3. 逐项适配结论
-
-| 数据 | 适配性 | 说明 |
-|---|---|---|
-| landuse | ✅ | 编码 0-6 与 `PROJECT_SPEC`/`dynamic_noise` 一致；A~B 一致性 35.5%（口径差异正常） |
-| poi_counts | ✅ | 五分类与 `poi_weights` 精确对应；⚠️ 截断偏差→密度峰值平滑（相对格局可用） |
-| building_heights | ✅ | Height 字段全覆盖、单位米；SVF/峡谷 f_obs 直接可用 |
-| base_pop_2d | ✅ | WorldPop 口径（人/格）；真实总量 518,221 人 |
-| travel | ✅（校准用） | 10 时段×4 模式；活跃格稀疏（429/10000）→ 只作校验/时间曲线校准，不满覆盖 |
-| weather | ❌ | 无真实风场/降雨；**合成 fallback 是 micro 形状 (60,60,...)，不能直接用于 macro (100,100,96)** |
-
-## 4. 正式实验前必须处理的 4 件事
-
-1. **气象数据（唯一硬缺口）**：需要 (100,100,96) 的 wind/rain。
-   选项：ERA5 重采样（原 `utils/download-data/wind/wind_data_era5.py` 已删，需确认新数据源），
-   或把合成数据生成器切到 macro 网格作为占位消融。
-2. **N_total 校准**：潮汐模型默认 `N_total_pop=50000 / N_total_veh=15000`（合成量级）；
-   真实研究区应校准为 **人口 ≈ 518,221**（base_pop_2d 合计），车辆可用 travel pt_drive 标定。
-   不改的话 rho 绝对量级偏小一个数量级（影响 fatality 后果项）。
-3. **网格物理尺度**：macro 标称 5000×5000m（dx=50m），但研究区 bbox 实际 4770×4830m，
-   线性映射带来 ~5% 各向异性；S_cell=2500m² vs 实际 ~2304m²（-8%）。
-   建议：要么把 bbox 外扩/重采样到正 5km，要么把 dx/dy 改为 47.7/48.3 并同步 S_cell。
-4. **travel 时段 → NT=96 映射**：信令是 10 个时段切片（模式占比随时段变化，
-   pt_drive 27%→75%），需插值/分段拟合到 96 个 15min 步，用于校准
-   `traffic_activation`/`population_activation` 时间曲线（当前是高斯形状的经验曲线）。
+1. **【中】数据处理链三足鼎立**：`build_real_processed.py`（v2 权威）vs `DataPipeline.run_all()`
+   （会覆盖 02_processed，实测偏差 50-90%，exp_data 已绕开）vs `scripts/build_*`（v1，本助手 09-27 产物）。
+   建议：明确 `build_real_processed.py` 为唯一口径，把 v1 脚本标注 superseded 或移入 `scripts/archive/`，
+   并给 `run_all` 加"写回保护"（如 real 模式默认 `save=False` 或写 `02_processed/_recomputed/`）。
+2. **【中】travel 时段→NT=96**：信令 10 切片的模式占比曲线（pt_drive 27%→75%）尚未用于
+   拟合 `traffic_activation/population_activation`（当前仍为经验高斯）。拟合后潮汐相位可写进论文。
+3. **【低】物理尺度**：bbox 4770×4830m vs 标称 5000×5000m（dx=50m），各向异性 ~5%、
+   S_cell 2500 vs 实际 ~2304m²（-8%）。正式实验要么把 bbox 归一到 5km，要么改 dx/dy。
+4. **【低】N_total 口径说明**：N_total_pop=557,724 vs WorldPop 合计 518,221（+7.6%）——
+   如为有意放大（如昼夜人口）请在 DATA_STATUS 注明依据；否则建议对齐。
 
 ## 5. 结论
 
-**适合。** 数据类型、形状、语义编码、坐标/网格约定与 `src` 的契约完全对齐，
-真实管线已端到端跑通；POI/travel 的采样稀疏属于"绝对量级校准问题"而非"不兼容"。
-补齐气象 + 校准 N_total 后即可跑正式的四风险张量（p_crash/fatality/property/noise）与 A* 规划实验。
+**数据层与方法完全适配，可以跑正式实验。** v1 报告的"气象硬缺口"已被情景风/雨模型解决
+（真实 ERA5 转为可选增强）；N_total 已校准并实证守恒；全矩阵对齐无镜像问题。
+剩余为 2 中 2 低的工程收口项，不影响实验开工。
