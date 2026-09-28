@@ -43,7 +43,8 @@ Risk-Path 是一个综合性的无人机路径规划与空中走廊设计系统�
 │   │   ├── __init__.py
 │   │   ├── static_obstacle.py      # 生成 3D 静态建筑遮挡布尔张量
 │   │   ├── dynamic_pcrash.py       # 生成 4D P_crash 概率场张量 (结合风、雨、城市峡谷)
-│   │   ├── dynamic_population.py   # 生成 3D 潮汐人口密度张量 (基于POI激活函数)
+│   │   ├── wind_environment.py     # 情景化低空风场 V(x,y,z,t)（时间/高度/街区衰减）
+│   │   ├── rain_environment.py     # 情景化降雨强度 I(x,y,t)（时段/热点）
 │   │   ├── dynamic_noise.py        # 生成 4D 噪音社会成本张量 (包含 S-T 查表逻辑)
 │   │   └── tensor_builder.py       # 组装/归一化各项成本，输出最终的 Cost_Total Tensor
 │   │

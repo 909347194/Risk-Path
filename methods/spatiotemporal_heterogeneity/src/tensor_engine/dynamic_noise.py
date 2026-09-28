@@ -215,7 +215,8 @@ class NoiseConfig:
         noise_data = config_data.get("noise_sensitivity", {})
 
         # 步骤4: 提取用地敏感度配置并建立别名映射
-        landuse_s = noise_data.get("landuse_s", {})
+        # 键名兼容：landuse_s（与本类字段对齐）/ landuse_coefficients（旧写法，仍可用）
+        landuse_s = noise_data.get("landuse_s") or noise_data.get("landuse_coefficients") or {}
         alias_to_name = {
             # 1. 自然与开阔空间
             "forest": "natural_open",
@@ -255,11 +256,54 @@ class NoiseConfig:
             "university": "quiet_service",
         }
 
-        # 步骤5: 遍历配置项，覆盖对应的敏感度值
+        # 步骤5: 遍历配置项，覆盖对应的敏感度值（键名支持规范名与简称别名）
         for raw_key, value in landuse_s.items():
-            key = alias_to_name.get(str(raw_key), None)
+            key = alias_to_name.get(str(raw_key),
+                                   str(raw_key) if str(raw_key) in config.landuse_sensitivity else None)
             if key is not None:
                 config.landuse_sensitivity[key] = float(value)
+
+        # 步骤6: 时间惩罚矩阵（S-T 矩阵的 T 列）—— 真正从 yaml 读入
+        #   time_penalty.daytime / nighttime      → 覆盖 residential（住宅区，与论文 T 列口径一致）
+        #   time_penalty.<类别>: [昼, 夜]          → 任意类别精确覆盖（键名走 alias 映射）
+        #   time_penalty.per_landuse.<类别>: [昼, 夜] → 同上（显式写法）
+        tp_data = noise_data.get("time_penalty", {}) or {}
+
+        def _to_pair(raw_key, pair):
+            """把 [昼, 夜] / {{daytime, nighttime}} 归一为 (float, float)，返回 None 表示无效。"""
+            if isinstance(pair, dict):
+                d = pair.get("daytime", pair.get("day", None))
+                n = pair.get("nighttime", pair.get("night", None))
+                if d is None or n is None:
+                    return None
+                return (float(d), float(n))
+            if isinstance(pair, (list, tuple)) and len(pair) == 2:
+                return (float(pair[0]), float(pair[1]))
+            return None
+
+        def _canon(name: str):
+            name = str(name)
+            return alias_to_name.get(name, name if name in config.time_penalty else None)
+
+        if isinstance(tp_data, dict):
+            # (a) 全局昼夜值 → residential（保留原注释语义）
+            d0, n0 = config.time_penalty["residential"]
+            day_g = tp_data.get("daytime", None)
+            night_g = tp_data.get("nighttime", None)
+            if day_g is not None or night_g is not None:
+                config.time_penalty["residential"] = (
+                    float(day_g) if day_g is not None else d0,
+                    float(night_g) if night_g is not None else n0,
+                )
+            # (b) 逐类别覆盖：per_landuse.* 或直接写类别名
+            entries = dict(tp_data.get("per_landuse", {}) or {})
+            entries.update({k: v for k, v in tp_data.items()
+                            if k not in ("daytime", "nighttime", "per_landuse")})
+            for raw_key, pair in entries.items():
+                key = _canon(raw_key)
+                parsed = _to_pair(raw_key, pair)
+                if key is not None and parsed is not None:
+                    config.time_penalty[key] = parsed
 
         return config
 

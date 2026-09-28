@@ -4,7 +4,8 @@ Tensor Engine for Spatiotemporal Heterogeneity Model
 Provides core modules for:
 - Grid system management (grid_system)
 - Configuration loading (load_config, config_manager)
-- Dynamic risk models (dynamic_p_crash, dynamic_population, dynamic_noise, dynamic_fatality)
+- Dynamic risk models (dynamic_p_crash, dynamic_noise, dynamic_fatality)
+- Wind / rain environments (wind_environment, rain_environment；人口潮汐见 data_provision/spatiotemporal_tidal_model)
 - Static obstacle modeling (static_obstacle)
 - Tensor assembly and normalization (tensor_builder)
 """

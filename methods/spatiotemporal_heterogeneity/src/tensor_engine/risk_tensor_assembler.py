@@ -28,6 +28,7 @@ from .dynamic_fatality import DynamicFatalityModel
 from .static_obstacle import PropertyDamageModel, StaticBuildingObstacle
 from .dynamic_noise import DynamicNoiseCost, get_micro_grid_noise_model
 from .wind_environment import get_wind_environment, _compute_svf
+from .rain_environment import get_rain_environment
 from .load_config import load_config
 
 
@@ -245,6 +246,14 @@ def build_risk_tensors(
         )
     else:
         wind_4d = _as_wind_4d(wind, grid)
+
+    # 降雨：未提供实测/实验降雨场时，按配置的情景化降雨生成
+    #（与风场同一原则：随 t 变化的状态属性，只进 f_rain，不构成搜索维度）
+    if rain is None:
+        rain_section = cfg.get("rain_environment") if isinstance(cfg, dict) \
+            else getattr(cfg, "rain_environment", None)
+        rain_env = get_rain_environment(rain_section)
+        rain = rain_env.build_rain_tensor(grid=grid)
 
     rain_3d = rain[:, :, np.newaxis, :]
     f_wind = crash_model.compute_wind_factor(wind_4d)

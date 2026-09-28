@@ -104,7 +104,17 @@ params:
     w_fatal_values: [24.0, 30.0, 36.0, 42.0]
 
   # ------------------------------------------------------------------
-  # 降雨：Exp 1 不考虑（暂无真实降雨数据接入）。保留开关便于后续接入。
+  # 降雨：情景化（强度/时段/热点见 configs/common.yaml 的 rain_environment 节）
+  # 本处仅作实验级覆盖，不写则用 common.yaml 默认（中雨 8mm/h、14–20 时、热点高斯）。
+  # 覆盖示例：
+  #   rain:
+  #     scenario: heavy          # light | moderate | heavy
+  #     intensity_mmh: 20.0      # 或直接给强度
+  #     active_hours: [14, 20]   # 降雨时段（h1<h0 跨午夜）
+  #     center: [50, 50]         # 热点中心（格坐标）
+  #     radius: 20               # 热点半径（格）
+  # 关闭降雨：rain.enabled: false（f_rain ≡ 1）
+  # 未来接入真实降雨：改 common.yaml 的 rain_environment.mode 即可，不用改代码
   # ------------------------------------------------------------------
   rain:
-    enabled: false
+    enabled: true

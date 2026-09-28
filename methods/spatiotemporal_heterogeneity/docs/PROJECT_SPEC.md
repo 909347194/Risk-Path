@@ -54,7 +54,7 @@ flowchart TD
         direction LR
         DC["dynamic_p_crash<br/>坠机概率"]
         DN["dynamic_noise<br/>噪音成本"]
-        DP2["dynamic_population<br/>人口风险"]
+        DP2["spatiotemporal_tidal_model<br/>人口风险"]
         ST["static_obstacle<br/>建筑障碍"]
         TB["TensorBuilder<br/>组装+归一化 → Cost_total"]
     end
@@ -104,7 +104,7 @@ result = pipeline.run_all()  # 一键处理所有数据
 | `grid_system.py` | 定义四维网格 `(nx,ny,nz,nt)`，坐标轴，GridSystem |
 | `load_config.py` | 加载 YAML 配置 → EasyDict |
 | `dynamic_p_crash.py` | 动态坠机概率：`P_crash = 1-exp(-λ·Φ·Δt)`，Φ 融合风×雨×峡谷 |
-| `dynamic_population.py` | 人口风险成本（基于潮汐密度） |
+| `dynamic_population.py`（已移除） | 人口潮汐现由 `data_provision/spatiotemporal_tidal_model.py` 实现 |
 | `dynamic_noise.py` | 噪声社会敏感度成本（土地利用×时间） |
 | `static_obstacle.py` | 静态建筑障碍与峡谷效应 |
 | `tensor_builder.py` | **数据出口**：组装所有组件 → `Cost_total(x,y,z,t)` |

@@ -75,38 +75,30 @@ def load_prepared_real_data(grid) -> PipelineResult:
     )
 
 
-def build_rain(grid, params: dict) -> np.ndarray:
-    """降雨强度场 (nx, ny, nt)，单位 mm/h。
+def build_rain(grid, params: dict, rain_env_cfg: dict | None = None) -> np.ndarray:
+    """降雨强度场 (nx, ny, nt)，单位 mm/h —— 委托 tensor_engine.rain_environment（单一实现）。
 
-    默认关闭：Exp 1 只做「风 + 城市形态 + 人口潮汐」驱动的时空异质性表征。
-    若后续接入真实降雨（或需要情景化降雨热点），把 config 中
-    params.rain.enabled 置 true 并给定 center / radius / intensity_mmh /
-    active_hours 即可，无需改代码。
+    情景由 configs/common.yaml 的 rain_environment 节驱动（强度/时段/热点），
+    params.rain 仅作实验级覆盖（enabled / scenario / intensity_mmh / active_hours /
+    center / radius / spatial_mode）：
+
+      params.rain.enabled: false   # 本实验关闭降雨（f_rain ≡ 1）
+
+    未来接入真实降雨时，只需给 rain_environment 加 mode='real' 分支，本函数不用改。
     """
-    nx, ny, nz, nt = grid.shape
-    rcfg = (params.get("rain") or {})
-    if not rcfg.get("enabled", False):
-        return np.zeros((nx, ny, nt), dtype=np.float32)
+    from tensor_engine.rain_environment import get_rain_environment
 
-    cx, cy = rcfg.get("center", [nx // 2, ny // 2])
-    r = float(rcfg.get("radius", 10))
-    I = float(rcfg.get("intensity_mmh", 10.0))
-    h0, h1 = rcfg.get("active_hours", [14, 20])
-    t0, t1 = grid.get_time_index(h0), grid.get_time_index(h1)
-
-    yy, xx = np.mgrid[0:ny, 0:nx]
-    dist = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
-    spatial = (dist <= r).astype(np.float32) * I
-    rain = np.zeros((nx, ny, nt), dtype=np.float32)
-    rain[:, :, t0:t1 + 1] = spatial[:, :, None]
-    return rain
+    overrides = dict(params.get("rain") or {})
+    env = get_rain_environment(rain_env_cfg, overrides=overrides or None)
+    return env.build_rain_tensor(grid)
 
 
-def load_experiment_data(grid, data_type: str, params: dict) -> PipelineResult:
+def load_experiment_data(grid, data_type: str, params: dict,
+                         rain_env_cfg: dict | None = None) -> PipelineResult:
     """按 data.type 装配实验数据（real 只读加载 / synthetic 走 DataPipeline）。"""
     if data_type == "real":
         pr = load_prepared_real_data(grid)
     else:
         pr = DataPipeline(data_type=data_type).run_all(skip_weather=True)
-    pr.rain_data = build_rain(grid, params)
+    pr.rain_data = build_rain(grid, params, rain_env_cfg)
     return pr

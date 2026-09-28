@@ -61,12 +61,28 @@ def load_prepared_real_data(grid) -> PipelineResult:
     )
 
 
-def load_experiment_data(grid, data_type: str, params: dict) -> PipelineResult:
+def build_rain(grid, params: dict, rain_env_cfg: dict | None = None) -> np.ndarray:
+    """降雨强度场 (nx, ny, nt)，单位 mm/h —— 委托 tensor_engine.rain_environment（单一实现）。
+
+    情景由 configs/common.yaml 的 rain_environment 节驱动（强度/时段/热点），
+    params.rain 仅作实验级覆盖（enabled / scenario / intensity_mmh / active_hours /
+    center / radius / spatial_mode）。默认启用情景降雨（中雨 8mm/h，14–20 时热点）；
+    要关闭就在本实验 config.yaml 写 `params.rain.enabled: false`。
+    """
+    from tensor_engine.rain_environment import get_rain_environment
+
+    overrides = dict(params.get("rain") or {})
+    env = get_rain_environment(rain_env_cfg, overrides=overrides or None)
+    return env.build_rain_tensor(grid)
+
+
+def load_experiment_data(grid, data_type: str, params: dict,
+                         rain_env_cfg: dict | None = None) -> PipelineResult:
     """按 data.type 装配实验数据（real 只读加载 / synthetic 走 DataPipeline）。"""
     if data_type == "real":
         pr = load_prepared_real_data(grid)
     else:
         pr = DataPipeline(data_type=data_type).run_all(skip_weather=True)
-    # TODO: 实验专属的数据加工（降雨情景、风场、额外张量……）
-    pr.rain_data = np.zeros(grid.shape[:2] + (grid.shape[3],), dtype=np.float32)
+    # 实验专属数据加工追加在此；降雨统一走 build_rain（情景模型）
+    pr.rain_data = build_rain(grid, params, rain_env_cfg)
     return pr

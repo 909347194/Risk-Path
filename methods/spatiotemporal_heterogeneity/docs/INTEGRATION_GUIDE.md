@@ -145,22 +145,23 @@ def _expand_node(self, current_node, neighbor_coords, dist):
 ```python
 from tensor_engine.grid_system import get_macro_grid
 from tensor_engine.dynamic_p_crash import DynamicCrashProbability
-from tensor_engine.dynamic_population import DynamicPopulationBuilder
-from tensor_engine.dynamic_noise import DynamicNoiseBuilder
+from data_provision.spatiotemporal_tidal_model import build_dynamic_population_density
+from tensor_engine.dynamic_noise import DynamicNoiseCost
 from algorithms.env_tensor import EnvTensor
 
 # 1. 创建网格
 grid = get_macro_grid()
 
 # 2. 构建各个风险分量
-crash_model = DynamicCrashProbability(config_path='configs/risk_params.yaml')
-p_crash = crash_model.compute(...)  # 根据你的实际API调用
+crash_model = DynamicCrashProbability(config_path='configs/common.yaml')
+p_crash = crash_model.compute_pcrash(f_wind, f_rain, f_obs, dt=900.0)  # 见 risk_tensor_assembler.build_risk_tensors
 
-pop_builder = DynamicPopulationBuilder(config)
-fatality = pop_builder.build_fatality_tensor()  # 假设的方法
+# 人口潮汐：生产实现在 data_provision（tensor_engine/dynamic_population.py 已移除，
+# 那是未接线的旧实现，两套口径并存易改错）
+rho_pop = build_dynamic_population_density(grid=grid)   # ρ(x,y,t)
 
-noise_builder = DynamicNoiseBuilder(config)
-noise = noise_builder.build_noise_tensor()
+noise_model = DynamicNoiseCost(grid=grid, config_path='configs/common.yaml')
+noise = noise_model.compute_noise_cost(...)   # 入参见 dynamic_noise.compute_noise_cost
 
 property_risk = ...  # 从 static_obstacle 或其他模块获取
 
@@ -250,7 +251,7 @@ uv run python src/algorithms/integration_example.py
 | 论文章节 | 公式/概念 | 代码实现位置 |
 |---------|----------|-------------|
 | Chapter 3 | P_crash = 1 - exp(-λ·Φ·Δt) | `tensor_engine/dynamic_p_crash.py` |
-| Chapter 3 | 人口潮汐密度 ρ(x,y,t) | `tensor_engine/dynamic_population.py` |
+| Chapter 3 | 人口潮汐密度 ρ(x,y,t) | `data_provision/spatiotemporal_tidal_model.py`（POI 激活 + Partition of Unity） |
 | Chapter 3 | 噪音社会敏感度 N(x,y,z,t) | `tensor_engine/dynamic_noise.py` |
 | Chapter 4 | E[Fatality] = P_survival × Fatality_rate × Δt | `astar_4d.py::_expand_node()` |
 | Chapter 4 | 多目标加权 g(n) | `astar_4d.py::_expand_node()` |

@@ -60,9 +60,9 @@ population_tidal:
 # --------------------------------------------------------------------------
 noise_sensitivity:
     # 土地利用敏感度系数 (对应论文 S 列)
-    # 注：实际映射由 dynamic_noise.py 的 NoiseConfig 处理
-    # 此处记录论文定义的完整 S-T 矩阵供参考
-    landuse_coefficients:
+    # 键名 landuse_s 与 dynamic_noise.NoiseConfig 对齐（旧名 landuse_coefficients 兼容）
+    # 实际映射由 dynamic_noise.py 的 NoiseConfig 处理
+    landuse_s:
         natural_open: 0.0 # 自然与开放空间
         industrial_logistics: 0.2 # 工业与物流区
         infrastructure_transport: 0.5 # 基础设施与交通走廊
@@ -70,12 +70,15 @@ noise_sensitivity:
         residential: 1.0 # 住宅区
         quiet_service: 2.0 # 高敏感保护区域 (学校/医院)
 
-    # 时间惩罚系数 (对应论文 T_day, T_night 列)
-    # 注：逐类别惩罚由 NoiseConfig.time_penalty 定义
-    # 此处保留全局默认值作为后备
+    # 时间惩罚系数 (对应论文 T_day, T_night 列) —— 真正生效
+    #   daytime / nighttime → 覆盖 residential（住宅区）
+    #   <类别>: [昼, 夜]     → 任意类别精确覆盖（同 per_landuse 写法）
     time_penalty:
         daytime: 1.5 # 住宅区昼间惩罚
         nighttime: 10.0 # 住宅区夜间惩罚
+        per_landuse: # 可选：逐类别覆盖，示例（不填则用代码默认 S-T 矩阵）
+            # natural_open: [1.0, 1.0]
+            # quiet_service: [10.0, 10.0]
 
 # --------------------------------------------------------------------------
 # 4. 财产与伤亡模型参数
@@ -181,3 +184,37 @@ wind_environment:
         min_factor: 0.80
         max_factor: 1.25
         seed: 42
+
+# --------------------------------------------------------------------------
+# 降雨环境（情景化，与 wind_environment 对偶）
+# 详见：src/tensor_engine/rain_environment.py
+# I(x,y,t) = I_ref(scenario) · S(x,y) · T(t)   [mm/h]
+# 只进 P_crash 的 f_rain = 1 + γ·I²，不构成搜索维度
+# 未来接入真实降雨（ERA5）：新增 mode='real' 分支，调用方无需改动
+# --------------------------------------------------------------------------
+rain_environment:
+
+    mode: scenario                       # 默认情景模式（非 ERA5）
+
+    enabled: true                        # 打开降雨（关闭则 f_rain ≡ 1）
+
+    scenarios:                           # 典型降雨强度情景（实验参数，非实测值，单位 mm/h）
+        light:
+            intensity_mmh: 2.0           # 小雨
+        moderate:
+            intensity_mmh: 8.0           # 中雨
+        heavy:
+            intensity_mmh: 25.0          # 大雨
+
+    default_scenario: moderate
+
+    temporal:                            # T(t)：时段窗 + 边缘平滑
+        enabled: true
+        active_hours: [14, 20]           # 降雨时段（小时；h1<h0 表示跨午夜）
+        edge_softness: 0.5               # 边缘平滑（小时）；0 = 硬窗
+
+    spatial:                             # S(x,y)：均匀或热点
+        mode: hotspot                    # uniform | hotspot
+        center: null                     # [x, y] 格坐标；null = 区域中心
+        radius: 20                       # 热点半径（格）
+        falloff: smooth                  # hard | smooth（smooth=高斯衰减）

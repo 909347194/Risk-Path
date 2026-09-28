@@ -49,7 +49,7 @@ def main() -> None:
     # 2) 数据
     data_type = (cfg.get("data") or {}).get("type", "real")
     t0 = _time.time()
-    pr = load_experiment_data(grid, data_type, params)
+    pr = load_experiment_data(grid, data_type, params, cfg.get("rain_environment"))
     print(f"[Data] done in {_time.time()-t0:.1f}s")
 
     # 3) 风险张量

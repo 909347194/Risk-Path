@@ -62,9 +62,9 @@ def main() -> None:
     # 2) 数据：真实数据只读加载（synthetic 才走 DataPipeline）
     data_type = (cfg.get("data") or {}).get("type", "real")
     t0 = _time.time()
-    pr = load_experiment_data(grid, data_type, params)
+    pr = load_experiment_data(grid, data_type, params, cfg.get("rain_environment"))
     print(f"[Data] done in {_time.time()-t0:.1f}s; "
-          f"rain enabled={bool((params.get('rain') or {}).get('enabled', False))}")
+          f"rain enabled={bool((params.get('rain') or {}).get('enabled', cfg.get('rain_environment', {}).get('enabled', True)))}")
 
     # 3) 组装四维风险张量（情景化风场，继承 common.yaml wind_environment）
     #    把「实验配置 + 公共配置」合并后落盘，保证 build_risk_tensors 拿到完整参数。
