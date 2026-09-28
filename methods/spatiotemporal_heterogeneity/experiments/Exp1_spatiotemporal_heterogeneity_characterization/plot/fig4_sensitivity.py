@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Figure 4：权重敏感性 —— 三种 regime 与「路径随时刻变化」的稳健性。"""
+"""Figure 4：权重敏感性 —— 路径长度极差随风险规避权重的变化。"""
 from __future__ import annotations
 
 import matplotlib
@@ -19,7 +19,7 @@ def plot_fig4(rows, hours, out_path):
                      xytext=(0, 8), ha="center", fontsize=8)
     ax0.set_xlabel("risk aversion  $w_{fatal}/w_{ops}$")
     ax0.set_ylabel("path length spread across departure times (m)")
-    ax0.set_title("(a) Spread vs risk aversion (three regimes)")
+    ax0.set_title("(a) Path length spread vs risk aversion")
     ax0.grid(alpha=0.3)
 
     ax1 = axes[1]
@@ -34,7 +34,7 @@ def plot_fig4(rows, hours, out_path):
     ax1.legend(fontsize=8)
     ax1.grid(alpha=0.3)
 
-    fig.suptitle("Figure 4 — Weight sensitivity: path response to departure time "
-                 "is regime-dependent (not a single cherry-picked weight)", fontsize=13)
+    fig.suptitle("Figure 4 — Weight sensitivity: path length spread vs the "
+                 "risk-aversion weight", fontsize=13)
     fig.savefig(out_path, dpi=140)
     plt.close(fig)
