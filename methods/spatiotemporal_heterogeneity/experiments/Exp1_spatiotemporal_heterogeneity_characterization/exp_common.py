@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent           # Experiment 1_.../
+HERE = Path(__file__).resolve().parent           # Exp1_.../
 MODULE_ROOT = HERE.parents[1]                    # spatiotemporal_heterogeneity/
 sys.path.insert(0, str(MODULE_ROOT / "src"))
 

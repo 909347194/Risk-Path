@@ -10,7 +10,7 @@
 experiments/
 ├── README.md                  ← 本文件：组织约定
 ├── _template/                 ← 实验脚手架（模块化结构，复制改名即用）
-├── Experiment 1_spatiotemporal_heterogeneity_characterization/
+├── Exp1_spatiotemporal_heterogeneity_characterization/
 │                              ← 已有实验：时空异质性表征（证据链第 1 环）
 └── viz_data/                  ← 数据可视化工具集（不是实验，无 run.py 流水线）
 ```
@@ -35,7 +35,7 @@ experiments/
 | `exp_metrics.py` | CSV 序列化 + 指标行构造；**实验专属统计追加在此** | 中 |
 | `plot/figN_<主题>.py` | 全部可视化，每图一个模块，`__init__` 导出 `plot_figN`；**只画图不算数** | 高 |
 
-参考实现：`Experiment 1_spatiotemporal_heterogeneity_characterization/`（权重敏感性扫描 + fig1–fig4 完整示例）。
+参考实现：`Exp1_spatiotemporal_heterogeneity_characterization/`（权重敏感性扫描 + fig1–fig4 完整示例）。
 
 ## 3. 产物口径
 
@@ -82,16 +82,16 @@ params:                # 实验参数自定义（OD、出发时刻、权重、�
 
 ```bash
 cd methods/spatiotemporal_heterogeneity/experiments
-cp -r _template "Experiment 2_<主题>"
-cd "Experiment 2_<主题>"
+cp -r _template Exp2_<主题>
+cd Exp2_<主题>
 $EDITOR config.yaml       # 填参数（name/OD/时段/权重/风情景…）
 $EDITOR README.md         # 目的 / 假设 / 方法 / 结果 / 结论
 python3 run.py            # 产物落在 result/
 ```
 
-**命名**：`Experiment <N>_<主题小写下划线>`（沿用现状，如 `Experiment 1_spatiotemporal_heterogeneity_characterization`）。
+**命名**：`Exp<N>_<主题小写下划线>`，如 `Exp1_spatiotemporal_heterogeneity_characterization`（目录名不含空格，可直接在 shell 里用）。
 同一实验的迭代用版本后缀 `_v2` 开新目录，**不要覆盖旧目录**（结论要可追溯）；探索性实验可加前缀 `scratch_`。
-目录名含空格是现状，代码里一律用 `Path` 拼路径，不要手拼字符串。
+旧名 `Experiment 1_...`（含空格）已统一更名，新实验一律用 `Exp<N>_` 前缀。
 
 **实验记录**：每个实验目录的 `README.md` 按 `_template/README.md` 的七段写（目的 / 假设 / 配置要点 / 方法 / 运行 / 结果 / 结论），
 跑完把关键数字填回第 6 节——README 和 `result/` 一起入库，是实验的可复现凭证。
@@ -116,4 +116,6 @@ python3 run.py            # 产物落在 result/
   场景配置改为各实验自带；`configs/common.yaml` 保留为公共参数。
 - 早期本文件写的 `visualization/` 已更名 `viz_data/`；产物目录由统一 `output/` 细化为
   `result/`（入库）+ `output/`（本地）两级。
+- 实验目录命名由 `Experiment <N>_...`（含空格）统一为 `Exp<N>_...`，如
+  `Exp1_spatiotemporal_heterogeneity_characterization`。
 - `_template/` 已从单文件 `run.py` 回填为模块化结构（`exp_*/` + `plot/`），见提交 `767dbcc`、`bb41a39`。

@@ -41,7 +41,7 @@ python3 run.py
 | `exp_metrics.py` | CSV 指标导出（实验专属统计追加在此） |
 | `plot/` | **全部可视化**：每图一个模块（figN_xxx.py），`__init__` 导出 plot_figN；只画图不算数 |
 
-参考实现：`../Experiment 1_spatiotemporal_heterogeneity_characterization/`（含权重敏感性扫描与四图完整示例）。
+参考实现：`../Exp1_spatiotemporal_heterogeneity_characterization/`（含权重敏感性扫描与四图完整示例）。
 
 ## 6. 结果
 
