@@ -18,3 +18,5 @@ wheels/
 methods/spatiotemporal_heterogeneity/output/
 # 实验产物目录
 methods/spatiotemporal_heterogeneity/experiments/*/output/
+methods/spatiotemporal_heterogeneity/experiments/*/results/
+
