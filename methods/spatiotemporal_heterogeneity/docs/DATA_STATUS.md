@@ -10,7 +10,7 @@
 | 路网 | `road/roadline_clip.shp` + `osm_roads.geojson` | ✅ 31,673 线段 | 双源合并使用 |
 | 人口栅格 | `population/population.tif` | ✅ ~90m | WorldPop，总量 518,221 人（≈20,729/km²） |
 | 土地覆盖 | `land_cover/land_cover.tif` | ✅ GLC_FCS30 10m | 交叉验证基准 |
-| POI | `poi.geojson`（合成）+ OSM 抓取 | ✅ 21,082 点 | 5 类已标注；**入库口径：随仓库提交（归档快照）**——OSM/建筑派生结果随时间不可复现，分析用 POI 集必须冻结；路径保持 `01_raw/poi.geojson`（兼容 `*poi*.geojson` glob，poi_parser 可直接消费） |
+| POI | `poi/poi_baidu.geojson` | ✅ 2,834 点 | 5 类已标注（`poi_class`）；**唯一分析口径**（百度 Agent Plan 多源合并，2026-09-27 冻结）；`poi_counts.npz` 即由它生成。旧集（poi_osm 1,898 / 01_raw/poi.geojson 21,082 / agentplan 中间件）已按「仅保留当前项目版本」原则移除（git 历史可查） |
 | 研究区范围 | `buildings_max_range/buildings_max_range.geojson` | ✅ | BBOX = 113.2911–113.3384°E, 23.0735–23.1169°N |
 | 合成数据 | `synthetic/seed_42/` | ✅ | 5 件套完整 |
 | LFS 残留指针 | `buildings_max_range.CPG`、`population.tif.aux.xml/.xml` | ⚪ 无影响 | 辅助元数据文件，不影响任何处理 |
@@ -24,7 +24,7 @@
 | `building_heights.npy` | (100,100) float32 | ✅ 建筑格覆盖 93.2%，p50=19.9m | 五类面 Height 烧录（all_touched + 格内最大值；修正 y 镜像 bug） |
 | `road_mask.npy` | (100,100) bool | ✅ 5,909 格 | 格心距路网 ≤24m |
 | `base_pop_2d.npy` | (100,100) float32 | ✅ 总量 518,221 | WorldPop 重采样（保总量、y 翻转对齐） |
-| `poi_counts.npz` | 5×(100,100) | ✅ 2,834 POI | 多源合并（另有 osm 版 1,898） |
+| `poi_counts.npz` | 5×(100,100) | ✅ 2,834 POI | 由 `poi/poi_baidu.geojson` 生成（唯一口径，旧 osm 版已移除） |
 | `rho_pop_3d.npy` | (100,100,96) float32 | ✅ 质量守恒（各时相总量恒等 207.3） | POI 引力潮汐模型 |
 | `rho_vehicle_3d.npy` | (100,100,96) float32 | ✅ | 同上（车流基数 base_vehicle_2d） |
 | `travel_user_counts.npz` | 5×(100,100,10) | ✅ 659,734 出行 | 手机信令 4 模式 ×10 时段 |

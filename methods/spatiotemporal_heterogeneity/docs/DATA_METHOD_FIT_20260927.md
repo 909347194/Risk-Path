@@ -41,16 +41,21 @@ rho_vehicle → **N_total_veh = 227,225**。
 
 ## 4. 剩余待办（按优先级）
 
-1. **【中】数据处理链三足鼎立**：`build_real_processed.py`（v2 权威）vs `DataPipeline.run_all()`
-   （会覆盖 02_processed，实测偏差 50-90%，exp_data 已绕开）vs `scripts/build_*`（v1，本助手 09-27 产物）。
-   建议：明确 `build_real_processed.py` 为唯一口径，把 v1 脚本标注 superseded 或移入 `scripts/archive/`，
-   并给 `run_all` 加"写回保护"（如 real 模式默认 `save=False` 或写 `02_processed/_recomputed/`）。
+1. **【中】数据处理链三足鼎立** → ✅ **已处理（2026-09-28）**：
+   `build_real_processed.py` 定为唯一口径；v1 脚本（build_landuse_map/build_building_pop）已移除，
+   共享常量抽出为 `scripts/grid_constants.py`；`DataPipeline` 增加**写回保护**
+   （real 模式默认输出到 `02_processed/_recomputed/`，`allow_overwrite=True` 才覆盖）。
 2. **【中】travel 时段→NT=96**：信令 10 切片的模式占比曲线（pt_drive 27%→75%）尚未用于
    拟合 `traffic_activation/population_activation`（当前仍为经验高斯）。拟合后潮汐相位可写进论文。
 3. **【低】物理尺度**：bbox 4770×4830m vs 标称 5000×5000m（dx=50m），各向异性 ~5%、
    S_cell 2500 vs 实际 ~2304m²（-8%）。正式实验要么把 bbox 归一到 5km，要么改 dx/dy。
+   （已在 PROJECT_SPEC 增加"数据精度注记"）
 4. **【低】N_total 口径说明**：N_total_pop=557,724 vs WorldPop 合计 518,221（+7.6%）——
    如为有意放大（如昼夜人口）请在 DATA_STATUS 注明依据；否则建议对齐。
+5. **【中】POI 口径不一致** → ✅ **已处理（2026-09-28）**：统一为 `poi/poi_baidu.geojson`（2,834，
+   与 poi_counts/实验一致），旧集（21,082 / osm / agentplan 中间件）移除，glob 歧义消除。
+6. **【低】weather_processor 孤儿模块** → ✅ **已处理（2026-09-28）**：已移除，
+   天气统一由 tensor_engine 情景模型（wind/rain_environment）生成。
 
 ## 5. 结论
 

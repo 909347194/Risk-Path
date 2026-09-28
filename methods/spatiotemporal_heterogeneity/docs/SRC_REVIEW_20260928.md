@@ -65,3 +65,15 @@ assembler 注释里留有"审查 HIGH 项"修复痕迹（风配置传递、噪�
 ## 建议处理顺序
 
 M2（论文口径，最急）→ M1（防数据污染）→ L3/L2（写注即可）→ L1/I1/I2（顺手）。
+
+---
+
+## 处置结果（2026-09-28 当日执行）
+
+| 项 | 处置 |
+|---|---|
+| M1 run_all 破坏性 | ✅ `DataPipeline` 增加 `allow_overwrite=False` 写回保护：real 模式重算输出改写 `02_processed/_recomputed/`（实测验证生效）；v1 处理链脚本移除，常量抽 `scripts/grid_constants.py` |
+| M2 POI 口径 | ✅ 统一 `poi/poi_baidu.geojson`（2,834，与 poi_counts/Exp1 一致）为唯一分析口径；移除 poi.geojson(21,082)/poi_osm/agentplan 中间件/poi_counts_osm，README 与 DATA_STATUS 同步改写 |
+| L1 weather_processor | ✅ 模块删除，`data_provision.__init__`/`pipeline.py` 导出与调用同步清理（py_compile+导入验证通过） |
+| L2 物理尺度 / L3 N_total 依据 | ✅ PROJECT_SPEC 新增「数据精度注记」（误差界 + N_total 口径）；L3 的 +7.6% 依据仍建议作者确认 |
+| I1 travel→activation / I2 | ⏳ 保留为后续工作 |

@@ -24,7 +24,7 @@ import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]  # Risk-Path/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_landuse_map import BBOX, NX, NY  # noqa: E402
+from grid_constants import BBOX, NX, NY  # noqa: E402
 
 MODULE_ROOT = PROJECT_ROOT / "methods" / "spatiotemporal_heterogeneity"
 TRAVEL_DIR = MODULE_ROOT / "data" / "01_raw" / "travel"

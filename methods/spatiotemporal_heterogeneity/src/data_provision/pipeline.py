@@ -72,7 +72,6 @@ from .building_processor import (
     save_building_heights,
 )
 from .road_processor import load_road_mask, save_road_mask
-from .weather_processor import load_wind_field, load_rain_data, save_wind_field, save_rain_data
 
 
 @dataclass
@@ -137,6 +136,7 @@ class DataPipeline:
         data_type: Optional[DataType] = None,
         grid: Optional['GridSystem'] = None,
         paths: Optional[DataPaths] = None,
+        allow_overwrite: bool = False,
     ):
         """
         Initialize the pipeline.
@@ -145,6 +145,9 @@ class DataPipeline:
             data_type: 'synthetic' or 'real'. If None, uses global setting.
             grid: GridSystem instance. If None, auto-selected based on data type.
             paths: DataPaths instance. If None, derived from data_type.
+            allow_overwrite: 真实模式写回保护开关。默认 False：当 02_processed 已存在
+                已提交产物时，本次重算结果改写到 02_processed/_recomputed/，
+                防止 run_all() 静默覆盖已校验数据（见 docs/SRC_REVIEW_20260928.md M1）。
         """
         # Set global data type if specified
         if data_type is not None:
@@ -153,6 +156,27 @@ class DataPipeline:
         self.grid = grid  # Will be lazily resolved
         self.paths = paths or get_data_paths()
         self.data_type = self.paths.data_type
+
+        # ── 写回保护（真实模式）────────────────────────────────────────
+        if self.data_type == 'real' and not allow_overwrite:
+            import dataclasses
+
+            expected = [
+                self.paths.landuse_map_path,
+                self.paths.building_heights_path,
+                self.paths.poi_counts_path,
+                self.paths.base_pop_path,
+                self.paths.rho_pop_path,
+                self.paths.rho_vehicle_path,
+            ]
+            if any(p.exists() for p in expected):
+                shadow = self.paths.processed / "_recomputed"
+                shadow.mkdir(parents=True, exist_ok=True)
+                print(
+                    f"⚠️ [写回保护] {self.paths.processed} 已有已提交产物，"
+                    f"本次重算输出改写到 {shadow}/；确需覆盖请传 allow_overwrite=True"
+                )
+                self.paths = dataclasses.replace(self.paths, processed=shadow)
 
         # Cached results
         self._landuse: Optional[np.ndarray] = None
@@ -339,29 +363,8 @@ class DataPipeline:
         print(f"  ✓ rho_vehicle: {self._rho_vehicle.shape}")
         return self._rho_pop, self._rho_vehicle
 
-    def run_weather(self) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Stage 7: Build weather data (wind + rain).
-
-        Synthetic: Loads from 03_tensors/synthetic/
-        Real:      Processes ERA5 NetCDF
-        """
-        ensure_dirs(self.data_type)
-        nx = self._resolve_grid().spatial.nx
-        ny = self._resolve_grid().spatial.ny
-        nt = self._resolve_grid().temporal.nt
-
-        self._wind = load_wind_field(
-            paths=self.paths,
-            grid_nx=nx, grid_ny=ny, grid_nt=nt,
-        )
-        self._rain = load_rain_data(
-            paths=self.paths,
-            grid_nx=nx, grid_ny=ny, grid_nt=nt,
-        )
-        print(f"  ✓ wind: {self._wind.shape}")
-        print(f"  ✓ rain: {self._rain.shape}")
-        return self._wind, self._rain
+    # run_weather 已移除：天气数据改由 tensor_engine 情景模型
+    # （wind_environment / rain_environment）生成，见 docs/SRC_REVIEW_20260928.md L1。
 
     # ── Full pipeline ───────────────────────────────────────────────────
 
@@ -405,8 +408,10 @@ class DataPipeline:
         self.run_poi(geojson_path=geojson_path)
         self.run_tidal()
 
+        # 天气已由 tensor_engine 情景模型（wind_environment/rain_environment）接管；
+        # skip_weather 参数保留兼容旧调用方，本管线不再产出天气文件。
         if not skip_weather:
-            self.run_weather()
+            print("  ℹ️ weather 由 tensor_engine 情景模型生成（assembler/exp 内），run_all 不再处理")
 
         result = self.collect()
         print(f"\n{'='*60}")

@@ -26,7 +26,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from build_landuse_map import BBOX, NX, NY  # noqa: E402
+from grid_constants import BBOX, NX, NY  # noqa: E402
 
 RAW = PROJECT_ROOT / "data/01_raw"
 PROC = PROJECT_ROOT / "data/02_processed"

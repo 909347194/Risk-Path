@@ -39,12 +39,6 @@ from .road_processor import (
     load_road_mask,
     save_road_mask,
 )
-from .weather_processor import (
-    load_wind_field,
-    load_rain_data,
-    save_wind_field,
-    save_rain_data,
-)
 from .poi_parser import (
     POI_CATEGORIES,
     build_poi_counts,
@@ -97,12 +91,6 @@ __all__ = [
     # Road
     "load_road_mask",
     "save_road_mask",
-
-    # Weather
-    "load_wind_field",
-    "load_rain_data",
-    "save_wind_field",
-    "save_rain_data",
 
     # POI
     "POI_CATEGORIES",

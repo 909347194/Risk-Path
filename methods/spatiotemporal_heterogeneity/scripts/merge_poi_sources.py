@@ -22,7 +22,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 POI_DIR = PROJECT_ROOT / "data" / "01_raw" / "poi"
-SOURCES = [POI_DIR / "poi_baidu_agentplan.geojson", POI_DIR / "v2" / "poi_baidu.geojson"]
+SOURCES = [POI_DIR / "poi_baidu.geojson", POI_DIR / "v2" / "poi_baidu.geojson"]
+# 注：poi_baidu.geojson 为当前唯一分析口径（2,834 条多源合并）；
+# 旧源（poi_osm / poi_baidu_agentplan / 01_raw/poi.geojson）已按
+# 「仅保留当前项目版本」原则移除，历史可查 git。v2/ 为 place/v2 增量补充。
 OUT_GEOJSON = POI_DIR / "poi_baidu.geojson"
 OUT_XLSX = POI_DIR / "poi_baidu.xlsx"
 BBOX = (113.2910928837698, 23.073499711374893, 113.33841698453455, 23.116852006517036)

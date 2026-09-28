@@ -30,7 +30,7 @@ import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_landuse_map import BBOX, NX, NY  # noqa: E402
+from grid_constants import BBOX, NX, NY  # noqa: E402
 
 LANDCOVER_TIF = PROJECT_ROOT / "data/01_raw/land_cover/land_cover.tif"
 OUT_DIR = PROJECT_ROOT / "data/02_processed"
