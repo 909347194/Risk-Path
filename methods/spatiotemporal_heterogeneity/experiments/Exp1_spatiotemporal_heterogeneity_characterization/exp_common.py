@@ -9,4 +9,4 @@ HERE = Path(__file__).resolve().parent           # Exp1_.../
 MODULE_ROOT = HERE.parents[1]                    # spatiotemporal_heterogeneity/
 sys.path.insert(0, str(MODULE_ROOT / "src"))
 
-RESULT_DIR = HERE / "result"
+RESULT_DIR = HERE / "results"

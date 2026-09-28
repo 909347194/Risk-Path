@@ -1,9 +1,0 @@
-metric,value
-spatial_cv_per_hour,{8: 0.4113, 12: 0.4369, 18: 0.4654, 22: 0.4486}
-temporal_cv_median,0.1405
-temporal_relative_range_median,0.3779
-spatial_cv_per_hour(detail),
-  spatial_cv_08h,0.4113
-  spatial_cv_12h,0.4369
-  spatial_cv_18h,0.4654
-  spatial_cv_22h,0.4486

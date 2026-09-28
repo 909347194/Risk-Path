@@ -21,7 +21,7 @@ Exp 1 — 时空异质性表征 (Spatiotemporal Heterogeneity Characterization)
   plot/             全部可视化（fig1–fig4）
 
 运行：python3 run.py
-产物：result/fig1–fig4*.png, metrics.csv, heterogeneity.csv,
+产物：results/fig1–fig4*.png, metrics.csv, heterogeneity.csv,
       path_difference.csv, sensitivity.csv
 """
 from __future__ import annotations
@@ -51,7 +51,7 @@ def main() -> None:
     exp = cfg.get("experiment", {})
     params = cfg.get("params", {})
     print("=" * 72)
-    print(f"Exp 1: {exp.get('name')} — {exp.get('description')}")
+    print(f"exp 1: {exp.get('name')} — {exp.get('description')}")
     print("=" * 72)
 
     # 1) 网格：真实数据 → 宏观网格（精确分辨率 48.459 × 47.936 m）
