@@ -29,6 +29,20 @@
 python3 run.py
 ```
 
+### 模块结构（职责分离，勿把逻辑堆回 run.py）
+
+| 文件 | 职责 |
+|---|---|
+| `run.py` | 纯编排：网格→数据→风险张量→规划→出图→导出 |
+| `exp_common.py` | 路径引导（HERE / MODULE_ROOT / RESULT_DIR） |
+| `exp_config.py` | 配置加载（extends 继承公共配置） |
+| `exp_data.py` | 数据装配（真实数据只读加载 / 合成管线切换） |
+| `exp_planning.py` | 规划与路径度量（实验专属扫描逻辑追加在此） |
+| `exp_metrics.py` | CSV 指标导出（实验专属统计追加在此） |
+| `plot/` | **全部可视化**：每图一个模块（figN_xxx.py），`__init__` 导出 plot_figN；只画图不算数 |
+
+参考实现：`../Experiment 1_spatiotemporal_heterogeneity_characterization/`（含权重敏感性扫描与四图完整示例）。
+
 ## 6. 结果
 
 <!-- 跑完填：关键数字、图、与预期的差异 -->
