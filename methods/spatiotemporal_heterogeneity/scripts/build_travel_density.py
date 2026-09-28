@@ -2,7 +2,7 @@
 """
 Travel 出行数据 -> 项目网格矩阵（研究区）。
 
-输入：仓库根 Guangzhou_travel/gz_user_counts_risk_analysis_20201022_{0..9}.csv
+输入：data/01_raw/travel/gz_user_counts_risk_analysis_20201022_{0..9}.csv
      （11m 手机信令网格，字段 grid_id,mode,user_counts,lat_*,lon_*,clat,clon；
        _all.csv 无坐标列，故用 0..9 分时段文件）
 
@@ -26,8 +26,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]  # Risk-Path/
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_landuse_map import BBOX, NX, NY  # noqa: E402
 
-TRAVEL_DIR = PROJECT_ROOT / "Guangzhou_travel"
-OUT_DIR = PROJECT_ROOT / "methods" / "spatiotemporal_heterogeneity" / "data" / "02_processed"
+MODULE_ROOT = PROJECT_ROOT / "methods" / "spatiotemporal_heterogeneity"
+TRAVEL_DIR = MODULE_ROOT / "data" / "01_raw" / "travel"
+OUT_DIR = MODULE_ROOT / "data" / "02_processed"
 NT = 10
 MODES = ["pt_drive", "bike", "walking", "subway"]
 

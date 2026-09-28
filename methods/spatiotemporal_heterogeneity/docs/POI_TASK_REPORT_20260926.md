@@ -82,7 +82,7 @@
 
 ## 7. Travel 出行数据（2026-09-27，用户推送）
 
-- 来源：仓库根 `Guangzhou_travel/gz_user_counts_risk_analysis_20201022_{0..9}.csv`
+- 来源：`data/01_raw/travel/gz_user_counts_risk_analysis_20201022_{0..9}.csv`
   （手机信令，11m 网格，粤港澳大湾区；论文《A risk-based UAV path planning…》所用数据；
    `_all.csv` 无坐标列，需用分时段文件）
 - 整合：`scripts/build_travel_density.py` → 裁剪研究区 → 100×100 栅格：
