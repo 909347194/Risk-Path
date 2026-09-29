@@ -8,9 +8,25 @@ import matplotlib.pyplot as plt
 
 
 def plot_fig4(rows, hours, out_path):
+    # 只画「全部出发时刻都成功」的行：N/A 行（部分/全部失败）无跨时刻可比性
+    rows_ok = [r for r in rows if isinstance(r.get("spread_m"), (int, float))]
+    rows_na = [r for r in rows if not isinstance(r.get("spread_m"), (int, float))]
+
     fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.2), layout="constrained")
-    ratios = [r["ratio"] for r in rows]
-    spread = [r["spread_m"] for r in rows]
+    if rows_na:
+        fig.text(0.5, 0.005,
+                 f"note: {len(rows_na)}/{len(rows)} weight setting(s) had failed "
+                 "departures (spread N/A) and are omitted",
+                 ha="center", fontsize=8, color="firebrick")
+    if not rows_ok:
+        fig.suptitle("Figure 4 — Weight sensitivity: NO comparable rows "
+                     "(all departures failed)", fontsize=13)
+        fig.savefig(out_path, dpi=140)
+        plt.close(fig)
+        return
+
+    ratios = [r["ratio"] for r in rows_ok]
+    spread = [r["spread_m"] for r in rows_ok]
 
     ax0 = axes[0]
     ax0.plot(ratios, spread, "o-", color="darkslateblue", lw=2)
@@ -24,8 +40,9 @@ def plot_fig4(rows, hours, out_path):
 
     ax1 = axes[1]
     markers = ["o", "s", "^", "D", "v"]
-    for i, r in enumerate(rows):
-        ax1.plot(hours, [r[f"L_{h:02d}h"] for h in hours], marker=markers[i % len(markers)],
+    for i, r in enumerate(rows_ok):
+        ax1.plot(hours, [r[f"L_{h:02d}h"] for h in hours],
+                 marker=markers[i % len(markers)],
                  lw=1.8, label=f"ratio={r['ratio']:.0f} (spread {r['spread_m']:.0f} m)")
     ax1.set_xlabel("departure hour")
     ax1.set_ylabel("path length (m)")
