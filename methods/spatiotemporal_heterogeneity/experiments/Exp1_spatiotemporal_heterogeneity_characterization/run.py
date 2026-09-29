@@ -18,10 +18,10 @@ Exp 1 — 时空异质性表征 (Spatiotemporal Heterogeneity Characterization)
   exp_data.py       真实数据只读加载 + 降雨情景
   exp_planning.py   TD-RiskA* 规划、路径度量、权重敏感性
   exp_metrics.py    CSV 指标 / 路径差异 / 异质性统计
-  plot/             全部可视化（fig1–fig4）
+  plot/             全部可视化（fig1–fig5）
 
 运行：python3 run.py
-产物：results/fig1–fig4*.png, metrics.csv, heterogeneity.csv,
+产物：results/fig1–fig5*.png, metrics.csv, heterogeneity.csv,
       path_difference.csv, sensitivity.csv
 """
 from __future__ import annotations
@@ -38,7 +38,7 @@ from exp_data import load_experiment_data
 from exp_planning import plan_one, run_sensitivity
 from exp_metrics import (metrics_rows, path_difference_rows,
                          heterogeneity_stats, heterogeneity_rows, write_csv)
-from plot import plot_fig1, plot_fig2, plot_fig3, plot_fig4
+from plot import plot_fig1, plot_fig2, plot_fig3, plot_fig4, plot_fig5
 
 from tensor_engine.grid_system import get_macro_grid, get_micro_grid
 from tensor_engine.risk_tensor_assembler import build_risk_tensors
@@ -146,7 +146,10 @@ def main() -> None:
     plot_fig1(grid, risk["p_crash"], results, hours, z_layer, od, out_dir / "fig1_risk_field.png")
     plot_fig2(grid, wind_4d, pr.rho_population, hours, z_layer, out_dir / "fig2_drivers.png")
     plot_fig3(grid, results, hours, pr.building_heights, od, out_dir / "fig3_path_comparison.png")
-    print(f"\n[Figures] {out_dir}/fig1_risk_field.png, fig2_drivers.png, fig3_path_comparison.png")
+    fig5_rows = plot_fig5(grid, risk["p_crash"], od, results, hours, z_layer,
+                          out_dir / "fig5_heterogeneity_proof.png")
+    print(f"\n[Figures] {out_dir}/fig1_risk_field.png, fig2_drivers.png, "
+          "fig3_path_comparison.png, fig5_heterogeneity_proof.png")
 
     # 7) 指标导出
     rows = metrics_rows(hours, results)
@@ -157,9 +160,9 @@ def main() -> None:
     if diff_rows:
         write_csv(out_dir / "path_difference.csv", diff_rows)
 
-    # 9) 异质性统计
+    # 9) 异质性统计（含 Figure 5 的连续演化指标）
     het = heterogeneity_stats(risk["p_crash"], z_layer, hours, grid)
-    write_csv(out_dir / "heterogeneity.csv", heterogeneity_rows(het))
+    write_csv(out_dir / "heterogeneity.csv", heterogeneity_rows(het) + fig5_rows)
 
     print(f"[Metrics] {out_dir}/metrics.csv, path_difference.csv, heterogeneity.csv")
     print("\n[Heterogeneity]")

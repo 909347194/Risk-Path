@@ -1,0 +1,72 @@
+# ============================================================================
+# Exp 2 — Static Risk vs Spatiotemporal Risk（核心实验）
+# ============================================================================
+# 核心问题：为什么不用时间平均的静态风险图？显式建模时空异质性到底带来什么？
+#
+# 三种方法（同一 OD、同一权重口径）：
+#   1) distance_only   : J = Σ d                      （只考虑距离）
+#   2) static_risk     : J = Σ C̄(x,y,z)，C̄ = (1/T)Σ_t C(x,y,z,t)  （时间平均风险）
+#   3) spatiotemporal  : J = Σ C(x_k,y_k,z_k,t_k)     （本文提出，风险随时变）
+#
+# 三种方法的路径统一在「真实时空风险场」上后评估（公平比较），
+# 分别在 08:00 / 12:00 / 18:00 / 22:00 出发。
+
+experiment:
+  name: exp2_static_vs_spatiotemporal_path_planning
+  description: >-
+    Static Risk vs Spatiotemporal Risk：在真实数据四维风险张量上对比
+    距离最优、静态平均风险规避、时空风险规避三种规划目标，证明
+    「时间平均风险图」会在特定出发时刻付出显著的安全代价，
+    而时空感知规划随出发时刻自适应调整路径。
+  owner: ""
+  created: "2026-09-29"
+  seed: 42
+
+data:
+  type: real
+
+spatial_grid:
+  nx: 100
+  ny: 100
+  nz: 12
+  resolution_xy: 48.459
+  resolution_z: 10.0
+
+time:
+  total_slices: 96
+  slice_minutes: 15
+
+extends: ../../configs/common.yaml
+
+params:
+  grid: macro
+
+  # 固定同一个 OD（与 Exp1 当前配置一致，双核走廊）：(5,70) → (95,5)
+  # 格式 [sx, sy, sz, gx, gy, gz]
+  od: [5, 70, 5, 95, 5, 5]
+
+  departure_hours: [8, 12, 18, 22]
+
+  z_layer: 5
+  flight_altitude: 60.0
+
+  # 60 m 定高巡航：锁定 z=5 层。
+  # 注：Exp1 的自由高度试验（cruise_altitude_lock=false）在本网格上会打满
+  # A* 的 max_iterations=1e6（标签空间 100×100×12×8），4 个时刻全部
+  # open_set_exhausted。本实验聚焦「时间」维度对比，定高锁既保证搜索
+  # 可控（单次 ~7 s），也排除高度自由度对三种方法的不对称影响。
+  cruise_altitude_lock: true
+
+  wind_scenario: moderate
+  uav_speed: 10.0
+  survival_threshold: 0.0
+
+  # 与 Exp1 主设定一致（w_risk/w_ops = 1000）
+  w_ops: 0.03
+  w_fatal: 30.0
+  w_prop: 12.0
+  w_noise: 7.5
+
+  # 降雨：情景化（common.yaml rain_environment）
+  rain:
+    enabled: true
