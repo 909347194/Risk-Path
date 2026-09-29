@@ -85,7 +85,8 @@ def main() -> None:
     }
     env = EnvTensor(
         p_crash=risk["p_crash"], fatality=risk["fatality"],
-        property=risk["property"], noise=risk["noise"], grid=grid,
+        property=risk["property"], noise=risk["noise"],
+        obstacle=risk.get("obstacle"), grid=grid,
     )
     results = []
     for h in hours:

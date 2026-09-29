@@ -34,6 +34,8 @@ def build_static_env(env_true: EnvTensor) -> EnvTensor:
         fatality=avg4d(env_true.fatality),
         property=avg4d(env_true.property),
         noise=avg4d(env_true.noise),
+        # 建筑是静态的：静态场沿用同一套硬约束，否则对比不公平
+        obstacle=env_true.obstacle,
     )
 
 

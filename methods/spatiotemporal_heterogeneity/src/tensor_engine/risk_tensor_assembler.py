@@ -25,7 +25,7 @@ import numpy as np
 from .grid_system import GridSystem
 from .dynamic_p_crash import DynamicCrashProbability
 from .dynamic_fatality import DynamicFatalityModel
-from .static_obstacle import PropertyDamageModel, StaticBuildingObstacle
+from .static_obstacle import PropertyDamageModel, StaticBuildingObstacle, build_obstacle_tensor
 from .dynamic_noise import DynamicNoiseCost, get_micro_grid_noise_model
 from .wind_environment import get_wind_environment, _compute_svf
 from .rain_environment import get_rain_environment
@@ -209,8 +209,10 @@ def build_risk_tensors(
         config_path: Path to common.yaml. If None, uses project default.
 
     Returns:
-        Dict with keys 'p_crash', 'fatality', 'property', 'noise',
+        Dict with keys 'p_crash', 'fatality', 'property', 'noise', 'obstacle',
         each a numpy array ready for EnvTensor construction.
+        'obstacle' 为 bool (nx, ny, nz) 建筑硬约束（可在配置中关闭），
+        其余为 float 4D 风险张量。
     """
     nx, ny, nz, nt = grid.shape
 
@@ -291,9 +293,27 @@ def build_risk_tensors(
         landuse=landuse, population_density=rho_pop,
     ).astype(np.float32)
 
+    # --- 5. 静态建筑障碍（硬约束）：建筑实体占据的空域格不可进入 ---
+    # 此前该张量未产出，导致搜索实际上没有硬避障（只靠 f_obs 软惩罚）；
+    # 规则与开关见 configs/common.yaml 的 obstacle 节。
+    ob_cfg = cfg.get("obstacle") if isinstance(cfg, dict) else getattr(cfg, "obstacle", None)
+    ob_enabled, ob_clearance = True, 0.0
+    if ob_cfg is not None:
+        if isinstance(ob_cfg, dict):
+            ob_enabled = bool(ob_cfg.get("enabled", True))
+            ob_clearance = float(ob_cfg.get("clearance_m", 0.0))
+        else:
+            ob_enabled = bool(getattr(ob_cfg, "enabled", True))
+            ob_clearance = float(getattr(ob_cfg, "clearance_m", 0.0))
+    obstacle = (
+        build_obstacle_tensor(building, grid, clearance_m=ob_clearance)
+        if ob_enabled else None
+    )
+
     return {
         "p_crash": p_crash,
         "fatality": e_fatality,
         "property": e_property,
         "noise": r_noise,
+        "obstacle": obstacle,
     }

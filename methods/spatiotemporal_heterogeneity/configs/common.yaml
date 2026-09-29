@@ -230,3 +230,15 @@ rain_environment:
         center: null                     # [x, y] 格坐标；null = 区域中心
         radius: 20                       # 热点半径（格）
         falloff: smooth                  # hard | smooth（smooth=高斯衰减）
+
+# --------------------------------------------------------------------------
+# 静态建筑障碍（硬约束）—— 建筑实体占据的空域格不可进入
+# 详见：src/tensor_engine/static_obstacle.py::build_obstacle_tensor
+# 规则：层 k 的空域为 [k·dz, (k+1)·dz)，H > k·dz + clearance_m 即视为被建筑侵入
+# 注：与 f_obs（城市峡谷软成本）机制独立——本项是硬约束，f_obs 是软惩罚，不重复计权
+# --------------------------------------------------------------------------
+obstacle:
+
+    enabled: true                    # 关闭后退化为无硬避障（仅 f_obs 软惩罚）
+
+    clearance_m: 0.0                 # 额外净空（m），>0 时障碍向外扩张

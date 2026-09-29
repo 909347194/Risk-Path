@@ -13,6 +13,38 @@ from typing import Optional, Union
 from pathlib import Path
 
 
+def build_obstacle_tensor(
+    building_heights: np.ndarray,
+    grid,
+    clearance_m: float = 0.0,
+) -> np.ndarray:
+    """构建静态建筑障碍张量（硬约束）：建筑实体占据的空域格不可进入。
+
+    规则：层 k 的空域为 [k·dz, (k+1)·dz)，对应飞行高度 z_heights[k] = (k+1)·dz；
+    建筑高度 H > k·dz + clearance_m 即视为侵入该层空域 → 该格为障碍。
+    建筑静态，故产出 (nx, ny, nz)；EnvTensor 会自动广播到 4D。
+
+    Args:
+        building_heights: (nx, ny) 格内最大建筑高度（m）
+        grid: GridSystem（取 dz、nz 及形状校验）
+        clearance_m: 额外净空（m），>0 时障碍向外扩张
+
+    Returns:
+        bool 数组，形状 (nx, ny, nz)
+    """
+    h = np.asarray(building_heights, dtype=np.float32)
+    if h.ndim != 2:
+        raise ValueError(f"building_heights 应为 2D (nx, ny)，实际形状 {h.shape}")
+
+    nx, ny, nz, _ = grid.shape
+    if h.shape != (nx, ny):
+        raise ValueError(f"building_heights 形状 {h.shape} 与网格 {(nx, ny)} 不符")
+
+    dz = float(grid.spatial.dz)
+    z_lower = np.arange(nz, dtype=np.float32) * dz           # 各层空域下边界
+    return h[:, :, None] > (z_lower[None, None, :] + float(clearance_m))
+
+
 class StaticBuildingObstacle:
     """
     静态建筑障碍物模型 - 用于计算城市峡谷风险指数 R_canyon
