@@ -12,14 +12,17 @@ crash_probability:
     lambda_base: 0.00001 # 基础坠机率 (1e-5)
 
     # 风场影响参数
+    # 平台依据：美团第四代配送无人机（最大抗风=蒲福 6 级，10.8–13.8 m/s）
     wind:
-        V_limit: 12.0 # 抗风极限 (m/s)，蒲福6级
+        V_limit: 13.8 # 抗风极限 (m/s) = 蒲福 6 级上限（美团四代机规格）
         k_w: 3.0 # 风敏感系数
         theta: 2.0 # 风非线性指数
 
     # 降雨影响参数
+    # 平台依据：美团四代机最大可飞降雨=中雨（2.5–10 mm/h），超限即停飞
     rain:
         gamma_rain: 0.005 # 雨敏感系数
+        R_limit: 10.0 # 运行降雨上限 (mm/h)，中雨上限；情景生成/停飞判定用
 
     # 城市峡谷/障碍物影响参数
     urban_canyon:
@@ -91,6 +94,7 @@ property_risk:
 fatal_risk:
     lethal_alpha: 1000000.0 # 致死能量参数 alpha
     lethal_beta: 100.0 # 能量阈值 beta
+    uav_mass: 9.5 # kg，起飞总重（美团四代机 MTOW 9.5kg，载荷 2.5kg）；E_imp=½mv² 直接线性缩放
 
 # --------------------------------------------------------------------------
 # 5. 无人机飞行约束 (物理限制)
@@ -102,6 +106,14 @@ uav_constraints:
     turn_radius: 15.0 # 转弯半径 (m)
     safety_margin: 5.0 # 安全裕度 (m)
     max_altitude: 120.0 # 最大飞行高度 (m)
+    # ── 美团第四代配送无人机平台参数（2026）──
+    max_wind_speed: 13.8 # 蒲福 6 级上限 (m/s)
+    max_rain_mmh: 10.0 # 中雨上限 (mm/h)
+    max_takeoff_weight: 9.5 # 最大起飞重量 (kg)
+    max_payload: 2.5 # 最大载荷 (kg)
+    max_delivery_radius: 5000.0 # 满载最大配送半径 (m)
+    max_delivery_distance: 10000.0 # 满载最大航程 (m)
+    operating_temp: "-20°C ~ 50°C" # 工作温度范围（广州常年满足，仅存档）
     min_altitude: 10.0 # 最小飞行高度 (m)
 
 # --------------------------------------------------------------------------

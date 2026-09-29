@@ -46,6 +46,14 @@ from tensor_engine.wind_environment import get_wind_environment, _compute_svf
 from algorithms.env_tensor import EnvTensor
 
 
+def _req(params: dict, key: str) -> float:
+    """权重必须来自 config.yaml 显式给定；缺键报错，禁止静默落到默认 regime。"""
+    if key not in params:
+        raise KeyError(f"config.yaml params.{key} 缺失——权重类参数必须显式给定，"
+                       "默认值会静默改变 w_risk/w_ops regime，实验不可比")
+    return float(params[key])
+
+
 def main() -> None:
     cfg = load_exp_config(HERE / "config.yaml")
     exp = cfg.get("experiment", {})
@@ -100,10 +108,10 @@ def main() -> None:
 
     planner_cfg = {
         "uav_speed": float(params.get("uav_speed", 10.0)),
-        "w_distance": float(params.get("w_ops", 0.03)),
-        "w_fatality": float(params.get("w_fatal", 6.0)),
-        "w_property": float(params.get("w_prop", 2.4)),
-        "w_noise": float(params.get("w_noise", 1.5)),
+        "w_distance": _req(params, "w_ops"),
+        "w_fatality": _req(params, "w_fatal"),
+        "w_property": _req(params, "w_prop"),
+        "w_noise": _req(params, "w_noise"),
         "survival_threshold": float(params.get("survival_threshold", 0.0)),
         "max_labels_per_cell": 8,
     }
@@ -119,7 +127,7 @@ def main() -> None:
 
     results = []
     print("\n[Planning] same OD, 4 departure times (cruise alt "
-          f"{alt:.0f} m, w_risk/w_ops={params.get('w_fatal',6.0)/params.get('w_ops',0.03):.0f})")
+          f"{alt:.0f} m, w_risk/w_ops={planner_cfg['w_fatality']/planner_cfg['w_distance']:.0f})")
     for h in hours:
         t_idx = grid.get_time_index(h)
         res = plan_one(grid, env, planner_cfg, od, t_idx)

@@ -33,6 +33,13 @@ from tensor_engine.risk_tensor_assembler import build_risk_tensors
 from algorithms.env_tensor import EnvTensor
 
 
+def _req(params: dict, key: str) -> float:
+    """权重必须来自 config.yaml 显式给定；缺键报错，禁止静默落到默认 regime。"""
+    if key not in params:
+        raise KeyError(f"config.yaml params.{key} 缺失——权重类参数必须显式给定")
+    return float(params[key])
+
+
 def main() -> None:
     cfg = load_exp_config()
     exp = cfg.get("experiment", {})
@@ -71,10 +78,10 @@ def main() -> None:
     hours = params["departure_hours"]
     planner_cfg = {
         "uav_speed": float(params.get("uav_speed", 10.0)),
-        "w_distance": float(params.get("w_ops", 0.03)),
-        "w_fatality": float(params.get("w_fatal", 6.0)),
-        "w_property": float(params.get("w_prop", 2.4)),
-        "w_noise": float(params.get("w_noise", 1.5)),
+        "w_distance": _req(params, "w_ops"),
+        "w_fatality": _req(params, "w_fatal"),
+        "w_property": _req(params, "w_prop"),
+        "w_noise": _req(params, "w_noise"),
     }
     env = EnvTensor(
         p_crash=risk["p_crash"], fatality=risk["fatality"],
