@@ -16,9 +16,10 @@ def plot_fig1(grid, p_crash, results, hours, z_layer, od, out_path):
 
     fig, axes = plt.subplots(2, 2, figsize=(13.5, 11.5), layout="constrained")
     fig.suptitle(
-        "Figure 1 — Spatiotemporal risk field $P_{crash}(x,y,z,t)$ and optimal path\n"
-        f"same OD ({od[0]},{od[1]}) -> ({od[3]},{od[4]}) at z≈{(z_layer+1)*grid.spatial.dz:.0f} m; "
-        "different departure time -> different risk landscape -> different path",
+        "Figure 1 — Spatiotemporal risk field $P_{crash}(x,y,z,t)$ and planned path\n"
+        f"same OD ({od[0]},{od[1]}) -> ({od[3]},{od[4]}); "
+        f"risk slice at z≈{(z_layer+1)*grid.spatial.dz:.0f} m (paths are 3D, altitude unlocked), "
+        "colored panels = departure time",
         fontsize=13,
     )
     im = None

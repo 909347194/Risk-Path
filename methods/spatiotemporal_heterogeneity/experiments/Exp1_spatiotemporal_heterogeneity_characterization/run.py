@@ -100,7 +100,7 @@ def main() -> None:
         svf=_compute_svf(pr.building_heights),
     )
 
-    # 5) 路径规划：同一 OD、四个出发时刻（60 m 定高巡航）
+    # 5) 路径规划：同一 OD、多个出发时刻（默认高度自由；可选 60 m 定高锁）
     od = params["od"]
     hours = params["departure_hours"]
     z_layer = params.get("z_layer", 5)
@@ -126,8 +126,11 @@ def main() -> None:
     )
 
     results = []
-    print("\n[Planning] same OD, 4 departure times (cruise alt "
-          f"{alt:.0f} m, w_risk/w_ops={planner_cfg['w_fatality']/planner_cfg['w_distance']:.0f})")
+    lock_on = bool(params.get("cruise_altitude_lock", False))
+    alt_txt = (f"cruise alt {alt:.0f} m (locked)" if lock_on
+               else f"altitude unlocked ({grid.spatial.nz} layers, endpoints z={alt:.0f} m)")
+    print(f"\n[Planning] OD {od} | {len(hours)} departure times | {alt_txt} | "
+          f"w_risk/w_ops={planner_cfg['w_fatality']/planner_cfg['w_distance']:.0f}")
     for h in hours:
         t_idx = grid.get_time_index(h)
         res = plan_one(grid, env, planner_cfg, od, t_idx)
@@ -149,7 +152,7 @@ def main() -> None:
     rows = metrics_rows(hours, results)
     write_csv(out_dir / "metrics.csv", rows)
 
-    # 8) 路径差异量化（两两对比，证明「路径确实随出发时刻改变」）
+    # 8) 路径差异量化（两两对比，量化「路径随出发时刻变化」的强弱）
     diff_rows = path_difference_rows(hours, results, grid, rows)
     if diff_rows:
         write_csv(out_dir / "path_difference.csv", diff_rows)
@@ -164,7 +167,7 @@ def main() -> None:
     print(f"  temporal CV (median over cells): {het['temporal_cv_median']}")
     print(f"  temporal relative range (median): {het['temporal_relative_range_median']}")
 
-    # 9b) 权重敏感性扫描（证明「路径随出发时刻变化」不是挑参数挑出来的）
+    # 9b) 权重敏感性扫描（检验「路径随时刻变化」对权重选择的稳健性）
     sens = (params.get("sensitivity") or {})
     if sens.get("enabled", False):
         wf_list = sens.get("w_fatal_values") or [params.get("w_fatal", 30.0)]

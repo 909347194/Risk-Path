@@ -14,10 +14,9 @@ experiment:
     name: exp1_spatiotemporal_heterogeneity_characterization
     description: >-
         时空异质性表征（机制实验，真实数据）。基于真实城市数据（建筑高度、用地、
-        POI、人口潮汐）与情景化低空风场构建四维风险张量 Cost(x,y,z,t)，在
-        08:00 / 12:00 / 18:00 / 22:00 四个出发时刻可视化风险场，并对同一 OD
-        运行 TD-RiskA*（60 m 定高巡航），证明「出发时刻不同 → 风险场不同 →
-        最优路径不同」。
+        POI、人口潮汐）与情景化低空风场构建四维风险张量 Cost(x,y,z,t)，在多个
+        出发时刻可视化风险场，并对同一 OD 运行 TD-RiskA*（高度自由，起降层
+        60 m），检验「出发时刻 → 风险场 → 最优路径」的传导关系并量化其强弱。
     owner: ""
     created: "2026-09-27"
     seed: 42

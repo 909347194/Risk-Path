@@ -56,7 +56,7 @@ def plot_fig3(grid, results, hours, building, od, out_path):
     ax2.set_ylim(0, max(P) * 1.25 if P else 1)
     ax2.bar_label(bars2, fmt="%.4f", fontsize=8)
 
-    fig.suptitle("Figure 3 — Planned paths for the same OD at four departure times",
+    fig.suptitle(f"Figure 3 — Planned paths for the same OD at {len(hours)} departure times",
                  fontsize=13)
     fig.savefig(out_path, dpi=140)
     plt.close(fig)
