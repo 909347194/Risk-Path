@@ -50,6 +50,7 @@ def run_sensitivity(grid, env, base_cfg, od, hours, w_fatal_values):
         (3) 全绕行 regime：所有时刻都绕开核心，极差又变小
     """
     rows = []
+    n_full = 0  # 全部时刻成功的 w 点数（可计算可比极差的行数）
     for wf in w_fatal_values:
         cfg_i = dict(base_cfg)
         cfg_i["w_fatality"] = float(wf)
@@ -59,15 +60,32 @@ def run_sensitivity(grid, env, base_cfg, od, hours, w_fatal_values):
         for h in hours:
             t_idx = grid.get_time_index(h)
             res = plan_one(grid, env, cfg_i, od, t_idx)
-            lengths[h] = (round(float(res["total_distance"]), 1)
-                          if res.get("status") == "success" else float("nan"))
-        vals = list(lengths.values())
-        row = {"w_fatal": wf, "ratio": round(wf / base_cfg["w_distance"], 1)}
+            if res.get("status") == "success":
+                lengths[h] = round(float(res["total_distance"]), 1)
+            else:
+                lengths[h] = None
+                print(f"    [warn] w_fatal={wf} h={h:02d}:00 FAILED "
+                      f"({res.get('reason', 'unknown')})")
+        vals = [v for v in lengths.values() if v is not None]
+        # 极差只在「全部时刻都成功」时才具备跨时刻可比性；部分失败时宁可标
+        # N/A，禁止静默用 NaN 参与统计（历史上全 NaN 行曾无声流入 fig4）。
+        if len(vals) == len(hours) and len(vals) > 1:
+            spread_m = round(max(vals) - min(vals), 1)
+            spread_pct = round(100.0 * (max(vals) - min(vals)) / min(vals), 2)
+            n_full += 1
+        else:
+            spread_m, spread_pct = "N/A", "N/A"
+        row = {"w_fatal": wf, "ratio": round(wf / base_cfg["w_distance"], 1),
+               "n_success": f"{len(vals)}/{len(hours)}"}
         for h in hours:
-            row[f"L_{h:02d}h"] = lengths[h]
-        row["spread_m"] = round(max(vals) - min(vals), 1)
-        row["spread_pct"] = round(100.0 * (max(vals) - min(vals)) / min(vals), 2)
+            row[f"L_{h:02d}h"] = lengths[h] if lengths[h] is not None else "failed"
+        row["spread_m"] = spread_m
+        row["spread_pct"] = spread_pct
         rows.append(row)
         print(f"    w_fatal={wf:5.1f} ratio={row['ratio']:6.1f} -> "
-              f"spread={row['spread_m']:7.1f} m ({row['spread_pct']:5.2f}%)  L={lengths}")
+              f"spread={str(spread_m):>7s} m ({str(spread_pct):>5s}%)  "
+              f"ok={row['n_success']}  L={lengths}")
+    if n_full == 0:
+        print("    [error] 敏感性扫描没有任何 w 点在全部出发时刻规划成功，"
+              "极差列将全部为 N/A——请先确认 planner regime（OD/高度锁）可用。")
     return rows

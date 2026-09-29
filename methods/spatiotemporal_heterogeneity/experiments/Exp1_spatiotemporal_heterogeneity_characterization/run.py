@@ -38,7 +38,7 @@ from exp_data import load_experiment_data
 from exp_planning import plan_one, run_sensitivity
 from exp_metrics import (metrics_rows, path_difference_rows,
                          heterogeneity_stats, heterogeneity_rows, write_csv)
-from plot import plot_fig1, plot_fig2, plot_fig3, plot_fig4, plot_fig5
+from plot import plot_fig1, plot_fig2, plot_fig3, plot_fig3b, plot_fig4, plot_fig5
 
 from tensor_engine.grid_system import get_macro_grid, get_micro_grid
 from tensor_engine.risk_tensor_assembler import build_risk_tensors
@@ -76,7 +76,7 @@ def main() -> None:
 
     # 3) 组装四维风险张量（情景化风场，继承 common.yaml wind_environment）
     #    把「实验配置 + 公共配置」合并后落盘，保证 build_risk_tensors 拿到完整参数。
-    resolved = load_exp_config(HERE / "config.yaml")
+    resolved = cfg  # load_exp_config 的返回值本身就是 extends 合并后的完整配置
     out_dir = RESULT_DIR
     out_dir.mkdir(exist_ok=True)
     resolved_path = out_dir / "_resolved_config.yaml"
@@ -104,6 +104,12 @@ def main() -> None:
     od = params["od"]
     hours = params["departure_hours"]
     z_layer = params.get("z_layer", 5)
+    # cruise_altitude_lock 必须显式写在 config.yaml —— 锁定/解锁两种 regime
+    # 的可行性与耗时差异巨大（README §3.1），静默默认值会掩盖 regime 漂移。
+    if "cruise_altitude_lock" not in params:
+        raise KeyError("config.yaml params.cruise_altitude_lock 缺失——"
+                       "定高锁/解锁两种 regime 的实验语义不同，必须显式声明")
+    lock_on = bool(params["cruise_altitude_lock"])
     alt = (z_layer + 1.0) * grid.spatial.dz          # 层中心物理高度
 
     planner_cfg = {
@@ -115,7 +121,7 @@ def main() -> None:
         "survival_threshold": float(params.get("survival_threshold", 0.0)),
         "max_labels_per_cell": 8,
     }
-    if params.get("cruise_altitude_lock", True):
+    if lock_on:
         # 只允许层中心落在 [alt - 0.5·dz, alt + 0.5·dz) 的层 → 锁定 60 m 巡航层
         planner_cfg["min_altitude"] = alt - 0.5 * grid.spatial.dz
         planner_cfg["max_altitude"] = alt + 0.5 * grid.spatial.dz
@@ -127,7 +133,6 @@ def main() -> None:
     )
 
     results = []
-    lock_on = bool(params.get("cruise_altitude_lock", False))
     alt_txt = (f"cruise alt {alt:.0f} m (locked)" if lock_on
                else f"altitude unlocked ({grid.spatial.nz} layers, endpoints z={alt:.0f} m)")
     print(f"\n[Planning] OD {od} | {len(hours)} departure times | {alt_txt} | "
@@ -148,9 +153,13 @@ def main() -> None:
     plot_fig2(grid, wind_4d, pr.rho_population, hours, z_layer, out_dir / "fig2_drivers.png")
     plot_fig3(grid, results, hours, pr.building_heights, od, out_dir / "fig3_path_comparison.png")
     fig5_rows = plot_fig5(grid, risk["p_crash"], od, results, hours, z_layer,
-                          out_dir / "fig5_heterogeneity_proof.png")
+              out_dir / "fig5_heterogeneity_proof.png")
+    # 3b) 三维路径可视化（高度变化的真实证据，直接消费本次规划 results）
+    plot_fig3b(results, hours, od, pr.building_heights, grid,
+               out_dir / "fig3b_path_3d.png",
+               stats_path=out_dir / "paths_3d_stats.csv")
     print(f"\n[Figures] {out_dir}/fig1_risk_field.png, fig2_drivers.png, "
-          "fig3_path_comparison.png, fig5_heterogeneity_proof.png")
+          "fig3_path_comparison.png, fig3b_path_3d.png, fig5_heterogeneity_proof.png")
 
     # 7) 指标导出
     rows = metrics_rows(hours, results)

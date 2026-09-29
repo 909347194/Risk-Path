@@ -3,8 +3,9 @@
 > 实验类型：机制验证（论文证据链第 1 环：_风险场是否明显随空间和时间变化？_）
 > 入口：`python3 run.py`（含权重敏感性扫描）
 > 产物：`results/fig1_risk_field.png`、`fig2_drivers.png`、`fig3_path_comparison.png`、
-> `fig4_weight_sensitivity.png`、`fig5_heterogeneity_proof.png`、`metrics.csv`、
-> `path_difference.csv`、`heterogeneity.csv`、`sensitivity.csv`
+> `fig3b_path_3d.png`（三维路径）、`fig4_weight_sensitivity.png`、`fig5_heterogeneity_proof.png`、
+> `metrics.csv`、`path_difference.csv`、`heterogeneity.csv`、`sensitivity.csv`、
+> `paths_3d_stats.csv`（路径高度维统计，由 fig3b 生成）
 
 ## 1. 目的 (Purpose)
 
@@ -31,7 +32,7 @@ Spatiotemporal）的对比才有立足点。
    `F_z(z)`、城市形态遮蔽 `F_urban(x,y)`）；降雨情景由 `rain_environment` 生成；
 2. **高度自由巡航**（`cruise_altitude_lock: false`）：搜索在 z=1–12 全层展开，
    `z_layer=5`（60 m）仅作为图表切片参考层；
-3. **OD = (5,70) → (95,5)**（`a474b26` 重选的双核走廊）：起点 (5,70) 位于研究区
+3. **OD = (8,61) → (95,5)**（当前 config；(5,70) 起点在 60 m 层被判为障碍，南移 9 格到 (8,61)）：起点 (5,70) 位于研究区
    西北、终点 (95,5) 东南，直线穿越人口双核心之间，两端均有可选替代走廊，
    为「出发时刻→路径分化」提供决策空间；
 4. 在 **08:00 / 12:00 / 18:00 / 22:00** 各跑一次 `TD-RiskA*`（在线采样
@@ -48,7 +49,13 @@ Spatiotemporal）的对比才有立足点。
 配置：`config.yaml` 只放实验专属参数（数据源、OD、出发时刻、权重、定高开关、
 敏感性扫描），公共参数通过 `extends: ../../configs/common.yaml` 继承。
 
-## 3. 结果 (Results, 2026-09-28)
+## 3. 结果 (Results, 历史配置，2026-09-28)
+
+> ⚠ **配置对齐声明**：本节（含 §3.1）数值来自**历史配置**，与当前 `config.yaml` 不一致：
+> - 主表：OD `(3,93)→(85,10)` + `cruise_altitude_lock: true`（60 m 定高）；
+> - §3.1：`(5,70)→(95,5)` + `cruise_altitude_lock: false`（解锁，四路全 `open_set_exhausted`）；
+> - **当前 config**：OD `(8,61)→(95,5)` + `cruise_altitude_lock: false`，**尚未端到端重跑**。
+> 引用路径长度 / 存活率 / 极差数字时务必注明对应配置；当前 config 的有效路径证据见 §3.1 待办。
 
 > ⚠ 数值来源：本次运行产物 `results/metrics.csv`、`path_difference.csv`、
 > `heterogeneity.csv`、`sensitivity.csv`。
@@ -91,6 +98,10 @@ Spatiotemporal）的对比才有立足点。
   Exp2 已用 (b) 完成三方法对比（见 exp2 README），路径级证据链第 2 环已闭环；
   Exp1 的「出发时刻→路径分化」演示可同样用 (b) 或放宽迭代上限后重建。
 
+> **待办（H1）**：用当前 config（OD `(8,61)→(95,5)` + `cruise_altitude_lock: false`）端到端重跑
+> `run.py`，重建路径证据并刷新本节数字。解锁 regime 需先将 `max_iterations` 提至 ~5e6
+> （接受单次 ~10 min 搜索）或回退 `cruise_altitude_lock: true`（单次 ~7 s）后再解读 fig3/fig3b。
+
 ## 4. 权重标定与敏感性 (Weight Calibration & Sensitivity)
 
 归一化单步成本中距离增量 `d/d_max ≈ 1`，而风险增量 `p_crash·(C/Ω) ≈ O(10⁻³)`，
@@ -124,3 +135,6 @@ Spatiotemporal）的对比才有立足点。
   (22,52) 51 时相、(72,18) 39 时相；
 - Figure 5 提供「演化」观感的连续证据：走廊风险热图覆盖全部 96 时相（非只 4 个快照），
   双核昼夜相位交替与 ΔP_crash 空间重分布共同支撑「时空异质性真实存在」；
+- **指标口径注记（M4）**：`heterogeneity.csv` 中的 `temporal_cv_median` / `temporal_relative_range_median`
+  仅基于 **4 个出发时刻（08/12/18/22 时）** 的切片计算（非全 96 时相），命名易误读为全时相指标；
+  全时相连续证据以 Figure 5 为准。
