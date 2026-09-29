@@ -273,9 +273,11 @@ class AStar4D:
         if self.env_tensor.risk_at(start_x, start_y, start_z, start_t)["obstacle"]:
             return self._failed(start_time, 0, "start_in_obstacle")
 
+        start_label = {"t": float(start_t), "H": 0.0, "J": 0.0}
+        start_node.label = start_label          # 供惰性删除按引用核对
         open_set: List[SearchNode] = [start_node]
         visited_labels: Dict[Coord3D, List[Dict[str, float]]] = {
-            start_node.pos_3d: [{"t": float(start_t), "H": 0.0, "J": 0.0}]
+            start_node.pos_3d: [start_label]
         }
 
         # 收集所有到达目标的非支配标签
@@ -284,13 +286,26 @@ class AStar4D:
 
         iterations = 0
         total_labels = 1
+        hit_max_iter = False      # 区分「迭代上限截断」与「open set 耗尽」两种失败
+        stale_pops = 0            # 被惰性删除跳过的过期出堆次数（衡量收益）
 
         while open_set:
             iterations += 1
             if iterations > self.max_iterations:
+                hit_max_iter = True
                 break
 
             current = heapq.heappop(open_set)
+
+            # 惰性删除（lazy deletion）：出堆时若该节点的标签已被更优标签移除
+            #（被支配淘汰或被 max_labels_per_cell 挤出），则不再展开——
+            # 消除同一位置的重复扩展，迭代量可降一两个数量级。
+            cur_label = getattr(current, "label", None)
+            if cur_label is not None and not any(
+                lbl is cur_label for lbl in visited_labels.get(current.pos_3d, ())
+            ):
+                stale_pops += 1
+                continue
 
             # 剪枝：f > 已知最优目标 J 时，J 不可能更优
             # 注意：这会遗漏 J 较大但 t/H 更优的 Pareto 解。
@@ -359,6 +374,7 @@ class AStar4D:
                 visited_labels[pos] = survivors
                 total_labels += 1
 
+                neighbor.label = new_label      # 供惰性删除按引用核对
                 neighbor.f = neighbor.g + self._heuristic(neighbor.pos_3d, goal_coords)
                 heapq.heappush(open_set, neighbor)
 
@@ -380,9 +396,16 @@ class AStar4D:
                 for n in sorted(goal_nodes, key=lambda n: n.g)
             ]
             result["num_goal_labels"] = len(goal_nodes)
+            result["stale_pops"] = stale_pops
+            result["iterations"] = iterations
             return result
 
-        return self._failed(start_time, total_labels, "open_set_exhausted")
+        if hit_max_iter:
+            # 迭代上限被截断 ≠ 无解：前者是「没搜完」，后者才是「确实到不了」
+            return self._failed(start_time, total_labels, "max_iterations_exceeded",
+                                iterations=iterations)
+        return self._failed(start_time, total_labels, "open_set_exhausted",
+                            iterations=iterations)
 
     def _validate_start_goal(self, start: Coord4D, goal: Coord3D) -> None:
         sx, sy, sz, st = start
@@ -416,13 +439,17 @@ class AStar4D:
         }
 
     @staticmethod
-    def _failed(start_time: float, nodes_explored: int, reason: str) -> Dict[str, Any]:
-        return {
+    def _failed(start_time: float, nodes_explored: int, reason: str,
+                iterations: Optional[int] = None) -> Dict[str, Any]:
+        result = {
             "status": "failed",
             "reason": reason,
             "time_cost": time.time() - start_time,
             "nodes_explored": nodes_explored,
         }
+        if iterations is not None:
+            result["iterations"] = iterations
+        return result
 
 
 def run_example() -> Dict[str, Any]:
