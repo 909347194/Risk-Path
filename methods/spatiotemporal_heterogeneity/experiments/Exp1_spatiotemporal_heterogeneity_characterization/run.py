@@ -120,6 +120,9 @@ def main() -> None:
         "w_noise": _req(params, "w_noise"),
         "survival_threshold": float(params.get("survival_threshold", 0.0)),
         "max_labels_per_cell": 8,
+        # 迭代上限安全阀：解锁 regime 单次实测 ~6.5e5 次迭代（2026-10-09 冒烟），
+        # 给足余量；触顶会显式报 max_iterations_exceeded（≠ open_set_exhausted 无解）
+        "max_iterations": int(params.get("max_iterations", 3_000_000)),
     }
     if lock_on:
         # 只允许层中心落在 [alt - 0.5·dz, alt + 0.5·dz) 的层 → 锁定 60 m 巡航层
@@ -177,8 +180,13 @@ def main() -> None:
     print(f"[Metrics] {out_dir}/metrics.csv, path_difference.csv, heterogeneity.csv")
     print("\n[Heterogeneity]")
     print(f"  spatial CV of P_crash per hour: {het['spatial_cv_per_hour']}")
-    print(f"  temporal CV (median over cells): {het['temporal_cv_median']}")
-    print(f"  temporal relative range (median): {het['temporal_relative_range_median']}")
+    print(f"  temporal CV (median over cells, all {het['temporal_n_slices_all']} slices): "
+          f"{het['temporal_cv_median_all_slices']}")
+    print(f"  temporal relative range (median, all slices): "
+          f"{het['temporal_relative_range_median_all_slices']}")
+    print(f"  at-departure-slice variants (n={het['temporal_n_slices_at_departures']}): "
+          f"cv={het['temporal_cv_median_at_departures']}, "
+          f"range={het['temporal_relative_range_median_at_departures']}")
 
     # 9b) 权重敏感性扫描（检验「路径随时刻变化」对权重选择的稳健性）
     sens = (params.get("sensitivity") or {})
@@ -190,16 +198,27 @@ def main() -> None:
         plot_fig4(sens_rows, hours, out_dir / "fig4_weight_sensitivity.png")
         print(f"[Sensitivity] {out_dir}/sensitivity.csv, fig4_weight_sensitivity.png")
 
-    # 10) 结论
+    # 10) 结论（判定口径与 README §3 一致：几何偏离 > 1 个格对角线才算「走廊分化」；
+    #     绝对 1 m 阈值对 6 km 级路径无意义，历史上曾把 1.24% 的弱响应误报成 DIFFER）
     lengths = [r["path_length_m"] for r in rows if r.get("status") == "success"]
     if len(lengths) > 1:
         spread = max(lengths) - min(lengths)
-        max_dev = max((d["mean_deviation_m"] for d in diff_rows), default=0.0)
-        print(f"\n[Conclusion] path length spread = {spread:.1f} m "
-              f"({100*spread/min(lengths):.1f}% relative); "
-              f"max mean deviation between paths = {max_dev:.1f} m -> "
-              + ("paths DIFFER by departure time (spatiotemporal heterogeneity matters)."
-                 if spread > 1.0 else "paths nearly identical (weak response)."))
+        spread_pct = 100.0 * spread / min(lengths)
+        devs = [d["mean_deviation_m"] for d in diff_rows]
+        devs = [v for v in devs if v == v]          # 过滤 NaN（空路径对）
+        max_dev = max(devs, default=float("nan"))
+        cell_diag = float(np.hypot(grid.spatial.dx, grid.spatial.dy))
+        if devs and max_dev > cell_diag:
+            verdict = ("paths DIFFER by departure time: max mean deviation "
+                       f"{max_dev:.1f} m exceeds one cell diagonal ({cell_diag:.0f} m).")
+        elif spread_pct > 2.0:
+            verdict = ("same corridor, but path length responds to departure time "
+                       f"({spread_pct:.2f}% > 2%).")
+        else:
+            verdict = "paths nearly identical (weak response to departure time)."
+        print(f"\n[Conclusion] path length spread = {spread:.1f} m ({spread_pct:.2f}%); "
+              f"max mean deviation = {max_dev:.1f} m "
+              f"(cell diagonal {cell_diag:.0f} m) -> " + verdict)
 
 
 if __name__ == "__main__":
