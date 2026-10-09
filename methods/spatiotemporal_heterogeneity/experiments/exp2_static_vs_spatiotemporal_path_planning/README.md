@@ -110,13 +110,17 @@ Distance-only 提供完整 baseline chain（无风险项 → 静态风险项 →
 （CSV 附加诊断列：`hazard_H`、`travel_time_s`、`status`、`reason`；失败行指标留空。）
 
 **Figure 2（`fig1_paths.png`）**：一个代表性 OD 叠加风险场，2×2 四个出发时刻
-面板 × 三种方法路径，每个面板标注 $D(P_{static},P_{ST})$ 与 path-change rate——
-让 reviewer 一眼看到 *same OD + different departure time + different risk model
-→ different route decisions*。
+面板 × 三种方法路径（白描边保证热力图背景上可辨），每个面板标注
+$D(P_{static},P_{ST})$ 与 path-change rate，ST 偏离 static 走廊的区段用高亮点
+标出；共享色条 + 全局单图例——让 reviewer 一眼看到 *same OD + different
+departure time + different risk model → different route decisions*。
 
-**辅助图表**：`fig2_method_bars.png`（六指标分组柱状）、`fig3_adaptation.png`
-（存活率/风险随出发时刻的适应性曲线）、`summary.csv`（跨时刻均值 + 相对 Static
-的风险/长度对比列）、`regret.csv`（逐时刻安全后悔值）。
+**辅助图表**：`fig2_method_bars.png`（六指标分组柱状，柱顶标数值、含量纲注记），
+`fig3_adaptation.png`（(a)(b) 存活率/危险率随出发时刻——x 轴按真实时间间距并
+标注 4h/6h/4h；(c) L–H trade-off 散点，Static→ST 箭头即主结论图证），
+`summary.csv`（跨时刻均值 + 相对 Static 的风险/长度对比列）、`regret.csv`
+（逐时刻安全后悔值）。绘图样式统一由 `plot/style.py` 管理（配色/线型/标记，
+线型双重编码保证黑白打印可辨）。
 
 ## 6. 结果 (Results)
 
