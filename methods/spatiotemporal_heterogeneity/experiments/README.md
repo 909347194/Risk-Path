@@ -24,6 +24,7 @@ experiments/
 │   ├── run.py + exp_*.py + plot/ + config.yaml + README.md
 │   └── results/              ← 运行产物（本地产物，已 gitignore，不入库）
 ├── viz_data/                 ← 数据可视化脚本集（landuse/POI/人口/建筑/landcover 预览图）
+│                               · viz_noise.py — 噪声成本「空间×时间」异质性可视化（昼/夜空间图＋全天均值＋用地×小时 S-T 热力图；--save 落盘）
 └── <新实验目录>/
 ```
 
