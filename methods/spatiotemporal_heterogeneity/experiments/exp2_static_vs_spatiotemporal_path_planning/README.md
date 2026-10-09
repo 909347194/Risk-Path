@@ -1,9 +1,10 @@
 # Exp 2 — Static Risk vs Spatiotemporal Risk（核心实验）
 
 > 实验类型：**论文核心对比**（直接回答"为什么不用时间平均的静态风险图？"）
-> 入口：`python3 run.py`（12 次 A* 搜索 + 统一后评估，约 3 min）
-> 产物：`results/fig1_paths.png`、`fig2_method_bars.png`、`fig3_adaptation.png`、
-> `comparison.csv`、`summary.csv`、`regret.csv`
+> 入口：`python3 run.py`（12 次 A* 搜索 + 统一后评估，定高锁单次 ~7 s）
+> 产物：`results/fig1_paths.png`（→论文 Figure 2）、`fig2_method_bars.png`、
+> `fig3_adaptation.png`、`table1_main_results.csv`（→论文 Table 1，主结果）、
+> `summary.csv`、`path_difference.csv`、`regret.csv`
 > （`results/` 按仓库约定不入库）
 
 ## 1. 目的 (Purpose)
@@ -13,97 +14,144 @@
 
 > **"Why can't I just use an average/static risk map?"**
 
-本实验正面回答：三种规划目标在同一 OD、同一权重口径下对比，
-证明时间平均风险图会在特定出发时刻付出**显著的安全代价**，
-而时空感知规划随出发时刻自适应调整路径。
+本实验正面回答：**三组公平对照**在同一 OD、同一权重口径下对比，证明时间平均
+风险图会在特定出发时刻付出**显著的安全代价**，而时空感知规划随出发时刻自适应
+调整路径。
 
-## 2. 三种方法 (Methods)
+**为什么一定要有 Distance-only（M1）**：否则 reviewer 会问"Static Risk 和
+Spatiotemporal Risk 都绕风险区域，到底是不是风险建模在起作用？"——
+Distance-only 提供完整 baseline chain（无风险项 → 静态风险项 → 时空风险项）。
 
-固定同一 OD、同一权重，仅「风险项的时间口径」不同：
+## 2. 三组公平对照 (Methods)
 
-| 方法 | 目标函数 | 说明 |
-|---|---|---|
-| **Baseline 1** Distance-only A* | $J = \sum_k d_k$ | 只考虑距离（风险权重全 0） |
-| **Baseline 2** Static-Risk A* | $J = \sum_k \bar C(x_k,y_k,z_k) + w_d d_k$，$\bar C = \frac{1}{T}\sum_t C(x,y,z,t)$ | 一天风险的时间平均图 |
-| **Proposed** Spatiotemporal A* | $J = \sum_k C(x_k,y_k,z_k,t_k) + w_d d_k$ | 风险逐时相在线采样（本文方法） |
+固定同一 OD、同一 A*、同一权重，**仅「风险项的时间口径」不同**：
+
+| 编号 | 方法 | 目标函数 | 说明 |
+|---|---|---|---|
+| **M1** | Distance-only A* | $J = L$ | 只考虑距离（风险权重全 0），最基础 baseline |
+| **M2** | Static Risk A* | $J = L + \lambda\, \bar C(x,y,z)$，$\bar C = \frac{1}{T}\sum_t C(x,y,z,t)$ | 时间平均风险图（审稿人建议的替代方案） |
+| **M3** | Spatiotemporal Risk A* | $J = L + \lambda\, C(x,y,z,t)$ | 风险逐时相在线采样（**本文方法**） |
+
+**实现口径**：
+
+- 目标函数的归一化实现与论文公式对应（`astar_4d._expand_node`，论文 §3.4 Eq.10）：
+  $\delta J = w_f \delta C_f/\Omega_f + w_p \delta C_p/\Omega_p + w_n \delta C_n/\Omega_n + w_d\, d/d_{max}$；
+  $\lambda \equiv w_{risk}/w_{ops} = 1000$（与 Exp1 主设定一致）。$J$ 乘任意正常数
+  不改变 argmin，故 M2/M3 共用同一组权重，仅风险时间口径不同；M1 即 $w_d=1$、
+  风险权重全 0。
+- **M2 静态场按「成本级时间平均」构建**（`build_static_env`）：保证静态模型的
+  单步期望后果成本恰为真实单步成本的时间平均（$\bar C = \frac{1}{T}\sum_t C$），
+  不留 $E[p]\cdot E[f] \neq E[p\cdot f]$ 的口径偏差；
+- 建筑硬约束是静态的，三种方法共用同一套 obstacle（否则可行性不对称）。
 
 **统一后评估（公平性关键）**：无论用什么目标规划出的路径，都放回
 **真实时空风险场**上按 `astar_4d._expand_node` 的同一口径重算全部指标
-（hazard 累加 $H=-\sum\ln(1-p)$、$P_{surv}=e^{-H}$、后果项、飞行时间）。
-→ 三种方法的 Distance / Risk / Survival / Time 四列完全可比。
+（hazard 累加 $H=-\sum\ln(1-p)$、$P_{surv}=e^{-H}$、后果项、飞行时间、计算时间）。
+→ 三种方法的 Length / Risk / Survival / Runtime 列完全可比。
 
 ## 3. 数据与方法 (Data & Method)
 
 - **真实数据**（`data/02_processed` 只读加载，与 Exp1 完全同源），
   宏观网格 100×100×12，96 时相 × 15 min；
-- 风险张量由 `build_risk_tensors` 组装（情景风 + 情景雨 + 人口潮汐 + 建筑峡谷）；
-- **OD = (5,70) → (95,5)**（与 Exp1 当前配置一致的双核走廊），**60 m 定高巡航**；
-- 出发时刻 **08:00 / 12:00 / 18:00 / 22:00**，3 方法 × 4 时刻 = 12 次搜索；
-- 权重与 Exp1 主设定一致（w_risk/w_ops = 1000）。
+- 风险张量由 `build_risk_tensors` 组装（情景风 + 人口潮汐 + 建筑峡谷；
+  降雨与 Exp1 口径一致关闭，保证两实验建立在同一个风险场上）；
+- **OD = (8,61) → (95,5)**（与 Exp1 当前配置一致的双核走廊），**60 m 定高巡航**；
+  > 旧起点 (5,70) 处建筑高 57.6 m，在 60 m 层（障碍下界 50 m）被判为障碍
+  > （建筑硬约束张量接入后 planner 报 `start_in_obstacle`），已与 Exp1 同步
+  > 南移 9 格到 (8,61)（建筑 18.9 m，畅通）。
+- 出发时刻 **08:00 / 12:00 / 18:00 / 22:00**，3 方法 × 4 时刻 = **12 次搜索**；
+- 控制变量：同一 OD、同一出发时刻集、同一权重、同一后评估口径——
+  唯一自变量是「风险项的时间口径」与「出发时刻」。
 
-> 定高锁的必要性：自由高度（`cruise_altitude_lock: false`）在本网格上会打满
-> A* 的 `max_iterations=1e6`（标签空间 100×100×12×8），Exp1 实测 4 个时刻全部
-> `open_set_exhausted`（该 reason 也覆盖迭代上限）。定高锁既保证搜索可控
-> （单次 ~7 s），也排除高度自由度对三种方法的不对称影响。
+> 定高锁的必要性：本实验聚焦「时间」维度对比，定高锁排除高度自由度对三种方法
+> 的不对称影响；且解锁定高单次搜索 ~2.5 min（Exp1 冒烟实测），定高单次 ~7 s，
+> 12 次搜索可控。
 
-## 4. 结果 (Results, 2026-09-29)
+## 4. 指标与判读原则 (Metrics & How to Read)
 
-> 数值来源：`results/comparison.csv`、`summary.csv`、`regret.csv`（真实时空场统一后评估）。
+**指标（全部统一后评估）**：
 
-**逐出发时刻**（Distance / Risk(H) / Survival / Time=飞行时间）：
+| 指标 | 含义 | 列名 |
+|---|---|---|
+| $L$ | 路径长度 | `length_m` |
+| $R_{fatal}$ | 致死风险（期望致死后果累计） | `fatal_risk` |
+| $R_{property}$ | 财产风险 | `property_risk` |
+| $R_{noise}$ | 噪声风险 | `noise_risk` |
+| $P_{survival}$ | 生存概率 | `survival` |
+| $T_{compute}$ | 计算时间（规划耗时） | `runtime_s` |
+| $H$ | 累计危险率 $-\sum\ln(1-p)$（结论判定用复合风险量） | `hazard_H` |
+| $D(P_{static}, P_{ST})$ | 两路径平均几何偏离（双向最近点均值） | `path_difference.csv` |
+| path-change rate | 到对方路径最近点 > 1 格对角线的采样点占比（双向平均；0=同一走廊） | `path_difference.csv` |
 
-| 时刻 | 方法 | Distance (m) | Risk (H) | Survival | Time (s) |
-|---|---|---|---|---|---|
-| 08:00 | Distance-only | 5642.0 | 3.091 | 0.0454 | 564 |
-|       | Static-Risk    | 7278.3 | 3.073 | 0.0463 | 728 |
-|       | **Spatiotemporal** | **7221.9** | **3.058** | **0.0470** | 722 |
-| 12:00 | Distance-only | 5642.0 | 2.692 | 0.0677 | 564 |
-|       | Static-Risk    | 7278.3 | 2.627 | 0.0723 | 728 |
-|       | **Spatiotemporal** | **7098.8** | **2.465** | **0.0850** | 710 |
-| 18:00 | Distance-only | 5642.0 | 2.366 | 0.0938 | 564 |
-|       | Static-Risk    | 7278.3 | 2.263 | 0.1041 | 728 |
-|       | **Spatiotemporal** | **7098.8** | **2.119** | **0.1202** | 710 |
-| 22:00 | Distance-only | 5642.0 | 2.530 | 0.0797 | 564 |
-|       | Static-Risk    | 7278.3 | 2.447 | 0.0865 | 728 |
-|       | **Spatiotemporal** | **7098.8** | **2.294** | **0.1009** | 710 |
+> **为什么必须有 path difference / path-change rate**：本文关注的是
+> 「时空风险是否真的改变了路径决策」——除了风险指标下降，还必须直接看到
+> 路径决策改变的证据（$D(P_{static},P_{ST})$ 与 path-change rate）。
+> `path_difference.csv` 还含 `hours_per_method` 行：同一方法跨出发时刻的路径
+> 变化（Static 理论上恒为 0：无法适应时间；ST 应 > 0）。
 
-**跨时刻均值**：
+> ### ⚠️ 判读原则（重要）
+>
+> 本实验最重要的结果**不是"距离变短"**。不要把 "Spatiotemporal path 比
+> static path 短" 当成主要目标。真正应该看的是：
+>
+> $$\boxed{R_{ST} < R_{Static}}\quad \text{同时}\quad L_{ST} \approx L_{Static}$$
+>
+> 或者 $L_{ST} > L_{Static}$ 但风险显著下降——这才体现 risk-aware planning 的
+> trade-off。`run.py` 的 [Conclusion] 段按此口径输出（逐时刻 ΔH/ΔL + 胜率），
+> 禁止把「更短」写成卖点。
 
-| Method | Distance (m) | Risk (H) | Survival | Time (s) |
-|---|---|---|---|---|
-| Distance-only A* | 5642.0 | 2.670 | 0.0717 | 564 |
-| Static-Risk A* | 7278.3 | 2.602 | 0.0773 | 728 |
-| **Spatiotemporal A* (ours)** | **7129.5** | **2.484** | **0.0883** | 713 |
+## 5. 输出 (Outputs)
 
-**关键观察**：
+**Table 1（`table1_main_results.csv`，主结果表）**——列顺序即论文表口径：
 
-1. **静态方法无法适应时间**：Static-Risk 四个时刻路径完全相同（7278.3 m，
-   Figure 1 四面板同一条线）；时空感知路径随时段调整（08:00 与其他时段不同路）；
-2. **逐时刻全面占优**：时空方法的累计风险 H 在**每个出发时刻都低于**静态方法
-   （3.058<3.073 / 2.465<2.627 / 2.119<2.263 / 2.294<2.447），12:00 改善最大（−6.2%）；
-3. **安全代价真实存在**：最差安全后悔值 = Distance-only @ 18:00，存活率差距 0.0264
-   （0.0938 → 0.1202，相对 +28.1%），H 超出 0.248；
-4. **均值收益**：存活率 0.0883 vs 静态 0.0773（+14.2%）、vs 距离最优 0.0717（+23.1%）；
-5. 静态方法相对距离最优的改进有限（H 2.602 vs 2.670，−2.5%），因为平均图
-   不知道 08:00 是全天最危险时段——**这正是「静态图答不好」的直接证据**。
+| Time | Method | Length | Fatal risk | Property | Noise | Survival | Runtime |
+|---|---|---|---|---|---|---|---|
 
-**结论：时间平均风险图不能替代时空风险建模；出发时刻改变时，静态方法既不换路
-也无法规避时段性风险峰值，而时空感知规划逐时刻取得更低风险与更高存活率。**
+（CSV 附加诊断列：`hazard_H`、`travel_time_s`、`status`、`reason`；失败行指标留空。）
 
-## 5. 图表说明 (Figures)
+**Figure 2（`fig1_paths.png`）**：一个代表性 OD 叠加风险场，2×2 四个出发时刻
+面板 × 三种方法路径，每个面板标注 $D(P_{static},P_{ST})$ 与 path-change rate——
+让 reviewer 一眼看到 *same OD + different departure time + different risk model
+→ different route decisions*。
 
-- **Figure 1** `fig1_paths.png`：2×2 四个出发时刻面板，真实 P_crash 切片为底，
-  叠加三种方法的路径。看点：static/distance 四面板同一条线（无法适应时间），
-  时空感知路径随时刻移动。
-- **Figure 2** `fig2_method_bars.png`：逐时刻分组柱状图（距离 / 累计风险 / 存活率）。
-- **Figure 3** `fig3_adaptation.png`：适应性曲线——存活率与累计风险随出发时刻变化；
-  static/distance 的曲线随城市风险节律起伏（危险时段安全裕度被吃掉），
-  时空感知曲线更优更稳。`regret.csv` 给出逐时刻「安全后悔值」。
+**辅助图表**：`fig2_method_bars.png`（六指标分组柱状）、`fig3_adaptation.png`
+（存活率/风险随出发时刻的适应性曲线）、`summary.csv`（跨时刻均值 + 相对 Static
+的风险/长度对比列）、`regret.csv`（逐时刻安全后悔值）。
 
-## 6. 备注 (Notes)
+## 6. 结果 (Results)
+
+> ⏳ **待本地端到端重跑**（`python3 run.py`）后按 Table 1 口径填充。
+>
+> ⚠️ **历史结果已失效，禁止引用**：2026-09-29 记录的逐时刻结果表（见 git 历史）
+> 在以下条件下测得，与当前 config 不可比：
+> (a) 当时建筑障碍硬约束张量**尚未接入**（搜索无真正避障，路径可能穿楼）；
+> (b) OD 为旧起点 (5,70)（现判为障碍，已迁移）；
+> (c) 降雨开启（现与 Exp1 对齐关闭）；
+> (d) 指标缺 $R_{fatal}/R_{property}/R_{noise}/T_{compute}$ 分解与路径差异证据。
+
+**Table 1 模板**（重跑后填充）：
+
+| Time | Method | Length | Fatal risk | Property | Noise | Survival | Runtime |
+|---|---|---|---|---|---|---|---|
+| 08:00 | Distance-only A* | — | — | — | — | — | — |
+| 08:00 | Static-Risk A* | — | — | — | — | — | — |
+| 08:00 | Spatiotemporal A* (ours) | — | — | — | — | — | — |
+| 12:00 | … | | | | | | |
+| 18:00 | … | | | | | | |
+| 22:00 | … | | | | | | |
+
+结论判定（run.py [Conclusion] 自动输出）：
+1. $R_{ST} < R_{Static}$ 在多少个出发时刻成立（期望 4/4）；
+2. $\Delta L(ST\ vs\ static)$（期望 ≈ 0 或略正——长度是代价项）；
+3. $D(P_{static},P_{ST})$ 与 path-change rate（路径决策改变的直接证据）；
+4. Static 跨时刻 path-change rate（期望 ≡ 0）vs ST（期望 > 0）。
+
+## 7. 备注 (Notes)
 
 - 与 Exp1 的关系：Exp1 证明"风险场时空异质性存在"（机制）；本实验进一步证明
   "这种异质性**值得利用**"（方法收益），是论文证据链的第 2 环；
 - 与 Exp3（消融）的分工：本实验只对比三种**目标口径**，不做组件消融；
 - `P_surv` 绝对值口径问题同 Exp1（15min/格暴露放大），不影响方法间相对比较
-  （同一后评估口径）。
+  （同一后评估口径）；
+- 降雨可经 `config.yaml` 的 `rain.enabled: true` 一键开启，开启后需重跑全部
+  12 次搜索并重新生成 Table 1（与 Exp1 的风险场口径将不再一致，需在论文中说明）。

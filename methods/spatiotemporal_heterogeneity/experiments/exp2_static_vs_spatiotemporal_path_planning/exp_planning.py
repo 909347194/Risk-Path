@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""Exp2 规划层：三种规划目标 + 统一后评估。
+"""Exp2 规划层：M1/M2/M3 三种规划目标 + 统一后评估 + 路径差异度量。
 
-三种方法（同一 A*、同一权重，仅「风险项的时间口径」不同）：
-  distance_only   J = Σ w_d·(d/d_max)                       （风险权重全 0）
-  static_risk     J = Σ 风险项(C̄) + w_d·(d/d_max)           （C̄ = 时间平均）
-  spatiotemporal  J = Σ 风险项(C(x_k,y_k,z_k,t_k)) + w_d·(d/d_max)
+三组公平对照（同一 A*、同一权重，仅「风险项的时间口径」不同）：
+  M1 distance_only  J = L = Σ_k d_k                      （风险权重全 0）
+  M2 static_risk    J = L + λ·C̄(x_k,y_k,z_k)             C̄ = (1/T)Σ_t C(x,y,z,t)
+  M3 spatiotemporal J = L + λ·C(x_k,y_k,z_k,t_k)          （本文方法）
+
+M2 的静态场按「成本级时间平均」构建（见 build_static_env）：保证静态模型的
+单步期望后果成本恰等于真实单步成本的时间平均，即 C̄ = (1/T)Σ_t C(x,y,z,t)，
+不留 E[p]·E[f] ≠ E[p·f] 的口径偏差。
 
 统一后评估 evaluate_path()：无论用什么目标规划，路径都放回
 **真实时空风险场**上按 astar_4d._expand_node 的同一口径重算
-（H 累加、存活率、后果项），保证三方法可公平比较。
+（H 累加、存活率、后果项、飞行时间），保证三方法指标完全可比。
 """
 from __future__ import annotations
 
@@ -23,29 +27,49 @@ METHODS = ("distance_only", "static_risk", "spatiotemporal")
 
 
 def build_static_env(env_true: EnvTensor) -> EnvTensor:
-    """时间平均静态风险场：每个分量沿 t 求均值后复制到全部时相。"""
+    """时间平均静态风险场（M2）：成本级时间平均，严格实现 C̄ = (1/T)Σ_t C(x,y,z,t)。
 
-    def avg4d(a: np.ndarray) -> np.ndarray:
-        m = a.mean(axis=3, keepdims=True)
-        return np.repeat(m, a.shape[3], axis=3)
+    单步致死/财产成本是 p_crash 与后果因子的乘积（δC_f = P_prior·p·f），
+    对各分量分别求均值会有 E[p]·E[f] ≠ E[p·f] 的口径偏差。这里保证乘积口径精确：
+      p̄ = mean_t p(t)
+      f̄ = mean_t[p(t)·f(t)] / p̄     →  p̄·f̄ = mean_t[p(t)·f(t)]（单步成本的时间平均）
+      属性项同理；噪声成本对 p 线性（δC_n = P_prior·n·dt），直接取 mean_t n(t)。
+    p̄ = 0 处成本恒为 0，后果因子取均值即可（不影响目标值）。
+    建筑硬约束是静态的：沿用同一套 obstacle，否则三方法可行性不对称、对比不公平。
+    """
+    p = env_true.p_crash
+    p_bar = p.mean(axis=3, keepdims=True)
+
+    def _cost_avg(factor: np.ndarray) -> np.ndarray:
+        """mean(p·f)/mean(p)（p̄=0 处退回 mean(f)），使 p̄·f̄ = mean(p·f)。"""
+        num = (p * factor).mean(axis=3, keepdims=True)
+        fallback = factor.mean(axis=3, keepdims=True)
+        return np.divide(num, np.maximum(p_bar, 1e-300),
+                         out=fallback, where=p_bar > 0)
+
+    def _rep(a: np.ndarray) -> np.ndarray:
+        return np.repeat(a, env_true.nt, axis=3)
 
     return EnvTensor(
-        p_crash=avg4d(env_true.p_crash),
-        fatality=avg4d(env_true.fatality),
-        property=avg4d(env_true.property),
-        noise=avg4d(env_true.noise),
-        # 建筑是静态的：静态场沿用同一套硬约束，否则对比不公平
+        p_crash=_rep(p_bar),
+        fatality=_rep(_cost_avg(env_true.fatality)),
+        property=_rep(_cost_avg(env_true.property)),
+        noise=_rep(env_true.noise.mean(axis=3, keepdims=True)),
         obstacle=env_true.obstacle,
     )
 
 
 def make_planner_cfg(params: dict, method: str, grid) -> dict:
-    """构造三种方法的 planner 配置（目标不同，其余完全一致）。"""
+    """构造三种方法的 planner 配置（目标不同，其余完全一致 → 公平对照）。
+
+    M1: w_distance=1、风险权重全 0 → J = Σ d/d_max，argmin 即最短路（J ≡ L）。
+    M2/M3: 同一组权重（λ ≡ w_risk/w_ops = 1000），仅 env 不同（静态平均 / 时变）。
+    """
     cfg = {
         "uav_speed": float(params.get("uav_speed", 10.0)),
         "survival_threshold": float(params.get("survival_threshold", 0.0)),
         "max_labels_per_cell": 8,
-        "max_iterations": int(params.get("max_iterations", 2_000_000)),
+        "max_iterations": int(params.get("max_iterations", 3_000_000)),
     }
     if method == "distance_only":
         cfg.update({"w_distance": 1.0, "w_fatality": 0.0, "w_property": 0.0, "w_noise": 0.0})
@@ -112,8 +136,42 @@ def evaluate_path(res: dict, env_true: EnvTensor, grid, uav_speed: float = 10.0)
 
 
 def path_xy(res: dict):
+    """从搜索结果抽取路径 (x, y) 序列（叠加到 2D 风险图）。"""
     if res.get("status") != "success":
         return [], []
     xs = [p["coords"][0] for p in res["path"]]
     ys = [p["coords"][1] for p in res["path"]]
     return xs, ys
+
+
+def path_cells_m(res: dict, grid) -> np.ndarray:
+    """路径经过的网格单元 → 物理坐标（米），用于路径间几何对比。"""
+    xs, ys = path_xy(res)
+    if not xs:
+        return np.zeros((0, 2))
+    return np.column_stack([np.asarray(xs) * grid.spatial.dx,
+                            np.asarray(ys) * grid.spatial.dy])
+
+
+def mean_deviation_m(cells_a: np.ndarray, cells_b: np.ndarray) -> float:
+    """两条路径的平均偏离距离 D(P_a,P_b)（米）：双向最近点距离均值。"""
+    if len(cells_a) == 0 or len(cells_b) == 0:
+        return float("nan")
+    d = np.sqrt(((cells_a[:, None, :] - cells_b[None, :, :]) ** 2).sum(-1))
+    return float(d.min(axis=1).mean() + d.min(axis=0).mean()) / 2.0
+
+
+def path_change_rate(cells_a: np.ndarray, cells_b: np.ndarray, cell_diag: float) -> float:
+    """路径改变率（path-change rate）：A 上到 B 最近点距离超过 1 格对角线的
+    采样点占比，双向平均。
+
+    0 = 两条路径局部重合（同一走廊，路径决策未变）；
+    接近 1 = 走廊几乎完全不同（路径决策改变）。
+    用于回答「风险模型 / 出发时刻是否真的改变了路径决策」。
+    """
+    if len(cells_a) == 0 or len(cells_b) == 0:
+        return float("nan")
+    d = np.sqrt(((cells_a[:, None, :] - cells_b[None, :, :]) ** 2).sum(-1))
+    rate_a = float((d.min(axis=1) > cell_diag).mean())
+    rate_b = float((d.min(axis=0) > cell_diag).mean())
+    return (rate_a + rate_b) / 2.0
