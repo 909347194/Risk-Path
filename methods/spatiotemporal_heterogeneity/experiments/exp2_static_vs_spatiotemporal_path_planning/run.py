@@ -42,6 +42,7 @@ from exp_planning import (METHODS, build_static_env, evaluate_path,
                           make_planner_cfg, plan_one, path_cells_m)
 from exp_metrics import (table1_rows, summary_rows, path_difference_rows,
                          regret_rows, write_csv, METHOD_LABELS)
+from exp_localized_hazard import inject_localized_temporal_hazard, describe
 from plot import plot_fig1, plot_fig2, plot_fig3
 
 from tensor_engine.grid_system import get_macro_grid, get_micro_grid
@@ -73,6 +74,14 @@ def main() -> None:
                               flight_altitude=params.get("flight_altitude", 60.0),
                               config_path=resolved_path)
     print(f"[Risk] tensors built in {_time.time()-t0:.1f}s")
+
+    # 局部时间热点情景（Exp2 专用）：在指定区域/时段注入局部高风险脉冲，
+    # 让 ST 在活跃时刻绕开、冷时段走直线，从而产生 ST≠Static 且跨时刻改路证据。
+    lh = params.get("localized_hazard")
+    if lh and lh.get("enabled"):
+        risk = inject_localized_temporal_hazard(risk, grid, lh)
+        print(f"[Scenario] {describe(lh)}")
+
     env_true = EnvTensor(p_crash=risk["p_crash"], fatality=risk["fatality"],
                          property=risk["property"], noise=risk["noise"],
                          obstacle=risk.get("obstacle"), grid=grid)

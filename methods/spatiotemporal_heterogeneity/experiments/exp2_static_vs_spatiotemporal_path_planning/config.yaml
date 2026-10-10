@@ -100,7 +100,36 @@ params:
   w_prop: 12.0
   w_noise: 7.5
 
-  # 降雨：与 Exp1 口径一致关闭（f_rain ≡ 1），保证 Exp1（异质性存在）与
-  # Exp2（异质性可利用）建立在同一个风险场上；需要雨情景时改 enabled: true。
+  # 降雨情景（Exp2 可选机制，默认关闭）：项目自带 ScenarioRainEnvironment，
+  # I(x,y,t)=I_ref·S(x,y)·T(t)——本身是「空间局部(hotspot)+时段性(active_hours)」
+  # 的强度场，物理上对应一片局地强降雨单体扫过航路。
+  # ⚠️ 实测结论（见 README §6 诊断）：realistic 强度下 f_rain≤1.3×，热点 p_crash
+  # 仅 0.03→0.036，无法驱动走廊切换；即使 heavy(25 mm/h，已超运行上限 R_limit=10)
+  # 也只到 ~0.10，规划器仍直穿（path-change rate=0.00）。根因：基础风险场已高且
+  # 空间异质，雨的物理增益（γ=0.005、I²、运行上限封顶）结构上到不了"近不可通行"
+  # （p_crash→~0.95），故内置雨模型不是合格的局部时间热点演示机制。
+  # 启用本情景请把下方 localized_hazard.enabled 改 false。
   rain:
     enabled: false
+    scenario: heavy          # light/moderate/heavy；moderate≤10 真实可飞但效应弱
+    spatial_mode: hotspot    # uniform | hotspot（hotspot 提供空间局部性）
+    center: [34, 13]         # 钉在 Static 真实航路中段（(19,16)→(49,11) 对角段）
+    radius: 16               # 热点半径（cells）
+    active_hours: [8, 13]    # 活跃时段：覆盖 08:00 / 12:00 两面板，18:00 / 22:00 关闭
+
+  # ------------------------------------------------------------------
+  # 极端局地危险事件情景（Exp2 主机制，默认开启）：以「强对流单体 / 临时限飞区」
+  # 形式呈现——物理上即一片局地极端天气/危险单体在部分时段扫过航路，与上方
+  # rain 概念同源；但项目内置降雨模型在 realistic 强度下达不到可演示量级
+  # （见 rain 节实测），故用直接乘性脉冲参数化到可演示强度（峰值×12, clip 0.95）。
+  # 机制：Static 时间平均场把热点抹平为弱信号 -> 几乎不绕；ST 在活跃时刻绕开、
+  # 冷时段走直线 -> 同时产出 ST≠Static 与 ST 跨时刻改路两条关键证据。
+  # 注：这是实验演示情景（非真实数据），论文中须明确标注为
+  # extreme-localized-event scenario（非日常气象条件）。
+  localized_hazard:
+    enabled: true
+    center: [10, 24]        # 网格中心（钉在 Static 真实航路内移段，制造两条可选走廊）
+    radius: 16              # 高斯尺度（cells）
+    window: [8, 13]         # 活跃时段（小时）：覆盖 08:00 / 12:00 两面板，18:00 / 22:00 关闭
+    peak_multiplier: 12.0   # 热点区内 p_crash 峰值放大倍数（clip 0.95）
+    clip: 0.95

@@ -25,6 +25,7 @@ experiments/
 │   └── results/              ← 运行产物（本地产物，已 gitignore，不入库）
 ├── viz_data/                 ← 数据可视化脚本集（landuse/POI/人口/建筑/landcover 预览图）
 │                               · viz_noise.py — 噪声成本「空间×时间」异质性可视化（昼/夜空间图＋全天均值＋用地×小时 S-T 热力图；--save 落盘）
+│                               · viz_weather.py — 降水/风场情景「空间/时间/高度」异质性可视化（口径对应 Exp1：宏观网格 100×100＋真实建筑高度＋moderate 风；降雨为情景示意（Exp1 默认关闭，--no-rain 跳过）；--save 落盘）
 └── <新实验目录>/
 ```
 
