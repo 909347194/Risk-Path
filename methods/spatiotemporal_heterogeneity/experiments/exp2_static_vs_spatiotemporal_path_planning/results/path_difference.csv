@@ -1,0 +1,31 @@
+scope,method_a,method_b,hour_a,hour_b,mean_deviation_m,path_change_rate
+methods_at_hour,Distance-only A*,Static-Risk A*,8,8,860.013,0.9623
+methods_at_hour,Distance-only A*,Spatiotemporal A* (ours),8,8,824.108,0.9615
+methods_at_hour,Static-Risk A*,Spatiotemporal A* (ours),8,8,33.634,0.1874
+methods_at_hour,Distance-only A*,Static-Risk A*,12,12,860.013,0.9623
+methods_at_hour,Distance-only A*,Spatiotemporal A* (ours),12,12,826.268,0.9614
+methods_at_hour,Static-Risk A*,Spatiotemporal A* (ours),12,12,34.298,0.188
+methods_at_hour,Distance-only A*,Static-Risk A*,18,18,859.566,0.9623
+methods_at_hour,Distance-only A*,Spatiotemporal A* (ours),18,18,825.943,0.9614
+methods_at_hour,Static-Risk A*,Spatiotemporal A* (ours),18,18,34.667,0.188
+methods_at_hour,Distance-only A*,Static-Risk A*,22,22,860.013,0.9623
+methods_at_hour,Distance-only A*,Spatiotemporal A* (ours),22,22,844.005,0.9614
+methods_at_hour,Static-Risk A*,Spatiotemporal A* (ours),22,22,50.169,0.188
+hours_per_method,Distance-only A*,Distance-only A*,8,12,0.0,0.0
+hours_per_method,Distance-only A*,Distance-only A*,8,18,1.089,0.0
+hours_per_method,Distance-only A*,Distance-only A*,8,22,0.0,0.0
+hours_per_method,Distance-only A*,Distance-only A*,12,18,1.089,0.0
+hours_per_method,Distance-only A*,Distance-only A*,12,22,0.0,0.0
+hours_per_method,Distance-only A*,Distance-only A*,18,22,1.089,0.0
+hours_per_method,Static-Risk A*,Static-Risk A*,8,12,0.0,0.0
+hours_per_method,Static-Risk A*,Static-Risk A*,8,18,0.0,0.0
+hours_per_method,Static-Risk A*,Static-Risk A*,8,22,0.0,0.0
+hours_per_method,Static-Risk A*,Static-Risk A*,12,18,0.0,0.0
+hours_per_method,Static-Risk A*,Static-Risk A*,12,22,0.0,0.0
+hours_per_method,Static-Risk A*,Static-Risk A*,18,22,0.0,0.0
+hours_per_method,Spatiotemporal A* (ours),Spatiotemporal A* (ours),8,12,1.326,0.0
+hours_per_method,Spatiotemporal A* (ours),Spatiotemporal A* (ours),8,18,1.705,0.0
+hours_per_method,Spatiotemporal A* (ours),Spatiotemporal A* (ours),8,22,17.62,0.0
+hours_per_method,Spatiotemporal A* (ours),Spatiotemporal A* (ours),12,18,1.141,0.0
+hours_per_method,Spatiotemporal A* (ours),Spatiotemporal A* (ours),12,22,17.12,0.0
+hours_per_method,Spatiotemporal A* (ours),Spatiotemporal A* (ours),18,22,15.979,0.0

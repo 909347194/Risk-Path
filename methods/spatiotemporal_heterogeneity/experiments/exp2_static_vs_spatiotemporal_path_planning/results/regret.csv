@@ -1,0 +1,9 @@
+departure_hour,method,survival_gap,hazard_excess
+8,Distance-only A*,0.002745,0.002795
+8,Static-Risk A*,0.00038,0.000386
+12,Distance-only A*,0.002637,0.002679
+12,Static-Risk A*,0.000325,0.00033
+18,Distance-only A*,0.002519,0.002552
+18,Static-Risk A*,0.000284,0.000287
+22,Distance-only A*,0.002618,0.002656
+22,Static-Risk A*,0.000339,0.000344
