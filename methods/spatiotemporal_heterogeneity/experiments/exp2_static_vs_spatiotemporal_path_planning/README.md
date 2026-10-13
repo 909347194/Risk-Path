@@ -142,51 +142,44 @@ departure time + different risk model → different route decisions*。
 
 ## 6. 结果 (Results，2026-10-13 重跑：暴露口径修正 + 权重重标定)
 
-# Exp 2 — Static Risk vs Spatiotemporal Risk（核心实验）
-
-> 实验类型：**论文核心对比**（直接回答"为什么不用时间平均的静态风险图？"）
-> 入口：`python3 run.py`（12 次 A* 搜索 + 统一后评估，定高锁单次 ~7 s）
-> 产物：`results/fig1_paths.png`（→论文 Figure 2）、`fig2_method_bars.png`、
-> `fig3_adaptation.png`、`table1_main_results.csv`（→论文 Table 1，主结果）、
-> `summary.csv`、`path_difference.csv`、`regret.csv`
-> （`results/` 按仓库约定不入库）
-
 > ⚠ **口径修正（2026-10-13）**：P_crash 暴露从「整时相 900 s」修正为「格穿越
 > 时间 6.8 s」（k ≈ 132，见 `risk_tensor_assembler.build_risk_tensors` docstring），
 > w_fatal/w_prop 同比放大 k=132（3960/1584）保持风险-运营权衡 regime；w_noise/
 > w_ops 不动。修正后 P_surv 绝对值可进论文正文（旧口径下 P_surv 虚低不可引用）。
 > **2026-10-09 之前的历史结果表全部作废，禁止引用**（暴露口径 + 权重均已变更）。
 
-**默认配置（新口径 6.8s 暴露 + 开启 `localized_hazard` 极端局地危险事件情景）统一后评估
+**默认配置（新口径 6.8s 暴露 + 关闭 `localized_hazard`，真实数据口径）统一后评估
 （OD (8,61)→(95,5)，60 m 定高，12/12 成功；run.py 2026-10-13 实测）：**
 
 | Time | Method | Length(m) | Hazard H | Survival | Runtime(s) |
 |---|---|---|---|---|---|
-| 08:00 | Distance-only A* | 5319.3 | 0.0194 | 0.9808 | 2.4 |
-| 08:00 | Static-Risk A* | 7428.4 | 0.0377 | 0.9630 | 8.2 |
-| 08:00 | Spatiotemporal A* (ours) | 7468.8 | 0.0377 | 0.9630 | 11.3 |
-| 12:00 | Distance-only A* | 5319.3 | 0.0169 | 0.9833 | 2.7 |
-| 12:00 | Static-Risk A* | 7428.4 | 0.0321 | 0.9684 | 8.2 |
-| 12:00 | Spatiotemporal A* (ours) | 7400.2 | 0.0319 | 0.9686 | 10.9 |
-| 18:00 | Distance-only A* | 5319.3 | 0.0147 | 0.9854 | 2.5 |
-| 18:00 | Static-Risk A* | 7428.4 | 0.0126 | 0.9875 | 8.4 |
+| 08:00 | Distance-only A* | 5319.3 | 0.0194 | 0.9808 | 2.3 |
+| 08:00 | Static-Risk A* | 7219.6 | 0.0170 | 0.9832 | 6.9 |
+| 08:00 | Spatiotemporal A* (ours) | 6981.5 | 0.0166 | 0.9835 | 6.9 |
+| 12:00 | Distance-only A* | 5319.3 | 0.0168 | 0.9833 | 2.2 |
+| 12:00 | Static-Risk A* | 7219.6 | 0.0145 | 0.9856 | 6.7 |
+| 12:00 | Spatiotemporal A* (ours) | 6953.3 | 0.0141 | 0.9860 | 6.5 |
+| 18:00 | Distance-only A* | 5319.3 | 0.0147 | 0.9854 | 2.3 |
+| 18:00 | Static-Risk A* | 7219.6 | 0.0124 | 0.9876 | 6.8 |
 | 18:00 | Spatiotemporal A* (ours) | 6953.3 | 0.0121 | 0.9879 | 7.1 |
-| 22:00 | Distance-only A* | 5319.3 | 0.0158 | 0.9843 | 2.6 |
-| 22:00 | Static-Risk A* | 7428.4 | 0.0136 | 0.9865 | 8.7 |
-| 22:00 | Spatiotemporal A* (ours) | 6953.3 | 0.0131 | 0.9870 | 6.7 |
+| 22:00 | Distance-only A* | 5319.3 | 0.0158 | 0.9843 | 2.3 |
+| 22:00 | Static-Risk A* | 7219.6 | 0.0135 | 0.9866 | 6.6 |
+| 22:00 | Spatiotemporal A* (ours) | 6953.3 | 0.0131 | 0.9870 | 6.6 |
 
 （Fatal/Property/Noise 各时刻指标见 `results/table1_main_results.csv`）
 
-**结论判定（run.py [Conclusion] 实测，默认情景开启）：**
-1. $R_{ST} < R_{Static}$ 在 **3/4** 出发时刻成立（08:00 两者相等 ΔH≈0；12/18/22 略优），
-   mean $\Delta L$(ST vs static) = **−3.16%**；
-2. **路径决策改变证据**：$D(P_{static},P_{ST})$ = 6–86 m，path-change rate = 0.04–0.28；
-   活跃时段(08/12) ST 与 Static 因时间平均抹平热点而同走廊（D≈6–8 m），
-   冷时段(18/22) ST 因时间调制选更短路径（D≈70–86 m，change-rate 0.28）；
-3. Static 跨时刻 path-change rate ≡ 0.00（sanity 通过）；ST 跨时刻最大 change-rate = **0.24**
-   （弱自适应，显著弱于旧口径 0.74）。
+**结论判定（run.py [Conclusion] 实测，真实数据口径）：**
+1. $R_{ST} < R_{Static}$ 在 **4/4** 出发时刻成立（每时刻 ΔH = +0.0003~+0.0004，
+   mean $\Delta L$(ST vs static) = **−3.59%**）——ST 更短**且**更安全，risk-aware
+   trade-off 成立（勿将"更短"当卖点）；
+2. **路径决策改变的直接证据**：$D(P_{static},P_{ST})$ = 33.6–50.2 m，path-change rate =
+   0.187–0.188（4/4 时刻清晰走廊级改道，扰动 ≥ 0.10）；
+3. Static 跨出发时刻 path-change rate ≡ 0.00（sanity 通过：时间平均场无法适应时间）；
+   ST 跨时刻偏离 <1 m（该 OD 下 ST 路径本身对出发时刻不敏感，见下方解读注意）；
+4. M1 baseline chain 闭合：Distance-only 与风险方法偏离 860 m（change-rate 0.96），
+   风险建模确实主导路线选择。
 
-> **⚠ 重要发现 — 暴露口径决定"局部时间风险"能否被路由利用**：本实验引入的
+> **⚠ 重要发现 — 暴露口径决定"局部时间风险"能否被路由利用**：本实验曾引入的
 > `localized_hazard`（高斯脉冲峰值×12，模拟局地极端天气单体/限飞区）在**旧口径
 > （900s 暴露）**下可驱动走廊切换（D=566–590 m，change-rate 0.74）；但合并远程新口径
 > （6.8s 暴露，k=132）后，基础 p_crash 被稀释约 132 倍，同一峰值×12 仅把热点
@@ -194,21 +187,14 @@ departure time + different risk model → different route decisions*。
 > （08/12）与 Static 一样直穿/同绕（D≈6–8 m），情景失效。结论：时空感知能否显现
 > 决定性价值，**强烈依赖于风险暴露的时间尺度**——长暴露（旧口径/累计飞行）下局部
 > 时间风险可被有效规避；短暴露（逐格穿越）下局部风险被稀释，路由更依赖空间结构。
-> **该情景模块保留作可选演示（关闭 `localized_hazard` 即回归真实数据口径），论文
-> 主线不依赖它。**
+> **该情景模块保留作可选演示（config 中 `localized_hazard.enabled: true` 即开启），
+> 默认关闭、以真实数据口径为主。**
 
-**真实数据基线（关闭 `localized_hazard`，对应远程 028d2a6 干净口径）**：
-新口径下真实风险场本身即令 ST 相对 Static 走廊级改道——远程实测得
-$D(P_{static},P_{ST})$ = 33–50 m、path-change rate = 0.187–0.188（4/4 清晰改道）、
-$R_{ST} < R_{Static}$ 4/4、mean $\Delta L$ = −3.59%。即**无需任何合成情景，真实场地
-时空结构已让时空感知规划选出更优走廊**——这是"为什么不用时间平均静态风险图"的主证据。
-
-> **为何不直接用项目内置 `ScenarioRainEnvironment`**：该模型 `f_rain=1+γ·I²`（γ=0.005）
-> 受运行上限 `R_limit=10 mm/h` 封顶，realistic 雨热点 p_crash 仅 0.03→0.036，即便
-> heavy(25，超上限) 也只到 ~0.10，路径分歧 1.7–4.2 m、change-rate 0.00——同样因为
-> 基础场在新口径下被稀释，雨增益推不动绕行。故演示机制采用脉冲情景（同等物理语义、
-> 参数化到可演示量级），并如实标注为 extreme-localized-event scenario（非日常气象）。
-
+**解读注意**：(a) ST 相对 Static 的风险收益是「安全 + 更短」双赢，但风险增量很小
+（~2%，勿将"更短"当卖点）；(b) ST 跨出发时刻的自适应性（同一 ST 方法随 t 改道）在该
+OD 下弱（偏离 <1 m），主结论应表述为「时间平均风险图导致次优走廊，时空感知规划选出
+更优走廊」，而非「ST 随时刻切换路线」；(c) P_surv 绝对值依赖 λ_base 标定，方法间相对
+比较不受影响。
 ## 7. 备注 (Notes)
 
 - 与 Exp1 的关系：Exp1 证明"风险场时空异质性存在"（机制）；本实验进一步证明
@@ -220,5 +206,5 @@ $R_{ST} < R_{Static}$ 4/4、mean $\Delta L$ = −3.59%。即**无需任何合成
 - 降雨可经 `config.yaml` 的 `rain.enabled: true` 一键开启，但**实测内置降雨模型在
   realistic 强度下不足以驱动走廊切换**（见 §6），仅作敏感性/对照用途，不作为本文
   "时间感知价值"的主演示机制；开启后需重跑全部 12 次搜索并重新生成 Table 1；
-- `localized_hazard`（极端局地危险事件情景）默认开启作演示，但**新口径下失效**
-  （见 §6 标注），可关闭以回归真实数据干净口径（ST 4/4 自然分歧）。
+- `localized_hazard`（极端局地危险事件情景）已改为默认关闭（真实数据口径为主）；
+  新口径下该情景失效（见 §6 标注），如需演示脉冲效应可设 `enabled: true` 开启。
