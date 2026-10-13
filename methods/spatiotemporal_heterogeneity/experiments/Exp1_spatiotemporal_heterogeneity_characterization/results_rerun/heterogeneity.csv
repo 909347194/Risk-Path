@@ -1,0 +1,21 @@
+metric,value
+spatial_cv_per_hour,"{5.75: 0.4466, 12: 0.4688, 17.75: 0.487, 22: 0.4774}"
+temporal_cv_median_all_slices,0.1115
+temporal_relative_range_median_all_slices,0.3156
+temporal_n_slices_all,96
+temporal_cv_median_at_departures,0.12
+temporal_relative_range_median_at_departures,0.3215
+temporal_n_slices_at_departures,4
+spatial_cv_per_hour(detail),
+  spatial_cv_0545h,0.4466
+  spatial_cv_12h,0.4688
+  spatial_cv_1745h,0.487
+  spatial_cv_22h,0.4774
+corridor_risk_peak_hour,5.75
+corridor_risk_trough_hour,17.75
+corridor_risk_peak_trough_ratio,1.343
+core_A_peak_hour,5.75
+core_B_peak_hour,5.75
+delta_12h_22h_mean_abs,1.4e-05
+delta_12h_22h_p98,2.5e-05
+z_profile_spread_ratio,2.216
