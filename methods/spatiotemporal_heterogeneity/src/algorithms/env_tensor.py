@@ -28,6 +28,7 @@ class EnvTensor:
         noise: np.ndarray,
         obstacle: Optional[np.ndarray] = None,
         grid: Optional[Any] = None,
+        exposure_time_s: Optional[float] = None,
     ):
         """
         Initialize a normalized environment tensor container.
@@ -39,6 +40,10 @@ class EnvTensor:
             noise: Noise cost component. Supports 2D, 3D, or 4D.
             obstacle: Optional obstacle mask. Supports 2D, 3D, or 4D.
             grid: Optional GridSystem. Required when p_crash is not 4D.
+            exposure_time_s: p_crash 的暴露窗口 τ_ref（秒）。p_crash 表示
+                「暴露 τ_ref 秒」的坠机概率；步级危险率按实际步时换算（见
+                step_risk）。None 表示旧口径（张量值即单步概率），仅限
+                测试/兼容场景；实验管线必须显式传入。
         """
         shape = self._resolve_shape(p_crash, grid)
         self.nx, self.ny, self.nz, self.nt = shape
@@ -52,6 +57,10 @@ class EnvTensor:
             if obstacle is not None
             else None
         )
+
+        if exposure_time_s is not None and exposure_time_s <= 0:
+            raise ValueError(f"exposure_time_s must be positive, got {exposure_time_s}")
+        self.exposure_time_s = exposure_time_s
 
         self.validate_consistency()
 
@@ -77,6 +86,39 @@ class EnvTensor:
             "property": float(self.property[x, y, z, t]),
             "noise": float(self.noise[x, y, z, t]),
             "obstacle": bool(self.obstacle[x, y, z, t]) if self.obstacle is not None else False,
+        }
+
+    def step_risk(self, x: int, y: int, z: int, t: int, dt_s: float) -> Dict[str, float]:
+        """单步风险量（暴露口径统一换算，2026-10-13 修正）。
+
+        p_crash 张量值是「暴露 τ_ref = exposure_time_s 秒」的坠机概率；
+        本步实际暴露 dt_s 秒（= 步长/巡航速度），按 Cox 比例危险率换算：
+            λ = -ln(1-p) / τ_ref        （每秒危险率）
+            h_step = λ · dt_s            （本步危险率增量，∝ 步长）
+            p_step = 1 - exp(-h_step)    （本步坠机概率）
+        exposure_time_s=None 时退化为旧口径（张量值即单步概率）。
+
+        A*（astar_4d._expand_node）与后评估（evaluate_path）必须共用本方法，
+        保证规划与评估口径一致。
+        """
+        if dt_s < 0:
+            raise ValueError(f"dt_s must be non-negative, got {dt_s}")
+        base = self.risk_at(x, y, z, t)
+        p_ref = float(np.clip(base["p_crash"], 0.0, 1.0))
+        if p_ref >= 1.0:
+            h_step = float("inf")
+            p_step = 1.0
+        else:
+            h_ref = -float(np.log1p(-p_ref))
+            h_step = h_ref if self.exposure_time_s is None else h_ref * dt_s / self.exposure_time_s
+            p_step = float(-np.expm1(-h_step))
+        return {
+            "hazard": h_step,
+            "p_crash": p_step,
+            "fatality": base["fatality"],
+            "property": base["property"],
+            "noise": base["noise"],
+            "obstacle": base["obstacle"],
         }
 
     def in_bounds(self, x: int, y: int, z: int, t: int) -> bool:

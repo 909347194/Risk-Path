@@ -56,6 +56,7 @@ def build_static_env(env_true: EnvTensor) -> EnvTensor:
         property=_rep(_cost_avg(env_true.property)),
         noise=_rep(env_true.noise.mean(axis=3, keepdims=True)),
         obstacle=env_true.obstacle,
+        exposure_time_s=env_true.exposure_time_s,
     )
 
 
@@ -96,10 +97,12 @@ def plan_one(grid, env: EnvTensor, cfg: dict, od, t_idx: int) -> dict:
 def evaluate_path(res: dict, env_true: EnvTensor, grid, uav_speed: float = 10.0) -> dict:
     """把规划出的路径放回真实时空风险场重算全部指标（统一后评估）。
 
-    口径与 astar_4d._expand_node 完全一致：
+    口径与 astar_4d._expand_node 完全一致（共用 EnvTensor.step_risk，
+    2026-10-13 暴露口径修正后）：
       每步 dt = dist/uav_speed；进入格 (x2,y2,z2) 的 t2 时刻取 risk_at；
-      h_step = -ln(1-p_crash)；H 累加；P_surv = exp(-H)；
-      δC_f = P_prior·p_crash·fatality；δC_p 同；δC_n = P_prior·noise·dt。
+      h_step = λ·Φ·dt（∝ 实际步时，与步长严格成比例）；H 累加；
+      P_surv = exp(-H)；
+      δC_f = P_prior·p_step·fatality；δC_p 同；δC_n = P_prior·noise·dt。
     """
     if res.get("status") != "success":
         return {"status": res.get("status", "failed"), "reason": res.get("reason", "")}
@@ -112,9 +115,9 @@ def evaluate_path(res: dict, env_true: EnvTensor, grid, uav_speed: float = 10.0)
                              + ((y2 - y1) * grid.spatial.dy) ** 2
                              + ((z2 - z1) * grid.spatial.dz) ** 2))
         dt = dist / uav_speed
-        r = env_true.risk_at(x2, y2, z2, t2)
-        p = float(np.clip(r["p_crash"], 0.0, 1.0))
-        h = -np.log(1.0 - p) if p < 1.0 else np.inf
+        r = env_true.step_risk(x2, y2, z2, t2, dt)
+        h = r["hazard"]
+        p = float(r["p_crash"])
         cf += P * p * float(r["fatality"])
         cp += P * p * float(r["property"])
         cn += P * float(r["noise"]) * dt

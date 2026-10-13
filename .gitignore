@@ -20,3 +20,4 @@ methods/spatiotemporal_heterogeneity/output/
 methods/spatiotemporal_heterogeneity/experiments/*/output/
 methods/spatiotemporal_heterogeneity/experiments/*/results/
 
+.openclaw/
