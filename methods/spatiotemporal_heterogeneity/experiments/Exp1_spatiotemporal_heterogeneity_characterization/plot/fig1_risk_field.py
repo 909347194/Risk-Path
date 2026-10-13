@@ -69,13 +69,15 @@ def plot_fig1(grid, p_crash, results, hours, z_layer, od, out_path):
             continue
         paths_xy[h] = np.column_stack([xs, ys]).astype(float)
         ax_main.plot(xs, ys, color=COLORS[i % len(COLORS)],
-                     ls=LINES[i % len(LINES)], lw=2.0,
+                     ls=LINES[i % len(LINES)], lw=2.0, marker="o", ms=2.2,
+                     markevery=8,   # 标记点防相近色混淆
                      label=f"{fmt_hour(h)}  L={res['total_distance']:.0f} m")
     ax_main.plot(od[0], od[1], "o", color="lime", ms=9, mec="k", label="start")
     ax_main.plot(od[3], od[4], "*", color="red", ms=13, mec="k", label="goal")
     ax_main.set_xlabel("x (grid)")
     ax_main.set_ylabel("y (grid)")
-    ax_main.legend(loc="upper right", fontsize=8, framealpha=0.85)
+    ax_main.legend(loc="upper right", fontsize=8, framealpha=0.85,
+                   title="times / L in m (physical)", title_fontsize=8)
     ax_main.set_title("(a) time-mean $P_{crash}$ field + planned paths "
                       "by departure time", fontsize=11)
 
@@ -109,10 +111,12 @@ def plot_fig1(grid, p_crash, results, hours, z_layer, od, out_path):
     if zoom_pt is not None:
         ax_zoom.set_xlim(x0, x1)
         ax_zoom.set_ylim(y0, y1)
+        verdict = ("same corridor — sub-cell adjustment"
+                   if zoom_dev_g * dx < cell_diag else "CORRIDOR SWITCH")
         ax_zoom.set_title(
             "(b) zoom @ max pairwise divergence\n"
-            f"separation ≈ {zoom_dev_g:.1f} cells ({zoom_dev_g * dx:.0f} m)",
-            fontsize=10)
+            f"separation ≈ {zoom_dev_g:.1f} cells ({zoom_dev_g * dx:.0f} m) "
+            f"vs cell diag {cell_diag:.0f} m\n{verdict}", fontsize=9)
     else:
         ax_zoom.set_title("(b) zoom (no divergence found)", fontsize=10)
     ax_zoom.set_xlabel("x (grid)")
@@ -148,8 +152,9 @@ def plot_fig1(grid, p_crash, results, hours, z_layer, od, out_path):
     rv = max(float(np.percentile(rel_range, 99)), 1e-9)
     im_v = ax_var.imshow(rel_range.T, origin="lower", cmap="magma",
                          vmin=0, vmax=rv)
-    ax_var.set_title("(d) temporal variability\n"
-                     "$(\\max_t-\\min_t)/\\mu_t$, all slices", fontsize=10)
+    ax_var.set_title("(d) temporal variability "
+                     "$(\\max_t-\\min_t)/\\mu_t$\n"
+                     "$\\mu_t$ = time-mean $P_{crash}$; all slices", fontsize=9)
     ax_var.set_xlabel("x (grid)")
     ax_var.set_ylabel("y (grid)")
     fig.colorbar(im_v, ax=ax_var, shrink=0.85)
@@ -167,18 +172,26 @@ def plot_fig1(grid, p_crash, results, hours, z_layer, od, out_path):
                              norm=TwoSlopeNorm(vmin=-v, vcenter=0.0, vmax=v))
             xs, ys = path_xy(res)
             if xs:
-                axd.plot(xs, ys, color="k", lw=1.6)
+                axd.plot(xs, ys, color="k", lw=1.6,
+                         label="path of this time")
             axd.set_title(f"(e{i + 1}) $\\Delta P_{{crash}}$ @ {fmt_hour(h)}\n"
                           f"max|Δ|={np.abs(dl).max():.1e}", fontsize=9)
             axd.set_xlabel("x (grid)")
+            if i == 0:
+                axd.legend(fontsize=7, loc="lower left")
             ims.append(imd)
             delta_axes.append(axd)
         fig.colorbar(ims[-1], ax=delta_axes, shrink=0.8,
-                     label="$\\Delta P_{crash}$ (vs time mean)")
+                     label="$\\Delta P_{crash}$ (vs time mean; shared scale)")
 
     # ---- 总标题 / 判定注记 ----
-    dev_note = (f"max pairwise mean deviation = {max_dev:.1f} m | "
-                if max_dev == max_dev else "")
+    if max_dev == max_dev:
+        verdict_txt = ("same corridor" if max_dev < cell_diag
+                       else "corridor switch")
+        dev_note = (f"max pairwise mean deviation = {max_dev:.1f} m "
+                    f"→ {verdict_txt} | ")
+    else:
+        dev_note = ""
     fig.suptitle(
         "Figure 1 — Spatiotemporal risk field & departure-time path response\n"
         f"same OD ({od[0]},{od[1]})→({od[3]},{od[4]}), "
