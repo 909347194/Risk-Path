@@ -7,6 +7,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from exp_common import fmt_hour
 from exp_planning import path_xy
 
 
@@ -19,11 +20,13 @@ def plot_fig3(grid, results, hours, building, od, out_path):
     b_vmax = float(np.percentile(building, 98)) or float(building.max()) or 1.0
     ax0.imshow(building.T, origin="lower", cmap="Greys",
                vmin=0, vmax=b_vmax, interpolation="nearest")
-    colors = ["cyan", "orange", "lime", "magenta"]
-    for h, res, c in zip(hours, results, colors):
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
+              "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+    for i, (h, res) in enumerate(zip(hours, results)):
+        c = colors[i % len(colors)]
         xs, ys = path_xy(res)
         if xs:
-            ax0.plot(xs, ys, color=c, lw=2.2, label=f"{h:02d}:00  L={res['total_distance']:.0f} m")
+            ax0.plot(xs, ys, color=c, lw=2.2, label=f"{fmt_hour(h)}  L={res['total_distance']:.0f} m")
     ax0.plot(od[0], od[1], "o", color="white", ms=10, mec="k", label="start")
     ax0.plot(od[3], od[4], "*", color="yellow", ms=15, mec="k", label="goal")
     ax0.set_title("(a) Planned paths for the same OD, 4 departure times")
@@ -37,7 +40,7 @@ def plot_fig3(grid, results, hours, building, od, out_path):
     # (b) 路径长度
     ax1 = fig.add_subplot(gs[0, 1])
     L = [r["total_distance"] for r in ok]
-    bars = ax1.bar([f"{h:02d}:00" for h in ok_hours], L, color="steelblue")
+    bars = ax1.bar([fmt_hour(h) for h in ok_hours], L, color="steelblue")
     ax1.set_title("(b) Path length vs departure time")
     ax1.set_ylabel("path length (m)")
     ax1.set_ylim(min(L) * 0.92 if L else 0, max(L) * 1.04 if L else 1)
@@ -50,7 +53,7 @@ def plot_fig3(grid, results, hours, building, od, out_path):
     # (c) 存活率
     ax2 = fig.add_subplot(gs[0, 2])
     P = [r["final_p_survival"] for r in ok]
-    bars2 = ax2.bar([f"{h:02d}:00" for h in ok_hours], P, color="indianred")
+    bars2 = ax2.bar([fmt_hour(h) for h in ok_hours], P, color="indianred")
     ax2.set_title("(c) Survival probability vs departure time")
     ax2.set_ylabel("$P_{surv}$")
     ax2.set_ylim(0, max(P) * 1.25 if P else 1)

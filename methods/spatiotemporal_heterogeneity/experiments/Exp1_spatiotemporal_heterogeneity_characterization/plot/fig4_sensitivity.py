@@ -6,6 +6,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from exp_common import fmt_hour, hour_tag
+
 
 def plot_fig4(rows, hours, out_path):
     # 只画「全部出发时刻都成功」的行：N/A 行（部分/全部失败）无跨时刻可比性
@@ -41,13 +43,14 @@ def plot_fig4(rows, hours, out_path):
     ax1 = axes[1]
     markers = ["o", "s", "^", "D", "v"]
     for i, r in enumerate(rows_ok):
-        ax1.plot(hours, [r[f"L_{h:02d}h"] for h in hours],
+        ax1.plot(hours, [r[f"L_{hour_tag(h)}h"] for h in hours],
                  marker=markers[i % len(markers)],
                  lw=1.8, label=f"ratio={r['ratio']:.0f} (spread {r['spread_m']:.0f} m)")
     ax1.set_xlabel("departure hour")
     ax1.set_ylabel("path length (m)")
     ax1.set_title("(b) Path length vs departure hour, per risk aversion")
     ax1.set_xticks(hours)
+    ax1.set_xticklabels([fmt_hour(h) for h in hours], fontsize=8)
     ax1.legend(fontsize=8)
     ax1.grid(alpha=0.3)
 

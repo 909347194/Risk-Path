@@ -16,9 +16,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from exp_common import fmt_hour
+
 # 高度维在 3D 投影里相对水平范围（~1 km）很小，做可视化夸张以便看清爬升/下降
 Z_EXAG = 6.0
-COLORS = ["cyan", "orange", "lime", "magenta"]
+COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
+          "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
 
 
 def plot_fig3b(results, hours, od, building_heights, grid, out_path,
@@ -35,7 +38,8 @@ def plot_fig3b(results, hours, od, building_heights, grid, out_path,
 
     # ---- 收集数据 ----
     items = []
-    for h, res, c in zip(hours, results, COLORS):
+    for i, (h, res) in enumerate(zip(hours, results)):
+        c = COLORS[i % len(COLORS)]
         if res.get("status") != "success" or not res.get("path"):
             continue
         coords = np.array([p["coords"] for p in res["path"]], dtype=float)
@@ -63,7 +67,7 @@ def plot_fig3b(results, hours, od, building_heights, grid, out_path,
     for it in items:
         ax0.plot(it["xs"], it["ys"], it["alts"] * Z_EXAG,
                  color=it["color"], lw=2.0,
-                 label=f"{it['h']:02d}:00  climb={it['climb_total']}")
+                 label=f"{fmt_hour(it['h'])}  climb={it['climb_total']}")
     start_alt = (od[2] + 1.0) * dz
     goal_alt = (od[5] + 1.0) * dz
     ax0.scatter([od[0]], [od[1]], [start_alt * Z_EXAG], color="white",
@@ -88,7 +92,7 @@ def plot_fig3b(results, hours, od, building_heights, grid, out_path,
                vmin=0, vmax=b_vmax, interpolation="nearest")
     for it in items:
         ax1.plot(it["xs"], it["ys"], color=it["color"], lw=2.0,
-                 label=f"{it['h']:02d}:00")
+                 label=f"{fmt_hour(it['h'])}")
     ax1.plot(od[0], od[1], "o", color="white", ms=10, mec="k", label="start")
     ax1.plot(od[3], od[4], "*", color="yellow", ms=15, mec="k", label="goal")
     ax1.set_title("(b) Plan view (x-y) with building heights")
@@ -100,7 +104,7 @@ def plot_fig3b(results, hours, od, building_heights, grid, out_path,
     ax2 = fig.add_subplot(gs[0, 2])
     for it in items:
         ax2.plot(it["cum_h"], it["alts"], color=it["color"], lw=2.0,
-                 label=f"{it['h']:02d}:00")
+                 label=f"{fmt_hour(it['h'])}")
     ax2.axhline((od[2] + 1) * dz, ls="--", c="grey", lw=1,
                 label=f"OD altitude {(od[2] + 1) * dz:.0f} m")
     ax2.set_title("(c) Altitude profile vs horizontal distance")
@@ -122,7 +126,7 @@ def plot_fig3b(results, hours, od, building_heights, grid, out_path,
     stats_rows = []
     for it in items:
         stats_rows.append({
-            "hour": f"{it['h']:02d}",
+            "hour": fmt_hour(it["h"]),
             "nodes": len(it["coords"]),
             "nz_unique": len(np.unique(it["zs"])),
             "z_min": int(it["zs"].min()),

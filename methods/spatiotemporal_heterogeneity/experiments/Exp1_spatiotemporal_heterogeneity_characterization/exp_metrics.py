@@ -8,7 +8,7 @@ from itertools import combinations
 
 import numpy as np
 
-from exp_common import MODULE_ROOT  # noqa: F401
+from exp_common import MODULE_ROOT, hour_tag  # noqa: F401
 
 from exp_planning import path_cells_m, mean_deviation_m
 
@@ -109,5 +109,5 @@ def heterogeneity_rows(het: dict) -> list[dict]:
     het_rows = [{"metric": k, "value": v} for k, v in het.items()]
     het_rows.append({"metric": "spatial_cv_per_hour(detail)", "value": ""})
     for h, v in het["spatial_cv_per_hour"].items():
-        het_rows.append({"metric": f"  spatial_cv_{h:02d}h", "value": v})
+        het_rows.append({"metric": f"  spatial_cv_{hour_tag(h)}h", "value": v})
     return het_rows

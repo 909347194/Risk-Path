@@ -32,7 +32,7 @@ import time as _time
 import numpy as np
 import yaml
 
-from exp_common import HERE, MODULE_ROOT, RESULT_DIR
+from exp_common import HERE, MODULE_ROOT, RESULT_DIR, fmt_hour
 from exp_config import load_exp_config
 from exp_data import load_experiment_data
 from exp_planning import plan_one, run_sensitivity
@@ -55,7 +55,15 @@ def _req(params: dict, key: str) -> float:
 
 
 def main() -> None:
-    cfg = load_exp_config(HERE / "config.yaml")
+    # 配置文件可从命令行指定（补跑实验用 config_rerun.yaml）
+    if len(sys.argv) > 1:
+        from pathlib import Path as _P
+        cfg_path = _P(sys.argv[1])
+        if not cfg_path.exists():       # 相对路径回退到实验目录
+            cfg_path = HERE / sys.argv[1]
+    else:
+        cfg_path = HERE / "config.yaml"
+    cfg = load_exp_config(cfg_path)
     exp = cfg.get("experiment", {})
     params = cfg.get("params", {})
     print("=" * 72)
@@ -77,7 +85,8 @@ def main() -> None:
     # 3) 组装四维风险张量（情景化风场，继承 common.yaml wind_environment）
     #    把「实验配置 + 公共配置」合并后落盘，保证 build_risk_tensors 拿到完整参数。
     resolved = cfg  # load_exp_config 的返回值本身就是 extends 合并后的完整配置
-    out_dir = RESULT_DIR
+    # 结果目录可由 params.out_dir 覆盖（默认 results/，补跑可写 results_rerun/）
+    out_dir = HERE / str(params.get("out_dir", RESULT_DIR.name))
     out_dir.mkdir(exist_ok=True)
     resolved_path = out_dir / "_resolved_config.yaml"
     resolved_path.write_text(yaml.safe_dump(resolved, allow_unicode=True), encoding="utf-8")
@@ -146,11 +155,11 @@ def main() -> None:
         res = plan_one(grid, env, planner_cfg, od, t_idx)
         results.append(res)
         if res.get("status") == "success":
-            print(f"  {h:02d}:00  L={res['total_distance']:8.1f} m  "
+            print(f"  {fmt_hour(h)}  L={res['total_distance']:8.1f} m  "
                   f"P_surv={res['final_p_survival']:.4f}  "
                   f"nodes={res['nodes_explored']:>7}  t={res['time_cost']:.1f}s")
         else:
-            print(f"  {h:02d}:00  FAILED: {res.get('reason')}")
+            print(f"  {fmt_hour(h)}  FAILED: {res.get('reason')}")
 
     # 6) 可视化（全部由 plot/ 负责）
     plot_fig1(grid, risk["p_crash"], results, hours, z_layer, od, out_dir / "fig1_risk_field.png")
@@ -193,10 +202,12 @@ def main() -> None:
     sens = (params.get("sensitivity") or {})
     if sens.get("enabled", False):
         wf_list = sens.get("w_fatal_values") or [params.get("w_fatal", 30.0)]
-        print(f"\n[Sensitivity] sweeping w_fatal {wf_list}")
-        sens_rows = run_sensitivity(grid, env, planner_cfg, od, hours, wf_list)
+        # 敏感性可用 sensitivity.hours 覆盖出发时刻子集（省算力；默认全量）
+        sens_hours = sens.get("hours", hours)
+        print(f"\n[Sensitivity] sweeping w_fatal {wf_list} over hours {sens_hours}")
+        sens_rows = run_sensitivity(grid, env, planner_cfg, od, sens_hours, wf_list)
         write_csv(out_dir / "sensitivity.csv", sens_rows)
-        plot_fig4(sens_rows, hours, out_dir / "fig4_weight_sensitivity.png")
+        plot_fig4(sens_rows, sens_hours, out_dir / "fig4_weight_sensitivity.png")
         print(f"[Sensitivity] {out_dir}/sensitivity.csv, fig4_weight_sensitivity.png")
 
     # 10) 结论（判定口径与 README §3 一致：几何偏离 > 1 个格对角线才算「走廊分化」；

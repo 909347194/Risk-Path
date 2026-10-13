@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from exp_common import MODULE_ROOT  # noqa: F401
+from exp_common import MODULE_ROOT, fmt_hour, hour_tag  # noqa: F401
 
 from algorithms.a_star.astar_4d import AStar4D
 
@@ -70,7 +70,7 @@ def run_sensitivity(grid, env, base_cfg, od, hours, w_fatal_values):
                 lengths[h] = round(float(res["total_distance"]), 1)
             else:
                 lengths[h] = None
-                print(f"    [warn] w_fatal={wf} h={h:02d}:00 FAILED "
+                print(f"    [warn] w_fatal={wf} h={fmt_hour(h)} FAILED "
                       f"({res.get('reason', 'unknown')})")
         vals = [v for v in lengths.values() if v is not None]
         # 极差只在「全部时刻都成功」时才具备跨时刻可比性；部分失败时宁可标
@@ -84,7 +84,7 @@ def run_sensitivity(grid, env, base_cfg, od, hours, w_fatal_values):
         row = {"w_fatal": wf, "ratio": round(wf / base_cfg["w_distance"], 1),
                "n_success": f"{len(vals)}/{len(hours)}"}
         for h in hours:
-            row[f"L_{h:02d}h"] = lengths[h] if lengths[h] is not None else "failed"
+            row[f"L_{hour_tag(h)}h"] = lengths[h] if lengths[h] is not None else "failed"
         row["spread_m"] = spread_m
         row["spread_pct"] = spread_pct
         rows.append(row)

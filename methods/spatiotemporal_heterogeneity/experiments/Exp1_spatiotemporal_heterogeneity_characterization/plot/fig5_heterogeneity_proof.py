@@ -17,6 +17,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
+from exp_common import fmt_hour
+
 # 真实人口潮汐双核心（README / exp_metrics 核验位置）
 CORE_A = (22, 52)   # 昼间峰值
 CORE_B = (72, 18)   # 夜间峰值
@@ -107,7 +109,7 @@ def plot_fig5(grid, p_crash, od, results, hours, z_layer, out_path):
     # (d)
     ax = axes[1, 1]
     for h in hours:
-        ax.plot(z_heights, z_curves[h], marker="o", ms=3.5, lw=1.6, label=f"{h:02d}:00")
+        ax.plot(z_heights, z_curves[h], marker="o", ms=3.5, lw=1.6, label=f"{fmt_hour(h)}")
     ax.set_xlabel("altitude z (m)")
     ax.set_ylabel("city-mean $P_{crash}$")
     ax.set_title("(d) vertical risk profile at 4 departure hours")
