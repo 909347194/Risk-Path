@@ -75,7 +75,8 @@ def main() -> None:
     print(f"[Risk] tensors built in {_time.time()-t0:.1f}s")
     env_true = EnvTensor(p_crash=risk["p_crash"], fatality=risk["fatality"],
                          property=risk["property"], noise=risk["noise"],
-                         obstacle=risk.get("obstacle"), grid=grid)
+                         obstacle=risk.get("obstacle"), grid=grid,
+                         exposure_time_s=risk["exposure_time_s"])
     env_static = build_static_env(env_true)
 
     # 3) 三种方法 × 四个出发时刻（同一 OD、同一权重口径）

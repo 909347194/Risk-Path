@@ -87,6 +87,7 @@ def main() -> None:
         p_crash=risk["p_crash"], fatality=risk["fatality"],
         property=risk["property"], noise=risk["noise"],
         obstacle=risk.get("obstacle"), grid=grid,
+        exposure_time_s=risk["exposure_time_s"],
     )
     results = []
     for h in hours:

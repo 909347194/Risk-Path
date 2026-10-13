@@ -177,21 +177,20 @@ class AStar4D:
         new_abs_time = current_abs_time + dt
         t2_idx = self.env_tensor.get_time_index(new_abs_time, self.time_resolution)
 
-        risk = self.env_tensor.risk_at(x2, y2, z2, t2_idx)
+        # step_risk：按实际步时 dt 换算单步危险率/坠机概率（暴露口径统一，
+        # 2026-10-13 修正：h_step = λ·Φ·dt，∝ 步长；旧实现把整时相暴露
+        # 的 p_crash 直接当单步概率，累计危险率虚高约两个数量级）。
+        risk = self.env_tensor.step_risk(x2, y2, z2, t2_idx, dt)
         if risk["obstacle"]:
             return None
 
         # --- Cumulative hazard rate H (§4, §7) ---
         # H is additive: avoids numerical underflow from probability multiplication
         prior_H = float(current_node.state["cumulative_hazard"])
-        p_crash_local = float(np.clip(risk["p_crash"], 0.0, 1.0))
-
-        # Convert p_crash (already includes dt from tensor_engine) back to
-        # a per-step hazard increment: h_step = -ln(1 - p_crash)
-        # This is safe because p_crash ∈ [0, 1) after clipping.
-        if p_crash_local >= 1.0:
+        h_step = risk["hazard"]
+        if not np.isfinite(h_step):
             return None  # certain crash, prune
-        h_step = -np.log(1.0 - p_crash_local)
+        p_crash_local = float(risk["p_crash"])  # 本步坠机概率 p_step = 1-exp(-h_step)
         new_H = prior_H + h_step
 
         # Survival probability derived from H (for risk increments below)

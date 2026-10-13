@@ -193,6 +193,7 @@ def build_risk_tensors(
     grid: GridSystem,
     flight_altitude: float = 50.0,
     config_path: Optional[Union[str, Path]] = None,
+    uav_speed: Optional[float] = None,
 ) -> Dict[str, np.ndarray]:
     """
     Assemble the four risk tensors from DataPipeline outputs.
@@ -207,12 +208,24 @@ def build_risk_tensors(
         grid: GridSystem instance (must match the pipeline's grid).
         flight_altitude: UAV flight altitude (m) for risk calculations.
         config_path: Path to common.yaml. If None, uses project default.
+        uav_speed: UAV cruise speed (m/s)；None 时取配置 uav_constraints.cruise_speed。
+            仅用于确定 p_crash 的暴露窗口（格穿越时间），不进入搜索。
 
     Returns:
         Dict with keys 'p_crash', 'fatality', 'property', 'noise', 'obstacle',
         each a numpy array ready for EnvTensor construction.
         'obstacle' 为 bool (nx, ny, nz) 建筑硬约束（可在配置中关闭），
         其余为 float 4D 风险张量。
+        'exposure_time_s': p_crash 的暴露窗口 τ_ref = 水平格对角线 / 巡航速度。
+
+    P_crash 暴露口径（2026-10-13 修正）：
+        p_crash(x,y,z,t) = 1 - exp(-λ_base·Φ·τ_ref) 表示「以巡航速度穿越一个格子」
+        （水平对角线距离）的坠机概率，而非整时相（15 min）暴露——旧口径把 UAV
+        在每格的暴露当成 900 s，累计危险率虚高约 130 倍，P_surv 不可引用。
+        规划/后评估按实际步时 dt 用 Cox 比例危险率换算单步危险率：
+            h_step = -ln(1-p_crash) · dt / τ_ref
+        （等于 λ·Φ·dt，与航段长度严格成比例；τ_ref 只是张量的表示基准，
+        换算后规划结果与 τ_ref 的选取无关。）
     """
     nx, ny, nz, nt = grid.shape
 
@@ -262,8 +275,24 @@ def build_risk_tensors(
     f_rain = crash_model.compute_rain_factor(rain_3d)
     # 城市峡谷因子：从建筑高度推导 SVF + 距离场，逐 z 层计算
     f_obs = compute_urban_canyon_fobs(building, grid, config_path)
+
+    # --- P_crash 暴露口径：按「格穿越时间」计（修正 2026-10-13）---
+    # 旧实现 dt = dt_minutes*60（= 900 s 整时相暴露），与 UAV 实际穿越一格
+    # (~7 s) 相差约两个数量级，累计危险率/存活率系统性失真。
+    # 现取 τ_ref = 水平格对角线 / 巡航速度（≈ 6.8 s @ 10 m/s）作为参考暴露窗口；
+    # 规划层按实际步时 dt_step 比例换算（见模块 docstring）。
+    if uav_speed is None:
+        uc = cfg.get("uav_constraints") if isinstance(cfg, dict) else getattr(cfg, "uav_constraints", None)
+        if uc is not None:
+            uav_speed = float(uc.get("cruise_speed", 10.0) if isinstance(uc, dict)
+                              else getattr(uc, "cruise_speed", 10.0))
+        else:
+            uav_speed = 10.0
+    if uav_speed <= 0:
+        raise ValueError(f"uav_speed must be positive, got {uav_speed}")
+    exposure_time_s = float(np.hypot(grid.spatial.dx, grid.spatial.dy)) / float(uav_speed)
     p_crash = crash_model.compute_pcrash(
-        f_wind, f_rain, f_obs, dt=grid.temporal.dt_minutes * 60.0
+        f_wind, f_rain, f_obs, dt=exposure_time_s
     )
     p_crash = np.clip(p_crash, 0.0, 1.0).astype(np.float32)
 
@@ -316,4 +345,5 @@ def build_risk_tensors(
         "property": e_property,
         "noise": r_noise,
         "obstacle": obstacle,
+        "exposure_time_s": exposure_time_s,
     }

@@ -48,7 +48,8 @@ def run_sensitivity(grid, env, base_cfg, od, hours, w_fatal_values):
         (1) 全直飞 regime：所有时刻都走近直线，极差 ≈ 0
         (2) 混合 regime：出发时刻决定是否绕行（极差大）— 路线同伦类切换
         (3) 全绕行 regime：所有时刻都绕开核心，极差又变小
-    注意：README §4 实测（旧 OD (3,93)→(85,10)）为极差随风险规避单调递减、
+    注意：w_prop 按 0.4×w_fatal 联动，w_noise 固定（未受暴露口径修正影响）。
+    README §4 实测（旧 OD (3,93)→(85,10)）为极差随风险规避单调递减、
     未出现 (2) 的过渡带峰值；(2) 是否存在取决于 OD 是否提供真正的替代走廊，
     解读时以实测为准。
     """
@@ -58,7 +59,9 @@ def run_sensitivity(grid, env, base_cfg, od, hours, w_fatal_values):
         cfg_i = dict(base_cfg)
         cfg_i["w_fatality"] = float(wf)
         cfg_i["w_property"] = float(wf) * 0.4
-        cfg_i["w_noise"] = float(wf) * 0.25
+        # w_noise 固定不动（2026-10-13 重标定）：噪声代价 δC_n = n·dt 本来就按
+        # 实际飞行时间计，未受 P_crash 暴露口径修正影响，不应随 w_fatal 联动。
+        cfg_i["w_noise"] = float(base_cfg["w_noise"])
         lengths = {}
         for h in hours:
             t_idx = grid.get_time_index(h)
