@@ -3,7 +3,9 @@
 
 四个面板：
   (a) 走廊—时间风险热图：OD 沿线 P_crash 随 96 时相连续演化（"演化"观感）
-  (b) 热点昼夜曲线：人口核心 A/B 与全域均值的 P_crash(t)，展示相位交替
+  (b) 热点潮汐曲线：人口核心 A/B 与全域均值的 ρ_pop(t)（峰值归一），
+      展示人口潮汐的反相位（A 昼峰 / B 夜峰）——注意这是暴露层机制，
+      P_crash 层的双核峰值时刻反而同步（见 heterogeneity.csv core_*_peak_hour）
   (c) ΔP_crash(12:00 − 22:00) 差值图：风险的空间重分布
   (d) 垂直异质性：全城均值 P_crash 随高度变化（4 个出发时刻）
 
@@ -19,12 +21,13 @@ from matplotlib.colors import TwoSlopeNorm
 
 from exp_common import fmt_hour
 
-# 真实人口潮汐双核心（README / exp_metrics 核验位置）
+# 真实人口潮汐双核心（README / exp_metrics 核验位置；实测人口峰值：
+# A 15:45 昼峰 / B 00:00 夜峰，反相位；位置均为人口高值区）
 CORE_A = (22, 52)   # 昼间峰值
 CORE_B = (72, 18)   # 夜间峰值
 
 
-def plot_fig5(grid, p_crash, od, results, hours, z_layer, out_path):
+def plot_fig5(grid, p_crash, od, results, hours, z_layer, out_path, rho_pop=None):
     nx, ny, nz, nt = grid.shape
     dx, dy = grid.spatial.dx, grid.spatial.dy
     t_hours = np.arange(nt) * (grid.temporal.dt_minutes / 60.0)
@@ -39,12 +42,18 @@ def plot_fig5(grid, p_crash, od, results, hours, z_layer, out_path):
     profile = p_crash[ii, jj, z_layer, :]                     # (n_sample, nt)
     dist = np.linspace(0, np.hypot((gx - sx) * dx, (gy - sy) * dy), n_sample)
 
-    # ---------- (b) 热点昼夜曲线 ----------
+    # ---------- (b) 热点潮汐曲线（人口暴露层） ----------
     ax_i, ay_i = CORE_A
     bx_i, by_i = CORE_B
-    curve_a = p_crash[ax_i, ay_i, z_layer, :]
-    curve_b = p_crash[bx_i, by_i, z_layer, :]
-    curve_mean = p_crash[:, :, z_layer, :].mean(axis=(0, 1))
+    crash_a = p_crash[ax_i, ay_i, z_layer, :]        # 指标语义保持 P_crash
+    crash_b = p_crash[bx_i, by_i, z_layer, :]
+    if rho_pop is not None:
+        curve_a = rho_pop[ax_i, ay_i, :]
+        curve_b = rho_pop[bx_i, by_i, :]
+        curve_mean = rho_pop.mean(axis=(0, 1))
+    else:
+        curve_a, curve_b = crash_a, crash_b
+        curve_mean = p_crash[:, :, z_layer, :].mean(axis=(0, 1))
 
     # ---------- (c) ΔP_crash(12h − 22h) ----------
     t12, t22 = grid.get_time_index(12), grid.get_time_index(22)
@@ -82,14 +91,25 @@ def plot_fig5(grid, p_crash, od, results, hours, z_layer, out_path):
 
     # (b)
     ax = axes[0, 1]
-    ax.plot(t_hours, curve_a, label=f"core A {CORE_A} (day-peak)", lw=1.8)
-    ax.plot(t_hours, curve_b, label=f"core B {CORE_B} (night-peak)", lw=1.8)
-    ax.plot(t_hours, curve_mean, label="city mean", lw=1.4, ls="--", color="gray")
+
+    def _norm(c):
+        c = np.asarray(c, dtype=float)
+        return c / max(float(c.max()), 1e-12)
+
+    def _fmt_peak(c):
+        return fmt_hour(float(t_hours[int(np.argmax(c))]))
+
+    ax.plot(t_hours, _norm(curve_a),
+            label=f"core A {CORE_A} (day-peak {_fmt_peak(curve_a)})", lw=1.8)
+    ax.plot(t_hours, _norm(curve_b),
+            label=f"core B {CORE_B} (night-peak {_fmt_peak(curve_b)})", lw=1.8)
+    ax.plot(t_hours, _norm(curve_mean), label="city mean", lw=1.4, ls="--", color="gray")
     for h in hours:
         ax.axvline(h, color="k", lw=0.7, ls=":", alpha=0.6)
     ax.set_xlabel("hour of day")
-    ax.set_ylabel("$P_{crash}$")
-    ax.set_title("(b) hotspot diurnal profiles (phase alternation)")
+    ax.set_ylabel("population density $\\rho_{pop}$ (peak-normalized)")
+    _what = "population tides" if rho_pop is not None else "$P_{crash}$ profiles"
+    ax.set_title(f"(b) {_what} at hotspots (anti-phase)")
     ax.legend(fontsize=9)
 
     # (c)
@@ -130,8 +150,12 @@ def plot_fig5(grid, p_crash, od, results, hours, z_layer, out_path):
         {"metric": "corridor_risk_peak_hour", "value": peak_t},
         {"metric": "corridor_risk_trough_hour", "value": trough_t},
         {"metric": "corridor_risk_peak_trough_ratio", "value": round(ratio, 3)},
-        {"metric": "core_A_peak_hour", "value": _peak_hour(curve_a)},
-        {"metric": "core_B_peak_hour", "value": _peak_hour(curve_b)},
+        # 语义保持 P_crash 峰值时刻（与既有 CSV 兼容）
+        {"metric": "core_A_peak_hour", "value": _peak_hour(crash_a)},
+        {"metric": "core_B_peak_hour", "value": _peak_hour(crash_b)},
+        # 人口潮汐相位（反相位的实测证据）
+        {"metric": "core_A_pop_peak_hour", "value": _peak_hour(curve_a)},
+        {"metric": "core_B_pop_peak_hour", "value": _peak_hour(curve_b)},
         {"metric": "delta_12h_22h_mean_abs", "value": round(float(np.mean(np.abs(delta))), 6)},
         {"metric": "delta_12h_22h_p98", "value": round(float(v), 6)},
         {"metric": "z_profile_spread_ratio", "value": round(

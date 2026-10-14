@@ -16,6 +16,8 @@ corridor_risk_trough_hour,17.75
 corridor_risk_peak_trough_ratio,1.343
 core_A_peak_hour,5.75
 core_B_peak_hour,5.75
+core_A_pop_peak_hour,15.75
+core_B_pop_peak_hour,0.0
 delta_12h_22h_mean_abs,1.4e-05
 delta_12h_22h_p98,2.5e-05
 z_profile_spread_ratio,2.216

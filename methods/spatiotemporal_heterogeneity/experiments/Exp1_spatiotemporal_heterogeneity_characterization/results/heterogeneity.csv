@@ -1,21 +1,23 @@
-metric,value
-spatial_cv_per_hour,"{8: 0.4499, 12: 0.4688, 18: 0.487, 22: 0.4774}"
-temporal_cv_median_all_slices,0.1115
-temporal_relative_range_median_all_slices,0.3156
-temporal_n_slices_all,96
-temporal_cv_median_at_departures,0.1083
-temporal_relative_range_median_at_departures,0.2922
-temporal_n_slices_at_departures,4
-spatial_cv_per_hour(detail),
-  spatial_cv_08h,0.4499
-  spatial_cv_12h,0.4688
-  spatial_cv_18h,0.487
-  spatial_cv_22h,0.4774
-corridor_risk_peak_hour,5.75
-corridor_risk_trough_hour,17.75
-corridor_risk_peak_trough_ratio,1.343
-core_A_peak_hour,5.75
-core_B_peak_hour,5.75
-delta_12h_22h_mean_abs,1.4e-05
-delta_12h_22h_p98,2.5e-05
-z_profile_spread_ratio,2.138
+metric,value
+spatial_cv_per_hour,"{8: 0.4499, 12: 0.4688, 18: 0.487, 22: 0.4774}"
+temporal_cv_median_all_slices,0.1115
+temporal_relative_range_median_all_slices,0.3156
+temporal_n_slices_all,96
+temporal_cv_median_at_departures,0.1083
+temporal_relative_range_median_at_departures,0.2922
+temporal_n_slices_at_departures,4
+spatial_cv_per_hour(detail),
+  spatial_cv_08h,0.4499
+  spatial_cv_12h,0.4688
+  spatial_cv_18h,0.487
+  spatial_cv_22h,0.4774
+corridor_risk_peak_hour,5.75
+corridor_risk_trough_hour,17.75
+corridor_risk_peak_trough_ratio,1.343
+core_A_peak_hour,5.75
+core_B_peak_hour,5.75
+core_A_pop_peak_hour,15.75
+core_B_pop_peak_hour,0.0
+delta_12h_22h_mean_abs,1.4e-05
+delta_12h_22h_p98,2.5e-05
+z_profile_spread_ratio,2.138

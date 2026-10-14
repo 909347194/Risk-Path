@@ -166,7 +166,7 @@ def main() -> None:
     plot_fig2(grid, wind_4d, pr.rho_population, hours, z_layer, out_dir / "fig2_drivers.png")
     plot_fig3(grid, results, hours, pr.building_heights, od, out_dir / "fig3_path_comparison.png")
     fig5_rows = plot_fig5(grid, risk["p_crash"], od, results, hours, z_layer,
-              out_dir / "fig5_heterogeneity_proof.png")
+              out_dir / "fig5_heterogeneity_proof.png", rho_pop=pr.rho_population)
     # 3b) 三维路径可视化（高度变化的真实证据，直接消费本次规划 results）
     plot_fig3b(results, hours, od, pr.building_heights, grid,
                out_dir / "fig3b_path_3d.png",
